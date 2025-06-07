@@ -1,0 +1,11 @@
+<resources>
+    <style name="Theme.A2ZCare" parent="Theme.Material3.DayNight.NoActionBar">
+    </style>
+
+    <style name="Theme.CustomSplashScreenTheme" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/black</item>
+        <item name="windowSplashScreenAnimatedIcon">@dimen/splashscreen_icon_size</item>
+        <item name="windowSplashScreenAnimationDuration">1500</item>
+        <item name="postSplashScreenTheme">@style/Theme.A2ZCare</item>
+    </style>
+</resources>
