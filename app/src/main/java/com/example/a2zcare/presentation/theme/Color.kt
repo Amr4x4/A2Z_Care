@@ -4,6 +4,9 @@ import androidx.compose.ui.graphics.Color
 
 val lightRed = Color(0xFFFA0000)
 val darkRed = Color(0xFF770404)
+val backgroundColor = Color(0xFF181a20)
+val fieldColor = Color(0xFF1C1C22)
+
 
 
 

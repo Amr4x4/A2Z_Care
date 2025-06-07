@@ -72,9 +72,9 @@ fun OnBoardingNav(
             modifier = Modifier.weight(1f),
             pagerState = pagerState
         ) {
-            onBoardingViewModel.saveOnBoardingState(completed = true)
-            navController.popBackStack()
-            navController.navigate(Screen.GetStart.route)
+            /*onBoardingViewModel.saveOnBoardingState(completed = true)
+            navController.popBackStack()*/
+            navController.navigate(Screen.SignUp.route)
         }
     }
 }
