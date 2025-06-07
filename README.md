@@ -1,11 +1,11 @@
-# A2Z Healthcare App 🩺  
+# A2Z care App 🩺  
 **Your AI-Powered Companion for Personalized Health Monitoring, Wellness Tracking, and Emergency Assistance — All in One Place**
 
 ---
 
 ## 🌟 Overview
 
-The **A2Z Healthcare App** empowers users to take full control of their health by seamlessly tracking vital daily metrics, managing medications, and delivering intelligent health predictions using advanced AI technology. Designed with user safety and convenience in mind, the app also features built-in emergency assistance and exclusive VIP services for enhanced care.
+The **A2Z care App** empowers users to take full control of their health by seamlessly tracking vital daily metrics, managing medications, and delivering intelligent health predictions using advanced AI technology. Designed with user safety and convenience in mind, the app also features built-in emergency assistance and exclusive VIP services for enhanced care.
 
 ---
 
