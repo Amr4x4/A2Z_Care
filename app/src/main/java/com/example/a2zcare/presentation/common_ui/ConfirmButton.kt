@@ -4,7 +4,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.a2zcare.presentation.theme.selected
+import com.example.a2zcare.presentation.theme.unselected
 
 @Composable
 fun ConfirmButton(
@@ -18,6 +21,13 @@ fun ConfirmButton(
         onClick = onClick,
         enabled = enabled && !isLoading,
         modifier = modifier.fillMaxWidth(),
+        colors = ButtonDefaults.buttonColors(
+            contentColor = if(enabled) {
+                selected
+            } else {
+                unselected
+            }
+        )
     ) {
         if (isLoading) {
             CircularProgressIndicator(
@@ -26,7 +36,11 @@ fun ConfirmButton(
                 modifier = Modifier.size(20.dp)
             )
         } else {
-            Text(text)
+            Text(
+                text = text,
+                style = MaterialTheme.typography.headlineSmall,
+                color = Color.Black
+            )
         }
     }
 }

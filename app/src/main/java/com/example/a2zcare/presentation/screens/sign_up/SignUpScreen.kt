@@ -1,41 +1,79 @@
 package com.example.a2zcare.presentation.screens.sign_up
 
-import androidx.compose.foundation.layout.*
+import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.flow.collectLatest
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.Text
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.navigation.NavController
-import android.widget.Toast
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.a2zcare.R
 import com.example.a2zcare.presentation.common_ui.ConfirmButton
+import com.example.a2zcare.presentation.common_ui.GoogleButton
+import com.example.a2zcare.presentation.common_ui.SigningTopAppBar
 import com.example.a2zcare.presentation.common_ui.ValidatedTextField
+import com.example.a2zcare.presentation.navegation.Screen
+import com.example.a2zcare.presentation.theme.backgroundColor
 import com.example.a2zcare.presentation.viewmodel.SignUpViewModel
+import kotlinx.coroutines.flow.collectLatest
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
     navController: NavController,
     viewModel: SignUpViewModel = hiltViewModel()
 ) {
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+
     val userName by viewModel.userName.collectAsState()
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
@@ -50,114 +88,248 @@ fun SignUpScreen(
     val isSignUpEnabled by viewModel.isSignUpEnabled.collectAsState()
     val context = LocalContext.current
 
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackBarHostState = remember { SnackbarHostState() }
+
+    var isTermsAndConditionsDialogOpen by rememberSaveable { mutableStateOf( false ) }
+
+    TermsAndConditionsAlertDialog(
+        isOpen = isTermsAndConditionsDialogOpen,
+        title = "Terms & Conditions",
+        bodyText = stringResource(R.string.terms_conditions_full),
+        onDismissRequest = { isTermsAndConditionsDialogOpen = false },
+        onConfirmButtonClick = {
+            viewModel.onAgreeToTermsChanged(true)
+            isTermsAndConditionsDialogOpen = false
+        }
+    )
 
     LaunchedEffect(Unit) {
         viewModel.signUpResult.collectLatest { result ->
             result.onSuccess {
                 Toast.makeText(context, "Sign Up Successful!", Toast.LENGTH_LONG).show()
-                // Navigate to login or home screen
-                // navController.navigate("login")
+                navController.navigate(Screen.GetStart.route)
             }
             result.onFailure { e ->
-                snackbarHostState.showSnackbar("Sign Up Failed: ${e.message ?: "Unknown error"}")
+                snackBarHostState.showSnackbar("Sign Up Failed: ${e.message ?: "Unknown error"}")
             }
         }
     }
 
     Scaffold(
+        modifier =
+            Modifier
+                .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
+            SigningTopAppBar(
+                title = "Join A2Z Care Today \uD83E\uDE7A",
+                onBackButtonClick = {
+                    navController.popBackStack()
+                },
+                scrollBehavior = scrollBehavior
+            )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackBarHostState) }
     ) { paddingValues ->
-        Column(
+        LazyColumn(
             modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
                 .padding(paddingValues)
-                .padding(16.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.Top,
-            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ValidatedTextField(
-                value = userName,
-                onValueChange = viewModel::onUserNameChange,
-                label = "Username",
-                isError = false,
-                errorMessage = null,
-                modifier = Modifier.padding(bottom = 12.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Text
+            item {
+                Text(
+                    modifier = Modifier.padding(horizontal = 20.dp),
+                    text = "Create your account and start monitoring your health",
+                    style = MaterialTheme.typography.bodyMedium,
+                    maxLines = 1,
+                    color = Color.White
                 )
-            )
-            ValidatedTextField(
-                value = email,
-                onValueChange = viewModel::onEmailChange,
-                label = "Email",
-                isError = emailError != null,
-                errorMessage = emailError,
-                modifier = Modifier.padding(bottom = 12.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Email
-                )
-            )
-            ValidatedTextField(
-                value = password,
-                onValueChange = viewModel::onPasswordChange,
-                label = "Create Password",
-                isError = passwordError != null,
-                errorMessage = passwordError,
-                modifier = Modifier.padding(bottom = 12.dp),
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                    IconButton(onClick = viewModel::onTogglePasswordVisibility) {
-                        Icon(imageVector = image, contentDescription = null)
-                    }
-                },
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Password
-                )
-            )
-            ValidatedTextField(
-                value = confirmPassword,
-                onValueChange = viewModel::onConfirmPasswordChange,
-                label = "Confirm Password",
-                isError = confirmPasswordError != null,
-                errorMessage = confirmPasswordError,
-                modifier = Modifier.padding(bottom = 12.dp),
-                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    val image = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                    IconButton(onClick = viewModel::onToggleConfirmPasswordVisibility) {
-                        Icon(imageVector = image, contentDescription = null)
-                    }
-                },
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Password
-                )
-            )
+                Spacer(Modifier.padding(vertical = 18.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(backgroundColor)
+                        .padding(24.dp),
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = "UserName",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    ValidatedTextField(
+                        value = userName,
+                        onValueChange = viewModel::onUserNameChange,
+                        leadingIcon = {
+                            Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.White)
+                        },
+                        placeholder = {
+                            Text("UserName", color = Color.Gray)
+                        },
+                        isError = false,
+                        errorMessage = null,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 12.dp),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Text
+                        )
+                    )
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(bottom = 16.dp)
-                    .fillMaxWidth()
-            ) {
-                Checkbox(
-                    checked = agreedToTerms,
-                    onCheckedChange = viewModel::onAgreeToTermsChanged
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("I agree to the Terms and Conditions", style = MaterialTheme.typography.bodyMedium)
+                    Spacer(Modifier.padding(vertical = 10.dp))
+
+                    Text(
+                        text = "Email",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White
+                    )
+                    Spacer(Modifier.height(8.dp))
+
+                    ValidatedTextField(
+                        value = email,
+                        onValueChange = viewModel::onEmailChange,
+                        leadingIcon = {
+                            Icon(Icons.Default.Email, contentDescription = null, tint = Color.White)
+                        },
+                        placeholder = {
+                            Text("Email", color = Color.Gray)
+                        },
+                        isError = emailError != null,
+                        errorMessage = emailError,
+                        modifier = Modifier.fillMaxWidth()
+                            .padding(bottom = 12.dp),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Email
+                        )
+                    )
+                    Spacer(Modifier.padding(vertical = 10.dp))
+
+                    Text(
+                        text = "Password",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White
+                    )
+                    Spacer(Modifier.height(8.dp))
+
+                    ValidatedTextField(
+                        value = password,
+                        onValueChange = viewModel::onPasswordChange,
+                        leadingIcon = {
+                            Icon(Icons.Default.Lock, contentDescription = null, tint = Color.White)
+                        },
+                        placeholder = {
+                            Text("Password", color = Color.Gray)
+                        },
+                        isError = passwordError != null,
+                        errorMessage = passwordError,
+                        modifier = Modifier.padding(bottom = 12.dp),
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            val image =
+                                if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                            IconButton(onClick = viewModel::onTogglePasswordVisibility) {
+                                Icon(imageVector = image, contentDescription = null)
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Password
+                        )
+                    )
+                    Spacer(Modifier.padding(vertical = 10.dp))
+
+                    Text(
+                        text = "Confirm Password",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White
+                    )
+                    Spacer(Modifier.height(8.dp))
+
+                    ValidatedTextField(
+                        value = confirmPassword,
+                        onValueChange = viewModel::onConfirmPasswordChange,
+                        leadingIcon = {
+                            Icon(Icons.Default.Lock, contentDescription = null, tint = Color.White)
+                        },
+                        placeholder = {
+                            Text("Confirm Password", color = Color.Gray)
+                        },
+                        isError = confirmPasswordError != null,
+                        errorMessage = confirmPasswordError,
+                        modifier = Modifier.padding(bottom = 12.dp),
+                        visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            val image =
+                                if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                            IconButton(onClick = viewModel::onToggleConfirmPasswordVisibility) {
+                                Icon(imageVector = image, contentDescription = null)
+                            }
+                        },
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            keyboardType = KeyboardType.Password
+                        )
+                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .padding(bottom = 10.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Checkbox(
+                            checked = agreedToTerms,
+                            onCheckedChange = viewModel::onAgreeToTermsChanged,
+                            colors = CheckboxDefaults.colors(checkedColor = Color.Red)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("I agree to A2ZCare ", color = Color.White)
+                        Text(
+                            modifier = Modifier.clickable(onClick = { isTermsAndConditionsDialogOpen = true }),
+                            text = "Terms & Conditions",
+                            color = Color.Red
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Already have an account? ", color = Color.White)
+                        Text(
+                            modifier = Modifier.clickable(onClick = { navController.navigate(Screen.LogIn.route) }),
+                            text = "Sign in",
+                            color = Color.Red,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        HorizontalDivider(
+                            modifier = Modifier.weight(1f),
+                            color = Color.DarkGray
+                        )
+                        Text(" or continue with ", color = Color.Gray, fontSize = 12.sp)
+                        HorizontalDivider(
+                            modifier = Modifier.weight(1f),
+                            color = Color.DarkGray
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(10.dp))
+                    GoogleButton()
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    ConfirmButton(
+                        enabled = isSignUpEnabled,
+                        onClick = viewModel::signUp,
+                        isLoading = isLoading,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    )
+
+                }
             }
-
-            ConfirmButton(
-                enabled = isSignUpEnabled,
-                onClick = viewModel::signUp,
-                isLoading = isLoading,
-                modifier = Modifier.padding(bottom = 12.dp)
-            )
-
         }
     }
 }
