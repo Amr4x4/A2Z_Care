@@ -82,4 +82,18 @@ dependencies {
     kapt (libs.hilt.android.compiler)
     kapt (libs.androidx.hilt.compiler)
     implementation (libs.androidx.hilt.navigation.compose)
+
+    // Retrofit for networking
+    implementation (libs.retrofit)
+    implementation (libs.converter.gson)
+
+    // Coroutines for asynchronous calls
+    implementation (libs.kotlinx.coroutines.core)
+    implementation (libs.kotlinx.coroutines.android)
+
+    // Google Sign-In (optional, if you want to implement it)
+    implementation (libs.play.services.auth)
+
+    // Compose Material Icons (for visibility icons)
+    implementation (libs.androidx.material.icons.extended)
 }

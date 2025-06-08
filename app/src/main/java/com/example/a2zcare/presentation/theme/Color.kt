@@ -2,6 +2,8 @@ package com.example.a2zcare.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
+val unselected = Color(0xFFC56464)
+val selected = Color(0xFFFA0000)
 val lightRed = Color(0xFFFA0000)
 val darkRed = Color(0xFF770404)
 val backgroundColor = Color(0xFF181a20)

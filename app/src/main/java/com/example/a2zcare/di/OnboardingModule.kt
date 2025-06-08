@@ -1,4 +1,4 @@
-package com.example.a2zcare.cli
+package com.example.a2zcare.di
 
 import android.content.Context
 import com.example.a2zcare.data.onboarding.DataStoreRepository
