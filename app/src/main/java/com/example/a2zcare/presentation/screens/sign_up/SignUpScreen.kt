@@ -50,6 +50,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -90,7 +91,7 @@ fun SignUpScreen(
 
     val snackBarHostState = remember { SnackbarHostState() }
 
-    var isTermsAndConditionsDialogOpen by rememberSaveable { mutableStateOf( false ) }
+    var isTermsAndConditionsDialogOpen by rememberSaveable { mutableStateOf(false) }
 
     TermsAndConditionsAlertDialog(
         isOpen = isTermsAndConditionsDialogOpen,
@@ -123,7 +124,9 @@ fun SignUpScreen(
             SigningTopAppBar(
                 title = "Join A2Z Care Today \uD83E\uDE7A",
                 onBackButtonClick = {
-                    navController.popBackStack()
+                    if (!navController.popBackStack()) {
+                        navController.navigate(Screen.GetStart.route)
+                    }
                 },
                 scrollBehavior = scrollBehavior
             )
@@ -144,7 +147,7 @@ fun SignUpScreen(
                     maxLines = 1,
                     color = Color.White
                 )
-                Spacer(Modifier.padding(vertical = 18.dp))
+                Spacer(Modifier.padding(vertical = 12.dp))
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -162,7 +165,11 @@ fun SignUpScreen(
                         value = userName,
                         onValueChange = viewModel::onUserNameChange,
                         leadingIcon = {
-                            Icon(Icons.Default.AccountCircle, contentDescription = null, tint = Color.White)
+                            Icon(
+                                Icons.Default.AccountCircle,
+                                contentDescription = null,
+                                tint = Color.White
+                            )
                         },
                         placeholder = {
                             Text("UserName", color = Color.Gray)
@@ -174,7 +181,7 @@ fun SignUpScreen(
                             .padding(bottom = 12.dp),
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = KeyboardType.Text
-                        )
+                        ),
                     )
 
                     Spacer(Modifier.padding(vertical = 10.dp))
@@ -197,7 +204,8 @@ fun SignUpScreen(
                         },
                         isError = emailError != null,
                         errorMessage = emailError,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
                             .padding(bottom = 12.dp),
                         keyboardOptions = KeyboardOptions.Default.copy(
                             keyboardType = KeyboardType.Email
@@ -206,7 +214,7 @@ fun SignUpScreen(
                     Spacer(Modifier.padding(vertical = 10.dp))
 
                     Text(
-                        text = "Password",
+                        text = "Create Password",
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color.White
                     )
@@ -219,7 +227,7 @@ fun SignUpScreen(
                             Icon(Icons.Default.Lock, contentDescription = null, tint = Color.White)
                         },
                         placeholder = {
-                            Text("Password", color = Color.Gray)
+                            Text("Create Password", color = Color.Gray)
                         },
                         isError = passwordError != null,
                         errorMessage = passwordError,
@@ -284,7 +292,9 @@ fun SignUpScreen(
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("I agree to A2ZCare ", color = Color.White)
                         Text(
-                            modifier = Modifier.clickable(onClick = { isTermsAndConditionsDialogOpen = true }),
+                            modifier = Modifier.clickable(onClick = {
+                                isTermsAndConditionsDialogOpen = true
+                            }),
                             text = "Terms & Conditions",
                             color = Color.Red
                         )
@@ -296,9 +306,15 @@ fun SignUpScreen(
                     ) {
                         Text("Already have an account? ", color = Color.White)
                         Text(
-                            modifier = Modifier.clickable(onClick = { navController.navigate(Screen.LogIn.route) }),
+                            modifier = Modifier.clickable
+                                (
+                                onClick = {
+                                    navController.navigate(Screen.GetStart.route)
+                                }
+                            ),
                             text = "Sign in",
                             color = Color.Red,
+                            textDecoration = TextDecoration.Underline,
                             fontWeight = FontWeight.Bold
                         )
 
@@ -319,7 +335,7 @@ fun SignUpScreen(
                     }
                     Spacer(modifier = Modifier.height(10.dp))
                     GoogleButton()
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     ConfirmButton(
                         enabled = isSignUpEnabled,
@@ -327,7 +343,6 @@ fun SignUpScreen(
                         isLoading = isLoading,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
-
                 }
             }
         }
@@ -337,5 +352,5 @@ fun SignUpScreen(
 @Preview
 @Composable
 private fun PreviewSignUp() {
-    SignUpScreen( navController = rememberNavController() )
+    SignUpScreen(navController = rememberNavController())
 }

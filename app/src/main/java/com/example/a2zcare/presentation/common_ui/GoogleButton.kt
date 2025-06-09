@@ -38,7 +38,7 @@ fun GoogleButton(
 ) {
     var clicked by remember { mutableStateOf(false) }
     Surface (
-        onClick = { clicked != clicked},
+        onClick = { clicked = !clicked },
         shape = RoundedCornerShape(4.dp),
         border = BorderStroke(width = 1.dp, color = Color.LightGray),
         color = fieldColor

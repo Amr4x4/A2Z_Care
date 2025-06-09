@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.a2zcare.presentation.theme.fieldColor
@@ -50,7 +51,8 @@ fun ValidatedTextField(
             visualTransformation = visualTransformation,
             singleLine = true,
             keyboardOptions = keyboardOptions,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = TextStyle(color = Color.White)
         )
         if (isError && errorMessage != null) {
             Text(

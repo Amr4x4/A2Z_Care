@@ -24,8 +24,9 @@ fun SigningTopAppBar(
     scrollBehavior: TopAppBarScrollBehavior
 ) {
     LargeTopAppBar(
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = backgroundColor
+        colors = TopAppBarDefaults.largeTopAppBarColors(
+            containerColor = backgroundColor,
+            scrolledContainerColor = backgroundColor
         ),
         scrollBehavior = scrollBehavior,
         navigationIcon = {

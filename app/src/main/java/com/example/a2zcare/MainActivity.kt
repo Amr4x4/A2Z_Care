@@ -7,10 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
-import com.example.a2zcare.presentation.viewmodel.SplashScreenViewModel
 import androidx.compose.runtime.getValue
+import com.example.a2zcare.presentation.viewmodel.SplashScreenViewModel
 import com.example.a2zcare.presentation.theme.A2ZCareTheme
-import com.example.onboardingcompose.navigation.SetupNavGraph
+import com.example.a2zcare.presentation.navegation.SetupNavGraph
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         installSplashScreen().setKeepOnScreenCondition {
-            !splashViewModel.isLoading.value
+            splashViewModel.isLoading.value
         }
 
         setContent {
