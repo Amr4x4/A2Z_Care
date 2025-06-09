@@ -17,9 +17,21 @@ data class SignUpResponse(
     val token: String? = null
 )
 
+data class LoginRequest(
+    val email: String,
+    val password: String
+)
+
+data class LoginResponse(
+    val success: Boolean,
+    val message: String? = null,
+    val token: String? = null
+)
+
 interface ApiService {
     @POST("signup")
     suspend fun signUp(@Body request: SignUpRequest): Response<SignUpResponse>
 
-    // Other endpoints...
+    @POST("login")
+    suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 }

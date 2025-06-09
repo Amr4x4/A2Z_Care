@@ -108,7 +108,7 @@ fun SignUpScreen(
         viewModel.signUpResult.collectLatest { result ->
             result.onSuccess {
                 Toast.makeText(context, "Sign Up Successful!", Toast.LENGTH_LONG).show()
-                navController.navigate(Screen.GetStart.route)
+                navController.navigate(Screen.Home.route)
             }
             result.onFailure { e ->
                 snackBarHostState.showSnackbar("Sign Up Failed: ${e.message ?: "Unknown error"}")
@@ -309,7 +309,7 @@ fun SignUpScreen(
                             modifier = Modifier.clickable
                                 (
                                 onClick = {
-                                    navController.navigate(Screen.GetStart.route)
+                                    navController.navigate(Screen.LogIn.route)
                                 }
                             ),
                             text = "Sign in",

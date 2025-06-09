@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.a2zcare.presentation.onboarding.OnBoardingNav
 import com.example.a2zcare.presentation.screens.get_start.GetStart
+import com.example.a2zcare.presentation.screens.home.HomeScreen
 import com.example.a2zcare.presentation.screens.log_in.LogInScreen
 import com.example.a2zcare.presentation.screens.sign_up.SignUpScreen
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -33,6 +34,9 @@ fun SetupNavGraph(
         }
         composable(route = Screen.LogIn.route) {
             LogInScreen(navController = navController)
+        }
+        composable(route = Screen.Home.route) {
+            HomeScreen(navController = navController)
         }
     }
 }

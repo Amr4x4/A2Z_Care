@@ -48,15 +48,12 @@ class SignUpViewModel @Inject constructor(
     private val _confirmPasswordError = MutableStateFlow<String?>(null)
     val confirmPasswordError: StateFlow<String?> = _confirmPasswordError.asStateFlow()
 
-    // API loading & result
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private val _signUpResult = MutableSharedFlow<Result<SignUpResponse>>()
     val signUpResult = _signUpResult.asSharedFlow()
 
-    // Validation logic regex for password:
-    // at least 8 chars, at least one upper, one lower, one digit, one special char
     private val passwordPattern =
         Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#\$%^&+=!]).{8,}\$")
 
@@ -105,7 +102,6 @@ class SignUpViewModel @Inject constructor(
         _agreedToTerms.value = checked
     }
 
-    // Enable SignUp button only if all validations pass
     val isSignUpEnabled = combine(
         emailError,
         passwordError,

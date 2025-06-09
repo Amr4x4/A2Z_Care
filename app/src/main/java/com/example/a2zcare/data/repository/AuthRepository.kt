@@ -1,6 +1,8 @@
 package com.example.a2zcare.data.repository
 
 import com.example.a2zcare.data.network.ApiService
+import com.example.a2zcare.data.network.LoginRequest
+import com.example.a2zcare.data.network.LoginResponse
 import com.example.a2zcare.data.network.SignUpRequest
 import com.example.a2zcare.data.network.SignUpResponse
 import retrofit2.Response
@@ -16,5 +18,13 @@ class AuthRepository @Inject constructor(private val apiService: ApiService) {
             role = 0
         )
         return apiService.signUp(request)
+    }
+
+    suspend fun login(email: String, password: String): Response<LoginResponse> {
+        val request = LoginRequest(
+            email = email,
+            password = password
+        )
+        return apiService.login(request)
     }
 }
