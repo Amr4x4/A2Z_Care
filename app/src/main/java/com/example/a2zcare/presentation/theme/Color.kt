@@ -8,8 +8,9 @@ val lightRed = Color(0xFFFA0000)
 val darkRed = Color(0xFF770404)
 val backgroundColor = Color(0xFF181a20)
 val fieldColor = Color(0xFF1C1C22)
-
-
+val selectedColor = Color(0xFFFF3B3B)
+val unselectedColor = Color(0xFFA5A5A5)
+val navBarBackground = Color(0xFF12131A)
 
 
 val primaryLight = Color(0xFF000000)

@@ -94,6 +94,9 @@ dependencies {
     // Google Sign-In (optional, if you want to implement it)
     implementation (libs.play.services.auth)
 
+    // system UI Controller
+    implementation(libs.accompanist.systemuicontroller)
+
     // Compose Material Icons (for visibility icons)
     implementation (libs.androidx.material.icons.extended)
 }

@@ -9,7 +9,11 @@ import com.example.a2zcare.presentation.onboarding.OnBoardingNav
 import com.example.a2zcare.presentation.screens.get_start.GetStart
 import com.example.a2zcare.presentation.screens.home.HomeScreen
 import com.example.a2zcare.presentation.screens.log_in.LogInScreen
+import com.example.a2zcare.presentation.screens.notification.NotificationScreen
+import com.example.a2zcare.presentation.screens.profile.ProfileScreen
 import com.example.a2zcare.presentation.screens.sign_up.SignUpScreen
+import com.example.a2zcare.presentation.screens.tracker.TrackerScreen
+import com.example.a2zcare.presentation.screens.vip.VIPScreen
 import com.google.accompanist.pager.ExperimentalPagerApi
 
 @ExperimentalAnimationApi
@@ -37,6 +41,18 @@ fun SetupNavGraph(
         }
         composable(route = Screen.Home.route) {
             HomeScreen(navController = navController)
+        }
+        composable(route = Screen.Notification.route) {
+            NotificationScreen(navController = navController)
+        }
+        composable(route = Screen.VIP.route) {
+            VIPScreen(navController = navController)
+        }
+        composable(route = Screen.Tracker.route) {
+            TrackerScreen(navController = navController)
+        }
+        composable(route = Screen.Profile.route) {
+            ProfileScreen(navController = navController)
         }
     }
 }

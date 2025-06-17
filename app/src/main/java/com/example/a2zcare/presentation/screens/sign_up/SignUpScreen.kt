@@ -339,7 +339,7 @@ fun SignUpScreen(
 
                     ConfirmButton(
                         enabled = isSignUpEnabled,
-                        onClick = viewModel::signUp,
+                        onClick = {navController.navigate(Screen.Home.route)}, // You Have to delete it After test mood
                         isLoading = isLoading,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
