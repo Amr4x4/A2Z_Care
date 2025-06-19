@@ -13,7 +13,9 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.a2zcare.presentation.navegation.Screen
 import com.example.a2zcare.presentation.theme.backgroundColor
 
@@ -57,8 +59,8 @@ fun HomeScreen(
         LazyColumn (
             modifier = Modifier
                 .fillMaxSize()
-                .background( color = backgroundColor)
-                .padding( innerPadding )
+                .background(color = backgroundColor)
+                .padding(innerPadding)
         ){
             item {
 
@@ -73,4 +75,10 @@ fun HomeScreen(
         }
 
     }
+}
+
+@Preview
+@Composable
+private fun PreviewHomeScreen() {
+    HomeScreen( navController = rememberNavController())
 }
