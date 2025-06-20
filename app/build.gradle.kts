@@ -99,4 +99,7 @@ dependencies {
 
     // Compose Material Icons (for visibility icons)
     implementation (libs.androidx.material.icons.extended)
+
+    // Location Services
+    implementation (libs.play.services.location)
 }
