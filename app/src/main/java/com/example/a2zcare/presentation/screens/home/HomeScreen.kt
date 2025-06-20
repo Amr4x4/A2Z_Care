@@ -63,7 +63,7 @@ fun HomeScreen(
                 .padding(innerPadding)
         ){
             item {
-
+                HeartRateCard()
             }
             item {
 
