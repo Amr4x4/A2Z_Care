@@ -102,4 +102,8 @@ dependencies {
 
     // Location Services
     implementation (libs.play.services.location)
+
+    implementation(libs.coil.compose)
+    implementation(libs.coil.gif) // for GIF support
+
 }
