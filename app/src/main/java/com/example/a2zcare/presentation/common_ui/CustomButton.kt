@@ -1,4 +1,4 @@
-package com.example.a2zcare.presentation.screens.get_start
+package com.example.a2zcare.presentation.common_ui
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button

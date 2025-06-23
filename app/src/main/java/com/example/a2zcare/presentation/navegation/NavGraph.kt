@@ -10,8 +10,13 @@ import com.example.a2zcare.presentation.screens.get_start.GetStart
 import com.example.a2zcare.presentation.screens.home.HomeScreen
 import com.example.a2zcare.presentation.screens.log_in.LogInScreen
 import com.example.a2zcare.presentation.screens.notification.NotificationScreen
+import com.example.a2zcare.presentation.screens.personal_info_onboarding.BirthdayScreen
+import com.example.a2zcare.presentation.screens.personal_info_onboarding.GenderScreen
+import com.example.a2zcare.presentation.screens.personal_info_onboarding.LoadingScreen
+import com.example.a2zcare.presentation.screens.personal_info_onboarding.WeightScreen
 import com.example.a2zcare.presentation.screens.profile.ProfileScreen
 import com.example.a2zcare.presentation.screens.sign_up.SignUpScreen
+import com.example.a2zcare.presentation.screens.sign_up.Welcome
 import com.example.a2zcare.presentation.screens.tracker.TrackerScreen
 import com.example.a2zcare.presentation.screens.vip.VIPScreen
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -33,6 +38,9 @@ fun SetupNavGraph(
         composable(route = Screen.SignUp.route) {
             SignUpScreen(navController = navController)
         }
+        composable(route = Screen.Welcome.route) {
+            Welcome(navController = navController)
+        }
         composable(route = Screen.GetStart.route) {
             GetStart(navController = navController)
         }
@@ -53,6 +61,18 @@ fun SetupNavGraph(
         }
         composable(route = Screen.Profile.route) {
             ProfileScreen(navController = navController)
+        }
+        composable(route = Screen.Gender.route) {
+            GenderScreen(navController = navController)
+        }
+        composable(route = Screen.Birthday.route) {
+            BirthdayScreen(navController = navController)
+        }
+        composable(route = Screen.Weight.route) {
+            WeightScreen(navController = navController)
+        }
+        composable(route = Screen.Loading.route) {
+            LoadingScreen(navController = navController)
         }
     }
 }

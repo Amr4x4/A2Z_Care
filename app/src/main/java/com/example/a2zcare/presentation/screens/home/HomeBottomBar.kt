@@ -2,31 +2,26 @@ package com.example.a2zcare.presentation.screens.home
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import com.example.a2zcare.data.repository.BottomNavItem
 import com.example.a2zcare.presentation.theme.*
+import kotlin.collections.forEachIndexed
 
 @Composable
 fun BottomNavigationBar(
     selectedIndex: Int,
+    items: List<BottomNavItem>,
     onItemSelected: (Int) -> Unit
 ) {
-    NavigationBar(
-        containerColor = fieldColor
-    ) {
+    NavigationBar(containerColor = fieldColor) {
         items.forEachIndexed { index, item ->
             NavigationBarItem(
                 selected = index == selectedIndex,
                 onClick = { onItemSelected(index) },
                 icon = {
-                    Icon(
-                        imageVector = item.icon,
-                        contentDescription = item.title
-                    )
+                    Icon(imageVector = item.icon, contentDescription = item.title)
                 },
                 label = {
-                    Text(
-                        text = item.title,
-                        style = MaterialTheme.typography.labelSmall
-                    )
+                    Text(item.title, style = MaterialTheme.typography.labelSmall)
                 },
                 colors = NavigationBarItemDefaults.colors(
                     indicatorColor = navBarBackground,

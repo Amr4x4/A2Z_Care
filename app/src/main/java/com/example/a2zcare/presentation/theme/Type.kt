@@ -34,20 +34,20 @@ val Typography = Typography(
     displayLarge = TextStyle(
         fontFamily = displayFontFamily,
         fontWeight = FontWeight.W600,
-        fontSize = 57.sp,
-        lineHeight = 64.sp
+        fontSize = 36.sp,
+        lineHeight = 44.sp
     ),
     displayMedium = TextStyle(
         fontFamily = displayFontFamily,
         fontWeight = FontWeight.W400,
-        fontSize = 45.sp,
-        lineHeight = 52.sp
+        fontSize = 28.sp,
+        lineHeight = 34.sp
     ),
     displaySmall = TextStyle(
         fontFamily = displayFontFamily,
         fontWeight = FontWeight.W400,
-        fontSize = 36.sp,
-        lineHeight = 44.sp
+        fontSize = 18.sp,
+        lineHeight = 24.sp
     ),
     headlineLarge = TextStyle(
         fontFamily = displayFontFamily,

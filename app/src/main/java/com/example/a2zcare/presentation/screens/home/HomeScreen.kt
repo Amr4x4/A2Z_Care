@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.a2zcare.presentation.navegation.Screen
+import com.example.a2zcare.presentation.navegation.bottomNavItems
 import com.example.a2zcare.presentation.theme.backgroundColor
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,14 +31,6 @@ fun HomeScreen(
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
-
-    val bottomNavRoutes = listOf(
-        Screen.Home.route,
-        Screen.Notification.route,
-        Screen.VIP.route,
-        Screen.Tracker.route,
-        Screen.Profile.route
-    )
 
     Scaffold(
         topBar = {
@@ -50,10 +43,10 @@ fun HomeScreen(
         bottomBar = {
             BottomNavigationBar(
                 selectedIndex = selectedIndex,
+                items = bottomNavItems,
                 onItemSelected = { index ->
-                    selectedIndex = index
-                    navController.navigate(bottomNavRoutes[index]) {
-                        popUpTo(Screen.Home.route) { inclusive = false }
+                    navController.navigate(bottomNavItems[index].route) {
+                        popUpTo("home") { inclusive = false }
                         launchSingleTop = true
                     }
                 }
