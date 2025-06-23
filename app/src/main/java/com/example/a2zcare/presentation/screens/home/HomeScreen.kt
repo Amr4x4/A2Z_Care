@@ -1,6 +1,9 @@
 package com.example.a2zcare.presentation.screens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
@@ -63,15 +67,21 @@ fun HomeScreen(
                 .padding(innerPadding)
         ){
             item {
-                HeartRateCard()
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.SpaceAround,
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    HeartRateCard()
+                    Row (
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ){
+                        RunningCard(modifier = Modifier.weight(1f))
+                        CaloriesCalculator(modifier = Modifier.weight(1f))
+                    }
+                }
             }
-            item {
-
-            }
-            item {
-
-            }
-
         }
 
     }
