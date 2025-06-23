@@ -1,4 +1,3 @@
 package com.example.a2zcare.data.local.entity
 
-class WaterTrackingEntity {
-}
+data class Interval(val minute: Int, var selected: Boolean)
