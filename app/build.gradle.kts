@@ -106,4 +106,12 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.gif) // for GIF support
 
+    // Lifecycle ViewModel & LiveData
+    implementation(libs.androidx.runtime.livedata)
+    implementation (libs.androidx.lifecycle.viewmodel.ktx)
+    implementation (libs.androidx.lifecycle.livedata.ktx)
+    // WorkManager
+    implementation (libs.androidx.work.runtime.ktx)
+
+
 }

@@ -2,19 +2,18 @@ package com.example.a2zcare.domain.usecases
 
 import com.example.a2zcare.domain.repository.WaterTrackingRepo
 
-
-class GetGlassCountUseCase(private val repository: WaterTrackingRepo) {
-    suspend operator fun invoke() = repository.getGlassCount()
+class GetGlassCountUseCase(private val repo: WaterTrackingRepo) {
+    suspend operator fun invoke() = repo.getGlassCount()
 }
 
-class IncrementGlassCountUseCase(private val repository: WaterTrackingRepo) {
-    suspend operator fun invoke() = repository.incrementGlassCount()
+class IncrementGlassCountUseCase(private val repo: WaterTrackingRepo) {
+    suspend operator fun invoke() = repo.incrementGlassCount()
 }
 
-class GetReminderIntervalUseCase(private val repository: WaterTrackingRepo) {
-    suspend operator fun invoke() = repository.getReminderInterval()
+class GetReminderIntervalUseCase(private val repo: WaterTrackingRepo) {
+    suspend operator fun invoke() = repo.getReminderInterval()
 }
 
-class SetReminderIntervalUseCase(private val repository: WaterTrackingRepo) {
-    suspend operator fun invoke(minute: Int) = repository.setReminderInterval(minute)
+class SetReminderIntervalUseCase(private val repo: WaterTrackingRepo) {
+    suspend operator fun invoke(minute: Int) = repo.setReminderInterval(minute)
 }

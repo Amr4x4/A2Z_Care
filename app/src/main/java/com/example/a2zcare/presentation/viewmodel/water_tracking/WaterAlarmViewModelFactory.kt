@@ -4,22 +4,17 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.a2zcare.data.local.WaterTrackingStoringData
-import com.example.a2zcare.domain.usecases.GetGlassCountUseCase
-import com.example.a2zcare.domain.usecases.GetReminderIntervalUseCase
-import com.example.a2zcare.domain.usecases.IncrementGlassCountUseCase
-import com.example.a2zcare.domain.usecases.SetReminderIntervalUseCase
-
+import com.example.a2zcare.domain.usecases.*
 
 class WaterAlarmViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        val repository = WaterTrackingStoringData(application)
-        val viewModel = WaterAlarmViewModel(
+        val repo = WaterTrackingStoringData(application)
+        return WaterAlarmViewModel(
             application,
-            GetGlassCountUseCase(repository),
-            IncrementGlassCountUseCase(repository),
-            GetReminderIntervalUseCase(repository),
-            SetReminderIntervalUseCase(repository)
-        )
-        return viewModel as T
+            GetGlassCountUseCase(repo),
+            IncrementGlassCountUseCase(repo),
+            GetReminderIntervalUseCase(repo),
+            SetReminderIntervalUseCase(repo)
+        ) as T
     }
 }

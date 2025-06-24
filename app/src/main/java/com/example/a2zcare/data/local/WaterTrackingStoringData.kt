@@ -7,7 +7,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.example.a2zcare.domain.repository.WaterTrackingRepo
 import kotlinx.coroutines.flow.first
 
-private val Context.dataStore by preferencesDataStore("waterTracking_pref")
+private val Context.dataStore by preferencesDataStore(name = "water_tracking_prefs")
 
 class WaterTrackingStoringData(private val context: Context) : WaterTrackingRepo {
 
@@ -17,12 +17,16 @@ class WaterTrackingStoringData(private val context: Context) : WaterTrackingRepo
     override suspend fun getGlassCount(): Int = context.dataStore.data.first()[GLASS_COUNT_KEY] ?: 0
 
     override suspend fun incrementGlassCount() {
-        context.dataStore.edit { it[GLASS_COUNT_KEY] = getGlassCount() + 1 }
+        context.dataStore.edit { preferences ->
+            preferences[GLASS_COUNT_KEY] = getGlassCount() + 1
+        }
     }
 
     override suspend fun getReminderInterval(): Int = context.dataStore.data.first()[INTERVAL_MINUTE_KEY] ?: 0
 
     override suspend fun setReminderInterval(minute: Int) {
-        context.dataStore.edit { it[INTERVAL_MINUTE_KEY] = minute }
+        context.dataStore.edit { preferences ->
+            preferences[INTERVAL_MINUTE_KEY] = minute
+        }
     }
 }
