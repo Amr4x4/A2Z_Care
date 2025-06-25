@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.example.a2zcare.presentation.navegation.Screen
 import com.example.a2zcare.presentation.navegation.bottomNavItems
 import com.example.a2zcare.presentation.theme.backgroundColor
 
@@ -70,8 +69,8 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ){
-                        RunningCard(modifier = Modifier.weight(1f))
-                        CaloriesCalculator(modifier = Modifier.weight(1f))
+                        StepsCard(modifier = Modifier.weight(1f))
+                        WaterTrackingCard(modifier = Modifier.weight(1f))
                     }
                 }
             }

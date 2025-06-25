@@ -5,12 +5,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowCircleRight
 import androidx.compose.material3.Card
@@ -36,7 +34,7 @@ import com.example.a2zcare.R
 import com.example.a2zcare.presentation.theme.fieldCardColor
 
 @Composable
-fun RunningCard(
+fun StepsCard(
     modifier: Modifier = Modifier,
     steps: Int = 5000
 ) {
@@ -152,5 +150,5 @@ fun RunningCard(
 @Preview
 @Composable
 private fun PreviewRunningCard() {
-    RunningCard()
+    StepsCard()
 }

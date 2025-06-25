@@ -1,22 +1,26 @@
 package com.example.a2zcare
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import com.example.a2zcare.presentation.viewmodel.SplashScreenViewModel
-import com.example.a2zcare.presentation.theme.A2ZCareTheme
 import com.example.a2zcare.presentation.navegation.SetupNavGraph
+import com.example.a2zcare.presentation.theme.A2ZCareTheme
+import com.example.a2zcare.presentation.viewmodel.SplashScreenViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,6 +31,12 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        // Handle permission result if needed
+    }
+
     @Inject
     lateinit var splashViewModel: SplashScreenViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,6 +44,16 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         installSplashScreen().setKeepOnScreenCondition {
             splashViewModel.isLoading.value
+        }
+        // Request notification permission for Android 13+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
         }
 
         setContent {
