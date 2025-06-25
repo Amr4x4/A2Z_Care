@@ -5,6 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -32,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.a2zcare.R
 import com.example.a2zcare.presentation.theme.fieldCardColor
+import com.example.a2zcare.presentation.theme.lightGreen
 
 @Composable
 fun StepsCard(
@@ -50,30 +54,27 @@ fun StepsCard(
             disabledContentColor = fieldCardColor,
         )
     ) {
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(5.dp)
+                .padding(5.dp),
+            horizontalArrangement = Arrangement.Start,
+            verticalAlignment = Alignment.Top
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.shoes),
-                contentDescription = null,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .size(47.dp)
-                    .align(Alignment.TopEnd)
-            )
             Column(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .padding(bottom = 4.dp)
+                    .weight(2f),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = "Steps",
                     color = Color.DarkGray,
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.headlineSmall.copy(fontSize = 18.sp, lineHeight = 20.sp ),
                 )
-
+                Spacer( modifier = Modifier.height(8.dp))
                 Box(
                     modifier = Modifier
                         .size(90.dp)
@@ -116,7 +117,7 @@ fun StepsCard(
                         )
                         Text(
                             text = "$steps",
-                            color = Color.Green,
+                            color = lightGreen,
                             style = MaterialTheme.typography.headlineSmall
                                 .copy(fontSize = 11.sp, lineHeight = 20.sp)
                         )
@@ -129,21 +130,35 @@ fun StepsCard(
                     }
                 }
             }
-            IconButton(
-                onClick = { /*TODO*/ },
+            Column(
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .size(37.dp)
+                    .fillMaxHeight()
+                    .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Icon(
-                    imageVector = Icons.Default.ArrowCircleRight,
-                    contentDescription = "More information about step trucker",
-                    tint = Color.LightGray,
-                    modifier = Modifier.size(32.dp)
+                Image(
+                    painter = painterResource(id = R.drawable.shoes),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .size(47.dp)
                 )
+                IconButton(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .size(37.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowCircleRight,
+                        contentDescription = "More information about step trucker",
+                        tint = Color.LightGray,
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
             }
-
         }
+
     }
 }
 

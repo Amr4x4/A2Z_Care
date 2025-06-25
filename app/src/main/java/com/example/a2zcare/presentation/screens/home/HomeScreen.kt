@@ -70,7 +70,10 @@ fun HomeScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ){
                         StepsCard(modifier = Modifier.weight(1f))
-                        WaterTrackingCard(modifier = Modifier.weight(1f))
+                        WaterTrackingCard(
+                            modifier = Modifier.weight(1f),
+                            navController
+                        )
                     }
                 }
             }

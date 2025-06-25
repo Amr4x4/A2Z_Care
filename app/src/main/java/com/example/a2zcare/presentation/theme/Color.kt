@@ -12,6 +12,11 @@ val fieldCardColor = Color(0xFF24242F)
 val selectedColor = Color(0xFFFF3B3B)
 val unselectedColor = Color(0xFFA5A5A5)
 val navBarBackground = Color(0xFF12131A)
+val darkBlue = Color(0xFF1565C0)
+val lightBlue = Color(0xFF03A9F4)
+val lightGreen = Color(0xFF4CAF50)
+
+
 
 
 val primaryLight = Color(0xFF000000)

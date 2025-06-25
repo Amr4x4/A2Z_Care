@@ -10,6 +10,7 @@ sealed class Screen(val route: String) {
     object Notification : Screen(route = "notification")
     object VIP : Screen(route = "vip")
     object Tracker : Screen(route = "tracker")
+    object WaterTracker : Screen(route = "water_tracker")
     object Profile : Screen(route = "profile")
     object Gender : Screen(route = "gender")
     object Birthday : Screen(route = "birthday")

@@ -19,6 +19,7 @@ import com.example.a2zcare.presentation.screens.sign_up.SignUpScreen
 import com.example.a2zcare.presentation.screens.sign_up.Welcome
 import com.example.a2zcare.presentation.screens.tracker.TrackerScreen
 import com.example.a2zcare.presentation.screens.vip.VIPScreen
+import com.example.a2zcare.presentation.screens.water_tracking.WaterTrackingScreen
 import com.google.accompanist.pager.ExperimentalPagerApi
 
 @ExperimentalAnimationApi
@@ -58,6 +59,9 @@ fun SetupNavGraph(
         }
         composable(route = Screen.Tracker.route) {
             TrackerScreen(navController = navController)
+        }
+        composable(route = Screen.WaterTracker.route) {
+            WaterTrackingScreen(navController = navController)
         }
         composable(route = Screen.Profile.route) {
             ProfileScreen(navController = navController)
