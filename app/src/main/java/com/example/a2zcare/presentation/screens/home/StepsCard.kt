@@ -33,14 +33,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.a2zcare.R
+import com.example.a2zcare.presentation.navegation.Screen
 import com.example.a2zcare.presentation.theme.fieldCardColor
 import com.example.a2zcare.presentation.theme.lightGreen
 
 @Composable
 fun StepsCard(
     modifier: Modifier = Modifier,
-    steps: Int = 5000
+    steps: Int = 5000,
+    navController: NavController
 ) {
     val progress = (steps.coerceIn(0, 10000)) / 10000f
     Card(
@@ -145,7 +149,9 @@ fun StepsCard(
                         .size(47.dp)
                 )
                 IconButton(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        navController.navigate(Screen.StepsTracker.route)
+                    },
                     modifier = Modifier
                         .size(37.dp)
                 ) {
@@ -165,5 +171,5 @@ fun StepsCard(
 @Preview
 @Composable
 private fun PreviewRunningCard() {
-    StepsCard()
+    StepsCard(navController = rememberNavController())
 }

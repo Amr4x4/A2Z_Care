@@ -15,7 +15,18 @@ val navBarBackground = Color(0xFF12131A)
 val darkBlue = Color(0xFF1565C0)
 val lightBlue = Color(0xFF03A9F4)
 val lightGreen = Color(0xFF4CAF50)
-
+val primaryBlue = Color(0xFF1565C0)
+val lightBlueBackground = Color(0xFFE3F2FD)
+val successGreen = Color(0xFF4CAF50)
+val errorRed = Color(0xFFD32F2F)
+val errorBackground = Color(0xFFFFEBEE)
+val progressTrack = Color(0xFFE0E0E0)
+val primaryText = Color(0xFF1565C0)
+val secondaryText = Color.Gray
+val whiteText = Color.White
+val whiteCardBackground = Color.White.copy(alpha = 0.9f)
+val selectedItemBackground = Color(0xFF4CAF50)
+val unselectedItemBackground = Color(0xFFE3F2FD)
 
 
 

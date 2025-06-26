@@ -1,5 +1,6 @@
 package com.example.a2zcare.presentation.screens.water_tracking
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,15 +15,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.a2zcare.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.example.a2zcare.domain.entities.GlassSize
 import com.example.a2zcare.presentation.common_ui.MiniTopBar
-import com.example.a2zcare.presentation.theme.backgroundColor
-import com.example.a2zcare.presentation.theme.fieldCardColor
+import com.example.a2zcare.presentation.theme.*
 import com.example.a2zcare.presentation.viewmodel.water_tracking_view_model.WaterTrackingViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -37,6 +40,8 @@ fun WaterTrackingScreen(
     val isLoading by viewModel.isLoading.collectAsState()
     val isRefreshing by viewModel.isRefreshing.collectAsState()
     val errorState by viewModel.errorState.collectAsState()
+
+    var selectedGlassSize by remember { mutableStateOf(GlassSize.MEDIUM) }
 
     Scaffold(
         topBar = {
@@ -65,11 +70,11 @@ fun WaterTrackingScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFFEBEE))
+                            colors = CardDefaults.cardColors(containerColor = errorBackground)
                         ) {
                             Text(
                                 text = "⚠️ $error",
-                                color = Color(0xFFD32F2F),
+                                color = errorRed,
                                 modifier = Modifier.padding(16.dp),
                                 fontSize = 14.sp
                             )
@@ -82,7 +87,7 @@ fun WaterTrackingScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(vertical = 8.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))
+                            colors = CardDefaults.cardColors(containerColor = lightBlueBackground)
                         ) {
                             Row(
                                 modifier = Modifier
@@ -94,18 +99,19 @@ fun WaterTrackingScreen(
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(16.dp),
                                     strokeWidth = 2.dp,
-                                    color = Color(0xFF1565C0)
+                                    color = primaryBlue
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
                                 Text(
                                     text = "Refreshing data...",
-                                    color = Color(0xFF1565C0),
+                                    color = primaryBlue,
                                     fontSize = 14.sp
                                 )
                             }
                         }
                     }
 
+                    // Progress Card
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -126,7 +132,7 @@ fun WaterTrackingScreen(
                                 text = "Today's Progress",
                                 fontSize = 18.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF1565C0)
+                                color = primaryBlue
                             )
 
                             Spacer(modifier = Modifier.height(16.dp))
@@ -139,8 +145,8 @@ fun WaterTrackingScreen(
                                     progress = dailyProgress.goalPercentage / 100f,
                                     modifier = Modifier.size(160.dp),
                                     strokeWidth = 12.dp,
-                                    color = Color(0xFF4CAF50),
-                                    trackColor = Color(0xFFE0E0E0)
+                                    color = successGreen,
+                                    trackColor = progressTrack
                                 )
 
                                 Column(
@@ -150,18 +156,18 @@ fun WaterTrackingScreen(
                                         text = "${dailyProgress.achievedAmount}ml",
                                         fontSize = 24.sp,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color(0xFF1565C0)
+                                        color = primaryBlue
                                     )
                                     Text(
                                         text = "of ${dailyProgress.targetAmount}ml",
                                         fontSize = 14.sp,
-                                        color = Color.Gray
+                                        color = secondaryText
                                     )
                                     Text(
                                         text = "${dailyProgress.goalPercentage.toInt()}%",
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.SemiBold,
-                                        color = Color(0xFF4CAF50)
+                                        color = successGreen
                                     )
                                 }
                             }
@@ -172,24 +178,96 @@ fun WaterTrackingScreen(
                                 text = "🥤 Glasses: $glassCount",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Medium,
-                                color = Color(0xFF1565C0)
+                                color = primaryBlue
                             )
                         }
                     }
 
-                    // Quick Add Button
+                    // Glass Size Selection Card
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = fieldCardColor)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp)
+                        ) {
+                            Text(
+                                text = "Select Glass Size",
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = primaryBlue,
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                GlassSize.values().forEach { glassSize ->
+                                    val isSelected = selectedGlassSize == glassSize
+
+                                    Column(
+                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .background(
+                                                if (isSelected) selectedItemBackground else Color.Transparent
+                                            )
+                                            .clickable {
+                                                selectedGlassSize = glassSize
+                                            }
+                                            .padding(8.dp)
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(40.dp)
+                                                .background(
+                                                    if (isSelected)
+                                                        whiteText.copy(alpha = 0.2f)
+                                                    else
+                                                        lightBlue.copy(alpha = 0.1f),
+                                                    CircleShape
+                                                ),
+                                            contentAlignment = Alignment.Center
+                                        ) {
+                                            Image(
+                                                painter = when (glassSize) {
+                                                    GlassSize.SMALL -> painterResource(R.drawable.water_150ml)
+                                                    GlassSize.MEDIUM -> painterResource(R.drawable.water_250ml)
+                                                    GlassSize.LARGE -> painterResource(R.drawable.water_350ml)
+                                                    GlassSize.BOTTLE -> painterResource(R.drawable.water_bottle)
+                                                },
+                                                contentDescription = "Glass With Different sizes"
+                                            )
+                                        }
+                                        Text(
+                                            text = "${glassSize.ml}ml",
+                                            fontSize = 12.sp,
+                                            color = if (isSelected) whiteText else primaryBlue,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    // Drink Water Button (Green Card)
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 8.dp)
                             .clickable {
                                 if (!isLoading) {
-                                    viewModel.incrementGlassCountNow()
+                                    viewModel.addWaterIntake(selectedGlassSize)
                                 }
                             },
                         shape = RoundedCornerShape(16.dp),
                         colors = CardDefaults.cardColors(
-                            containerColor = if (isLoading) Color(0xFF81C784) else Color(0xFF4CAF50)
+                            containerColor = if (isLoading) lightGreen else successGreen
                         )
                     ) {
                         Row(
@@ -202,7 +280,7 @@ fun WaterTrackingScreen(
                             if (isLoading) {
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(24.dp),
-                                    color = Color.White,
+                                    color = whiteText,
                                     strokeWidth = 2.dp
                                 )
                                 Spacer(modifier = Modifier.width(8.dp))
@@ -210,82 +288,15 @@ fun WaterTrackingScreen(
                                     text = "Adding...",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.White
+                                    color = whiteText
                                 )
                             } else {
                                 Text(
-                                    text = "💧 Drink Water (250ml)",
+                                    text = "💧 Drink Water (${selectedGlassSize.ml}ml)",
                                     fontSize = 18.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.White
+                                    color = whiteText
                                 )
-                            }
-                        }
-                    }
-
-                    // Glass Size Options
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.9f))
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text(
-                                text = "Glass Sizes",
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF1565C0),
-                                modifier = Modifier.padding(bottom = 12.dp)
-                            )
-
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                com.example.a2zcare.domain.entities.GlassSize.values()
-                                    .forEach { glassSize ->
-                                        Column(
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            modifier = Modifier
-                                                .clip(RoundedCornerShape(12.dp))
-                                                .clickable {
-                                                    if (!isLoading) {
-                                                        viewModel.addWaterIntake(glassSize)
-                                                    }
-                                                }
-                                                .padding(8.dp)
-                                        ) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(40.dp)
-                                                    .background(
-                                                        Color(0xFF2196F3).copy(alpha = 0.1f),
-                                                        CircleShape
-                                                    ),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                Text(
-                                                    text = when (glassSize) {
-                                                        com.example.a2zcare.domain.entities.GlassSize.SMALL -> "🥃"
-                                                        com.example.a2zcare.domain.entities.GlassSize.MEDIUM -> "🥤"
-                                                        com.example.a2zcare.domain.entities.GlassSize.LARGE -> "🍺"
-                                                        com.example.a2zcare.domain.entities.GlassSize.BOTTLE -> "🍼"
-                                                    },
-                                                    fontSize = 20.sp
-                                                )
-                                            }
-                                            Text(
-                                                text = "${glassSize.ml}ml",
-                                                fontSize = 12.sp,
-                                                color = Color(0xFF1565C0),
-                                                textAlign = TextAlign.Center
-                                            )
-                                        }
-                                    }
                             }
                         }
                     }
@@ -296,7 +307,7 @@ fun WaterTrackingScreen(
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.9f))
+                        colors = CardDefaults.cardColors(containerColor = fieldCardColor)
                     ) {
                         Column(
                             modifier = Modifier.padding(16.dp)
@@ -305,7 +316,7 @@ fun WaterTrackingScreen(
                                 text = "🔔 Reminder Intervals",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = Color(0xFF1565C0),
+                                color = primaryBlue,
                                 modifier = Modifier.padding(bottom = 12.dp)
                             )
 
@@ -330,7 +341,7 @@ fun WaterTrackingScreen(
                             .fillMaxWidth()
                             .padding(vertical = 8.dp),
                         shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.9f))
+                        colors = CardDefaults.cardColors(containerColor = fieldCardColor)
                     ) {
                         Text(
                             text = when {
@@ -341,7 +352,7 @@ fun WaterTrackingScreen(
                                 else -> "🚀 Start your hydration journey today!"
                             },
                             fontSize = 14.sp,
-                            color = Color(0xFF1565C0),
+                            color = primaryBlue,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.padding(16.dp)
                         )
@@ -362,9 +373,9 @@ fun IntervalChip(
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (interval.selected) {
-                Color(0xFF4CAF50)
+                selectedItemBackground
             } else {
-                Color(0xFFE3F2FD)
+                unselectedItemBackground
             }
         )
     ) {
@@ -373,7 +384,7 @@ fun IntervalChip(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
             fontSize = 12.sp,
             fontWeight = FontWeight.Medium,
-            color = if (interval.selected) Color.White else Color(0xFF1565C0)
+            color = if (interval.selected) whiteText else primaryBlue
         )
     }
 }

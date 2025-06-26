@@ -20,10 +20,10 @@ import com.example.a2zcare.presentation.screens.sign_up.Welcome
 import com.example.a2zcare.presentation.screens.tracker.HomeScreenVivo
 import com.example.a2zcare.presentation.screens.tracker.LocationSharingScreen
 import com.example.a2zcare.presentation.screens.tracker.NotificationScreenVivo
-import com.example.a2zcare.presentation.screens.tracker.RunScreen
 import com.example.a2zcare.presentation.screens.tracker.TrackerScreen
 import com.example.a2zcare.presentation.screens.vip.VIPScreen
 import com.example.a2zcare.presentation.screens.water_tracking.WaterTrackingScreen
+import com.example.a2zcare.presentation.screens.steps_tracker.StepsTrackerScreen
 import com.google.accompanist.pager.ExperimentalPagerApi
 
 @ExperimentalAnimationApi
@@ -67,6 +67,9 @@ fun SetupNavGraph(
         composable(route = Screen.WaterTracker.route) {
             WaterTrackingScreen(navController = navController)
         }
+        composable(route = Screen.StepsTracker.route) {
+            StepsTrackerScreen(navController = navController)
+        }
         composable(route = Screen.Profile.route) {
             ProfileScreen(navController = navController)
         }
@@ -95,13 +98,7 @@ fun SetupNavGraph(
             )
         }
 
-        composable(Screen.Run.route) {
-            RunScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
-        }
+
 
         composable(Screen.LocationSharing.route) {
             LocationSharingScreen(
