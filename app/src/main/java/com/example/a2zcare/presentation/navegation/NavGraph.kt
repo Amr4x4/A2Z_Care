@@ -17,6 +17,10 @@ import com.example.a2zcare.presentation.screens.personal_info_onboarding.WeightS
 import com.example.a2zcare.presentation.screens.profile.ProfileScreen
 import com.example.a2zcare.presentation.screens.sign_up.SignUpScreen
 import com.example.a2zcare.presentation.screens.sign_up.Welcome
+import com.example.a2zcare.presentation.screens.tracker.HomeScreenVivo
+import com.example.a2zcare.presentation.screens.tracker.LocationSharingScreen
+import com.example.a2zcare.presentation.screens.tracker.NotificationScreenVivo
+import com.example.a2zcare.presentation.screens.tracker.RunScreen
 import com.example.a2zcare.presentation.screens.tracker.TrackerScreen
 import com.example.a2zcare.presentation.screens.vip.VIPScreen
 import com.example.a2zcare.presentation.screens.water_tracking.WaterTrackingScreen
@@ -77,6 +81,42 @@ fun SetupNavGraph(
         }
         composable(route = Screen.Loading.route) {
             LoadingScreen(navController = navController)
+        }
+
+        //
+        composable(Screen.HomeVivo.route) {
+            HomeScreenVivo(
+                onNavigateToRun = {
+                    navController.navigate(Screen.Run.route)
+                },
+                onNavigateToLocationSharing = {
+                    navController.navigate(Screen.LocationSharing.route)
+                }
+            )
+        }
+
+        composable(Screen.Run.route) {
+            RunScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Screen.LocationSharing.route) {
+            LocationSharingScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Screen.Notifications.route) {
+            NotificationScreenVivo(
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

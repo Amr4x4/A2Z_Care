@@ -2,7 +2,7 @@ package com.example.a2zcare.presentation.screens.home
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import com.example.a2zcare.data.repository.BottomNavItem
+import com.example.a2zcare.domain.entities.BottomNavItem
 import com.example.a2zcare.presentation.theme.*
 import kotlin.collections.forEachIndexed
 

@@ -16,7 +16,7 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideRetrofit(): Retrofit = Retrofit.Builder()
-        .baseUrl("https://your-api-base-url.com/") // TODO: Replace with your actual base URL
+        .baseUrl("https://your-api-base-url.com/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 

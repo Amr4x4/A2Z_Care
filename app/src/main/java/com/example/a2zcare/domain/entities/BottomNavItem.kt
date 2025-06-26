@@ -1,4 +1,4 @@
-package com.example.a2zcare.data.repository
+package com.example.a2zcare.domain.entities
 
 import androidx.compose.ui.graphics.vector.ImageVector
 

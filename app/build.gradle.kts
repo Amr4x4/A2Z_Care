@@ -108,6 +108,7 @@ dependencies {
     // Coroutines for asynchronous calls
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.play.services)
 
     // Google Sign-In
     implementation(libs.play.services.auth)
@@ -137,4 +138,8 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
+
+    // Add these if not already present
+    implementation (libs.accompanist.permissions)
+
 }

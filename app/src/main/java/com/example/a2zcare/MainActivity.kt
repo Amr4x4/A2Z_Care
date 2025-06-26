@@ -11,9 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.ExperimentalAnimationApi
 //noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -31,48 +29,65 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted ->
-        // Handle permission result if needed
-    }
-
     @Inject
     lateinit var splashViewModel: SplashScreenViewModel
+
+    private val requestPermissionsLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        // Optional: handle permission results here
+    }
+
+    private fun getRequiredPermissions(): Array<String> {
+        val permissions = mutableListOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            permissions.add(Manifest.permission.ACTIVITY_RECOGNITION)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissions.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        return permissions.toTypedArray()
+    }
+
+    private fun hasAllPermissions(): Boolean {
+        return getRequiredPermissions().all {
+            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (!hasAllPermissions()) {
+            requestPermissionsLauncher.launch(getRequiredPermissions())
+        }
+
         enableEdgeToEdge()
+
         installSplashScreen().setKeepOnScreenCondition {
             splashViewModel.isLoading.value
-        }
-        // Request notification permission for Android 13+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-            }
         }
 
         setContent {
             A2ZCareTheme {
-                SetTopBarColor( MaterialTheme.colors.background )
-                val screen by splashViewModel.startDestination
+                SetTopBarColor(MaterialTheme.colors.background)
+                val startDestination by splashViewModel.startDestination
                 val navController = rememberNavController()
-                SetupNavGraph(navController = navController, startDestination = screen)
+                SetupNavGraph(navController = navController, startDestination = startDestination)
             }
         }
     }
+
     @Composable
     private fun SetTopBarColor(color: Color) {
-        var systemUiController = rememberSystemUiController()
+        val systemUiController = rememberSystemUiController()
         SideEffect {
-            systemUiController.setSystemBarsColor(
-                color = color
-            )
+            systemUiController.setSystemBarsColor(color = color)
         }
-
     }
 }

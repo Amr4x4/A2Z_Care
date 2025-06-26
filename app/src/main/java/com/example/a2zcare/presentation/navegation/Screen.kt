@@ -18,4 +18,10 @@ sealed class Screen(val route: String) {
     object Height : Screen(route = "height")
     object Reminders : Screen(route = "reminders")
     object Loading : Screen(route = "loading")
+
+    //
+    object HomeVivo : Screen("home_vivo")
+    object Run : Screen("run")
+    object LocationSharing : Screen("location_sharing")
+    object Notifications : Screen("notifications")
 }
