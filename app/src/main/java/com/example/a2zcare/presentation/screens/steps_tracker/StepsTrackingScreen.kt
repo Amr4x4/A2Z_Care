@@ -1,26 +1,29 @@
 package com.example.a2zcare.presentation.screens.steps_tracker
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.a2zcare.presentation.navegation.Screen
+import com.example.a2zcare.presentation.common_ui.MiniTopBar
 import com.example.a2zcare.presentation.screens.home.CaloriesProgressCard
 import com.example.a2zcare.presentation.screens.home.StatCard
 import com.example.a2zcare.presentation.screens.home.WeeklyProgressCard
+import com.example.a2zcare.presentation.theme.backgroundColor
 import com.example.a2zcare.presentation.viewmodel.StepsTrackingViewModel
 import com.example.a2zcare.util.getCurrentDateFormatted
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -29,7 +32,6 @@ fun StepsTrackingScreen(
     viewModel: StepsTrackingViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-
 
     LaunchedEffect(Unit) {
         viewModel.loadData()
@@ -43,81 +45,97 @@ fun StepsTrackingScreen(
             CircularProgressIndicator()
         }
     } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState())
-        ) {
-            // Header with user info
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
+        Scaffold(
+            topBar = {
+                MiniTopBar(
+                    title = "👣 Steps Tracker",
+                    navController = navController
                 )
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
-                    Text(
-                        text = "Today's Progress",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                    Text(
-                        text = getCurrentDateFormatted(),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Steps progress
-            StepsProgressCard(
-                currentSteps = uiState.todaySteps,
-                targetSteps = uiState.userProfile?.dailyStepsTarget ?: 0,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Calories progress
-            CaloriesProgressCard(
-                currentCalories = uiState.todayCaloriesBurned,
-                targetCalories = uiState.userProfile?.dailyCaloriesBurnTarget ?: 0,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Weekly progress
-            WeeklyProgressCard(
-                weeklyData = uiState.weeklyStepData,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Additional stats
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) { innerPadding ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color = backgroundColor)
+                    .padding(innerPadding)
             ) {
-                StatCard(
-                    title = "Distance",
-                    value = "${String.format("%.2f", uiState.todayDistance)} km",
-                    icon = Icons.Default.Timeline,
-                    modifier = Modifier.weight(1f)
-                )
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Header Card
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                            )
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    text = "Today's Progress",
+                                    style = MaterialTheme.typography.headlineMedium,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                                Text(
+                                    text = getCurrentDateFormatted(),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                            }
+                        }
 
-                StatCard(
-                    title = "Active Min",
-                    value = "${uiState.todayActiveMinutes}",
-                    icon = Icons.Default.Timer,
-                    modifier = Modifier.weight(1f)
-                )
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Steps Progress
+                        StepsProgressCard(
+                            currentSteps = uiState.todaySteps,
+                            targetSteps = uiState.userProfile?.dailyStepsTarget ?: 0,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Calories Progress
+                        CaloriesProgressCard(
+                            currentCalories = uiState.todayCaloriesBurned,
+                            targetCalories = uiState.userProfile?.dailyCaloriesBurnTarget ?: 0,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Weekly Progress
+                        WeeklyProgressCard(
+                            weeklyData = uiState.weeklyStepData,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Stats Row
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            StatCard(
+                                title = "Distance",
+                                value = "${String.format("%.2f", uiState.todayDistance)} km",
+                                icon = Icons.Default.Timeline,
+                                modifier = Modifier.weight(1f)
+                            )
+
+                            StatCard(
+                                title = "Active Min",
+                                value = "${uiState.todayActiveMinutes}",
+                                icon = Icons.Default.Timer,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -137,9 +155,7 @@ private fun StepsProgressCard(
             containerColor = MaterialTheme.colorScheme.secondaryContainer
         )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,

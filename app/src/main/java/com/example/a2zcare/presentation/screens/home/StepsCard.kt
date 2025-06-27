@@ -150,7 +150,7 @@ fun StepsCard(
                 )
                 IconButton(
                     onClick = {
-                        navController.navigate(Screen.StepsTracker.route)
+                        navController.navigate(Screen.StepsTracking.route)
                     },
                     modifier = Modifier
                         .size(37.dp)

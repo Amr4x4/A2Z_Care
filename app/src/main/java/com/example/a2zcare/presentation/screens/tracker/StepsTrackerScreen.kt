@@ -1,4 +1,4 @@
-package com.example.a2zcare.presentation.screens.steps_tracker
+package com.example.a2zcare.presentation.screens.tracker
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
