@@ -14,5 +14,6 @@ abstract class RepositoryModule {
     abstract fun bindWaterTrackingRepository(
         waterTrackingRepositoryImpl: WaterTrackingRepositoryImpl
     ): WaterTrackingRepository
+
 }
 

@@ -339,7 +339,7 @@ fun SignUpScreen(
 
                     ConfirmButton(
                         enabled = isSignUpEnabled,
-                        onClick = {navController.navigate(Screen.Welcome.route)}, // You Have to delete it After test mood
+                        onClick = {navController.navigate(Screen.PersonalOnBoarding.route)}, // You Have to delete it After test mood
                         isLoading = isLoading,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )

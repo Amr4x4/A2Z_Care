@@ -142,4 +142,7 @@ dependencies {
     // Add these if not already present
     implementation (libs.accompanist.permissions)
 
+    implementation (libs.accompanist.pager.v0280)
+
+
 }

@@ -13,6 +13,7 @@ import com.example.a2zcare.presentation.screens.notification.NotificationScreen
 import com.example.a2zcare.presentation.screens.personal_info_onboarding.BirthdayScreen
 import com.example.a2zcare.presentation.screens.personal_info_onboarding.GenderScreen
 import com.example.a2zcare.presentation.screens.personal_info_onboarding.LoadingScreen
+import com.example.a2zcare.presentation.screens.personal_info_onboarding.PersonalOnboardingScreen
 import com.example.a2zcare.presentation.screens.personal_info_onboarding.WeightScreen
 import com.example.a2zcare.presentation.screens.profile.ProfileScreen
 import com.example.a2zcare.presentation.screens.sign_up.SignUpScreen
@@ -66,6 +67,9 @@ fun SetupNavGraph(
         }
         composable(route = Screen.WaterTracker.route) {
             WaterTrackingScreen(navController = navController)
+        }
+        composable(route = Screen.PersonalOnBoarding.route) {
+            PersonalOnboardingScreen(navController = navController)
         }
         composable(route = Screen.StepsTracker.route) {
             StepsTrackerScreen(navController = navController)

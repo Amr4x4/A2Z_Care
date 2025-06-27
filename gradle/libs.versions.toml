@@ -1,5 +1,6 @@
 [versions]
 accompanistPager = "0.34.0"
+accompanistPagerVersion = "0.28.0"
 accompanistSystemuicontroller = "0.27.0"
 agp = "8.10.1"
 coilCompose = "2.5.0"
@@ -34,6 +35,7 @@ ksp = "2.0.21-1.0.25"
 [libraries]
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPager" }
 accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "accompanistPager" }
+accompanist-pager-v0280 = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPagerVersion" }
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanistPager" }
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
