@@ -17,6 +17,7 @@ import androidx.navigation.NavController
 import com.example.a2zcare.domain.entities.ActivityLevel
 import com.example.a2zcare.domain.entities.CalorieIntakeType
 import com.example.a2zcare.domain.entities.Gender
+import com.example.a2zcare.presentation.navegation.Screen
 import com.example.a2zcare.presentation.viewmodel.PersonalOnboardingViewModel
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -35,8 +36,8 @@ fun PersonalOnboardingScreen(
 
     LaunchedEffect(uiState.isCompleted) {
         if (uiState.isCompleted) {
-            navController.navigate("main_route") {
-                popUpTo("onboarding_screen") { inclusive = true }
+            navController.navigate(Screen.StepsTracking.route) {
+                popUpTo(Screen.PersonalOnBoarding.route) { inclusive = true }
             }
         }
     }

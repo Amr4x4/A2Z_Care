@@ -11,7 +11,6 @@ import com.example.a2zcare.presentation.screens.home.HomeScreen
 import com.example.a2zcare.presentation.screens.log_in.LogInScreen
 import com.example.a2zcare.presentation.screens.notification.NotificationScreen
 import com.example.a2zcare.presentation.screens.personal_info_onboarding.BirthdayScreen
-import com.example.a2zcare.presentation.screens.personal_info_onboarding.GenderScreen
 import com.example.a2zcare.presentation.screens.personal_info_onboarding.LoadingScreen
 import com.example.a2zcare.presentation.screens.personal_info_onboarding.PersonalOnboardingScreen
 import com.example.a2zcare.presentation.screens.personal_info_onboarding.WeightScreen
@@ -25,6 +24,7 @@ import com.example.a2zcare.presentation.screens.tracker.TrackerScreen
 import com.example.a2zcare.presentation.screens.vip.VIPScreen
 import com.example.a2zcare.presentation.screens.water_tracking.WaterTrackingScreen
 import com.example.a2zcare.presentation.screens.steps_tracker.StepsTrackerScreen
+import com.example.a2zcare.presentation.screens.steps_tracker.StepsTrackingScreen
 import com.google.accompanist.pager.ExperimentalPagerApi
 
 @ExperimentalAnimationApi
@@ -71,15 +71,16 @@ fun SetupNavGraph(
         composable(route = Screen.PersonalOnBoarding.route) {
             PersonalOnboardingScreen(navController = navController)
         }
+        composable(route = Screen.StepsTracking.route) {
+            StepsTrackingScreen(navController = navController)
+        }
         composable(route = Screen.StepsTracker.route) {
             StepsTrackerScreen(navController = navController)
         }
         composable(route = Screen.Profile.route) {
             ProfileScreen(navController = navController)
         }
-        composable(route = Screen.Gender.route) {
-            GenderScreen(navController = navController)
-        }
+
         composable(route = Screen.Birthday.route) {
             BirthdayScreen(navController = navController)
         }
