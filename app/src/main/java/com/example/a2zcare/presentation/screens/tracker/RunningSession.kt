@@ -40,7 +40,7 @@ import com.example.a2zcare.presentation.navegation.Screen
 import com.example.a2zcare.presentation.viewmodel.RunViewModel
 
 @Composable
-fun StepsTrackerScreen(
+fun RunningSession(
     navController: NavController,
     viewModel: RunViewModel = hiltViewModel()
 ) {

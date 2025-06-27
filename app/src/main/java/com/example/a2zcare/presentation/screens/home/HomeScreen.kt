@@ -78,6 +78,10 @@ fun HomeScreen(
                             navController
                         )
                     }
+                    CaloriesProgressCard(
+                        currentCalories = 500,
+                        targetCalories = 1200
+                    )
                 }
             }
         }

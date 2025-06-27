@@ -10,23 +10,9 @@ sealed class Screen(val route: String) {
     object VIP : Screen(route = "vip")
     object Tracker : Screen(route = "tracker")
     object WaterTracker : Screen(route = "water_tracker")
-    object StepsTracker : Screen(route = "steps_tracker")
+    object RunSession : Screen(route = "run_session")
     object PersonalOnBoarding : Screen(route = "personal_onboarding")
     object Profile : Screen(route = "profile")
     object StepsTracking : Screen(route = "steps_tracking")
-
-
-
-    object Gender : Screen(route = "gender")
-    object Birthday : Screen(route = "birthday")
-    object Weight : Screen(route = "weight")
-    object Height : Screen(route = "height")
-    object Reminders : Screen(route = "reminders")
-    object Loading : Screen(route = "loading")
-
-    //
-    object HomeVivo : Screen("home_vivo")
-    object Run : Screen("run")
     object LocationSharing : Screen("location_sharing")
-    object Notifications : Screen("notifications")
 }

@@ -1,5 +1,6 @@
 package com.example.a2zcare.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,8 +26,24 @@ class StepsTrackingViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
+
+    private val _errorState = MutableStateFlow<String?>(null)
+    val errorState: StateFlow<String?> = _errorState.asStateFlow()
+
+    private val _lastRefreshTime = MutableStateFlow(0L)
+    val lastRefreshTime: StateFlow<Long> = _lastRefreshTime.asStateFlow()
+
+    init {
+        loadData()
+    }
+
     fun loadData() {
         viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            _errorState.value = null
+
             try {
                 val userProfile = repository.getUserProfile()
                 val today = getCurrentDate()
@@ -40,13 +57,79 @@ class StepsTrackingViewModel @Inject constructor(
                     todayDistance = todayData?.distanceKm ?: 0f,
                     todayActiveMinutes = todayData?.activeMinutes ?: 0,
                     weeklyStepData = weeklyData,
-                    isLoading = false
+                    isLoading = false,
+                    error = null
                 )
+
+                Log.d("StepsTrackingViewModel", "Data loaded successfully - Steps: ${todayData?.steps ?: 0}")
             } catch (e: Exception) {
+                Log.e("StepsTrackingViewModel", "Error loading data", e)
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     error = e.message
                 )
+                _errorState.value = "Failed to load step data"
+            }
+        }
+    }
+
+    fun refreshData() {
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            _errorState.value = null
+
+            try {
+                loadData()
+                _lastRefreshTime.value = System.currentTimeMillis()
+                Log.d("StepsTrackingViewModel", "Data refreshed successfully")
+            } catch (e: Exception) {
+                Log.e("StepsTrackingViewModel", "Error refreshing data", e)
+
+                val errorMessage = when (e) {
+                    is java.net.UnknownHostException -> "No internet connection"
+                    is java.net.SocketTimeoutException -> "Request timed out"
+                    is IllegalStateException -> "App is not ready"
+                    else -> "Failed to refresh data"
+                }
+                _errorState.value = errorMessage
+            } finally {
+                _isRefreshing.value = false
+            }
+        }
+    }
+
+    fun isRefreshNeeded(): Boolean {
+        val currentTime = System.currentTimeMillis()
+        val lastRefresh = _lastRefreshTime.value
+        val refreshInterval = 5 * 60 * 1000L // 5 minutes
+        return currentTime - lastRefresh > refreshInterval
+    }
+
+    fun forceRefresh() {
+        if (!_isRefreshing.value) {
+            refreshData()
+        }
+    }
+
+    fun clearError() {
+        _errorState.value = null
+    }
+
+    fun addSteps(steps: Int) {
+        viewModelScope.launch {
+            try {
+                val currentSteps = _uiState.value.todaySteps
+                _uiState.value = _uiState.value.copy(
+                    todaySteps = currentSteps + steps
+                )
+
+                // Update in repository if needed
+                stepTrackingUseCase.updateStepCount(steps)
+
+                Log.d("StepsTrackingViewModel", "Added $steps steps. Total: ${_uiState.value.todaySteps}")
+            } catch (e: Exception) {
+                Log.e("StepsTrackingViewModel", "Error adding steps", e)
+                _errorState.value = "Failed to add steps"
             }
         }
     }
@@ -54,6 +137,11 @@ class StepsTrackingViewModel @Inject constructor(
     private fun getCurrentDate(): String {
         val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         return sdf.format(Date())
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        Log.d("StepsTrackingViewModel", "ViewModel cleared")
     }
 }
 

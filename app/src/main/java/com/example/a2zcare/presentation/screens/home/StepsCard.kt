@@ -21,6 +21,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -33,20 +36,39 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.a2zcare.R
 import com.example.a2zcare.presentation.navegation.Screen
 import com.example.a2zcare.presentation.theme.fieldCardColor
 import com.example.a2zcare.presentation.theme.lightGreen
+import com.example.a2zcare.presentation.viewmodel.StepsTrackingViewModel
 
 @Composable
 fun StepsCard(
     modifier: Modifier = Modifier,
-    steps: Int = 5000,
-    navController: NavController
+    navController: NavController,
+    viewModel: StepsTrackingViewModel = hiltViewModel()
 ) {
-    val progress = (steps.coerceIn(0, 10000)) / 10000f
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(navBackStackEntry) {
+        if (navBackStackEntry?.destination?.route == "home") {
+            viewModel.loadData()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.loadData()
+    }
+
+    val steps = uiState.todaySteps
+    val targetSteps = uiState.userProfile?.dailyStepsTarget ?: 10000
+    val progress = (steps.coerceIn(0, targetSteps)) / targetSteps.toFloat()
+
     Card(
         modifier = modifier
             .height(160.dp)
@@ -126,7 +148,7 @@ fun StepsCard(
                                 .copy(fontSize = 11.sp, lineHeight = 20.sp)
                         )
                         Text(
-                            text = "/10,000",
+                            text = "/$targetSteps",
                             color = Color.Cyan,
                             style = MaterialTheme.typography.headlineSmall
                                 .copy(fontSize = 9.sp, lineHeight = 20.sp)
@@ -157,19 +179,18 @@ fun StepsCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowCircleRight,
-                        contentDescription = "More information about step trucker",
+                        contentDescription = "More information about step tracker",
                         tint = Color.LightGray,
                         modifier = Modifier.size(32.dp)
                     )
                 }
             }
         }
-
     }
 }
 
 @Preview
 @Composable
-private fun PreviewRunningCard() {
+private fun PreviewStepsCard() {
     StepsCard(navController = rememberNavController())
 }

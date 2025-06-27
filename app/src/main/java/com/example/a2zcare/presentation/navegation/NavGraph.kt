@@ -13,13 +13,11 @@ import com.example.a2zcare.presentation.screens.notification.NotificationScreen
 import com.example.a2zcare.presentation.screens.personal_info_onboarding.PersonalOnboardingScreen
 import com.example.a2zcare.presentation.screens.profile.ProfileScreen
 import com.example.a2zcare.presentation.screens.sign_up.SignUpScreen
-import com.example.a2zcare.presentation.screens.tracker.HomeScreenVivo
 import com.example.a2zcare.presentation.screens.tracker.LocationSharingScreen
-import com.example.a2zcare.presentation.screens.tracker.NotificationScreenVivo
 import com.example.a2zcare.presentation.screens.tracker.TrackerScreen
 import com.example.a2zcare.presentation.screens.vip.VIPScreen
 import com.example.a2zcare.presentation.screens.water_tracking.WaterTrackingScreen
-import com.example.a2zcare.presentation.screens.tracker.StepsTrackerScreen
+import com.example.a2zcare.presentation.screens.tracker.RunningSession
 import com.example.a2zcare.presentation.screens.steps_tracker.StepsTrackingScreen
 import com.google.accompanist.pager.ExperimentalPagerApi
 
@@ -64,45 +62,17 @@ fun SetupNavGraph(
         composable(route = Screen.StepsTracking.route) {
             StepsTrackingScreen(navController = navController)
         }
-        composable(route = Screen.StepsTracker.route) {
-            StepsTrackerScreen(navController = navController)
+        composable(route = Screen.RunSession.route) {
+            RunningSession(navController = navController)
         }
         composable(route = Screen.Profile.route) {
             ProfileScreen(navController = navController)
         }
-
-
-        //
+        composable(route = Screen.LocationSharing.route) {
+            LocationSharingScreen(navController = navController)
+        }
         composable(route = Screen.Tracker.route) {
             TrackerScreen(navController = navController)
-        }
-        composable(Screen.HomeVivo.route) {
-            HomeScreenVivo(
-                onNavigateToRun = {
-                    navController.navigate(Screen.Run.route)
-                },
-                onNavigateToLocationSharing = {
-                    navController.navigate(Screen.LocationSharing.route)
-                }
-            )
-        }
-
-
-
-        composable(Screen.LocationSharing.route) {
-            LocationSharingScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
-        }
-
-        composable(Screen.Notifications.route) {
-            NotificationScreenVivo(
-                onNavigateBack = {
-                    navController.popBackStack()
-                }
-            )
         }
     }
 }
