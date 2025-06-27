@@ -120,7 +120,7 @@ class MainActivity : ComponentActivity() {
             startStepTrackingService()
         }
     }
-
+//
     private fun startStepTrackingService() {
         val serviceIntent = Intent(this, StepCounterService::class.java).apply {
             action = StepCounterService.ACTION_START_SERVICE
