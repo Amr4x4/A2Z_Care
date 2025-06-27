@@ -1,9 +1,11 @@
 package com.example.a2zcare
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.a2zcare.presentation.navegation.SetupNavGraph
 import com.example.a2zcare.presentation.theme.A2ZCareTheme
 import com.example.a2zcare.presentation.viewmodel.SplashScreenViewModel
+import com.example.a2zcare.service.StepCounterService
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,6 +34,17 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var splashViewModel: SplashScreenViewModel
+
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            startStepTrackingService()
+        } else {
+            // Handle permission denied
+            Toast.makeText(this, "Permission required for step tracking", Toast.LENGTH_LONG).show()
+        }
+    }
 
     private val requestPermissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -88,6 +102,34 @@ class MainActivity : ComponentActivity() {
         val systemUiController = rememberSystemUiController()
         SideEffect {
             systemUiController.setSystemBarsColor(color = color)
+        }
+    }
+
+    private fun requestPermissionsIfNeeded() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACTIVITY_RECOGNITION
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                requestPermissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+            } else {
+                startStepTrackingService()
+            }
+        } else {
+            startStepTrackingService()
+        }
+    }
+
+    private fun startStepTrackingService() {
+        val serviceIntent = Intent(this, StepCounterService::class.java).apply {
+            action = StepCounterService.ACTION_START_SERVICE
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(serviceIntent)
+        } else {
+            startService(serviceIntent)
         }
     }
 }
