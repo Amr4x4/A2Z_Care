@@ -23,6 +23,7 @@ object NetworkModule {
     fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
+            setLevel(HttpLoggingInterceptor.Level.HEADERS) // Add this for headers
         }
     }
 

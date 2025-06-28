@@ -2,20 +2,8 @@ package com.example.a2zcare.presentation.screens.personal_info_onboarding
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -23,7 +11,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.a2zcare.domain.entities.CalorieIntakeType
 import com.example.a2zcare.presentation.theme.backgroundColor
-
+import com.example.a2zcare.presentation.theme.fieldCardColor
+import com.example.a2zcare.presentation.theme.navBarBackground
 
 @Composable
 fun CalorieIntakePage(
@@ -46,6 +35,7 @@ fun CalorieIntakePage(
             color = Color.White
         )
         Spacer(modifier = Modifier.height(15.dp))
+
         val goalDescriptions = mapOf(
             CalorieIntakeType.MAINTENANCE to "Maintain current weight",
             CalorieIntakeType.WEIGHT_LOSS to "Lose weight gradually",
@@ -59,10 +49,9 @@ fun CalorieIntakePage(
                     .fillMaxWidth()
                     .clickable { onCalorieIntakeTypeSelected(type) },
                 colors = CardDefaults.cardColors(
-                    containerColor = if (selectedCalorieIntakeType == type)
-                        MaterialTheme.colorScheme.primaryContainer
-                    else MaterialTheme.colorScheme.surface
-                )
+                    containerColor = navBarBackground
+                ),
+                elevation = CardDefaults.cardElevation(4.dp)
             ) {
                 Row(
                     modifier = Modifier
@@ -72,7 +61,11 @@ fun CalorieIntakePage(
                 ) {
                     RadioButton(
                         selected = selectedCalorieIntakeType == type,
-                        onClick = { onCalorieIntakeTypeSelected(type) }
+                        onClick = { onCalorieIntakeTypeSelected(type) },
+                        colors = RadioButtonDefaults.colors(
+                            selectedColor = Color.White,
+                            unselectedColor = Color.LightGray
+                        )
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
@@ -80,41 +73,43 @@ fun CalorieIntakePage(
                             text = type.name.lowercase().split('_').joinToString(" ") {
                                 it.replaceFirstChar { char -> char.uppercase() }
                             },
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.White
                         )
                         Text(
                             text = goalDescriptions[type] ?: "",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = Color.LightGray
                         )
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(10.dp))
         }
-        Spacer(modifier = Modifier.height(10.dp))
+
         if (stepsTarget > 0 && caloriesTarget > 0) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                    containerColor = fieldCardColor
                 )
             ) {
-                Column(
-                    modifier = Modifier.padding(16.dp)
-                ) {
+                Column(modifier = Modifier.padding(16.dp)) {
                     Text(
                         text = "Your Daily Targets",
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                        color = Color.White
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = "Steps: $stepsTarget",
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White
                     )
                     Text(
                         text = "Calories to burn: $caloriesTarget",
-                        style = MaterialTheme.typography.bodyLarge
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White
                     )
                 }
             }

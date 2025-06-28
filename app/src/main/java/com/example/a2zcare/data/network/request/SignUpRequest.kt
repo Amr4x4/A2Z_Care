@@ -3,12 +3,12 @@ package com.example.a2zcare.data.network.request
 import com.google.gson.annotations.SerializedName
 
 data class SignUpRequest(
-    @SerializedName("UserName")
+    @SerializedName("userName")
     val userName: String,
-    @SerializedName("Password")
+    @SerializedName("password")
     val password: String,
-    @SerializedName("Email")
+    @SerializedName("email")
     val email: String,
-    @SerializedName("Role")
+    @SerializedName("role")
     val role: Int = 0
 )

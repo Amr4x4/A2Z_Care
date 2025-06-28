@@ -1,5 +1,6 @@
 package com.example.a2zcare.presentation.screens.sign_up
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -102,27 +103,22 @@ fun SignUpScreen(
             isTermsAndConditionsDialogOpen = false
         }
     )
-
     LaunchedEffect(Unit) {
         viewModel.signUpResult.collectLatest { result ->
             result.onSuccess { signUpResponse ->
-                when (signUpResponse.status) {
-                    200, 201 -> {
-                        Toast.makeText(
-                            context,
-                            signUpResponse.detail ?: "Sign Up Successful!",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        navController.navigate(Screen.Home.route)
-                    }
-                    else -> {
-                        snackBarHostState.showSnackbar(
-                            signUpResponse.detail ?: "Sign Up Failed: Unknown error"
-                        )
-                    }
+                Log.d("SignUpScreen", "SignUp Success: $signUpResponse")
+                Toast.makeText(
+                    context,
+                    "Sign Up Successful! Welcome ${signUpResponse.userName ?: "User"}!",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                navController.navigate(Screen.PersonalOnBoarding.route) {
+                    popUpTo(Screen.SignUp.route) { inclusive = true }
                 }
             }
             result.onFailure { e ->
+                Log.e("SignUpScreen", "SignUp Failure: ${e.message}")
                 snackBarHostState.showSnackbar("Sign Up Failed: ${e.message ?: "Unknown error"}")
             }
         }

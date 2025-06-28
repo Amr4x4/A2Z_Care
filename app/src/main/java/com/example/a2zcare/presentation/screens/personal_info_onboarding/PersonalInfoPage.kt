@@ -16,8 +16,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.a2zcare.presentation.theme.backgroundColor
 
 @Composable
@@ -50,27 +52,31 @@ fun PersonalInfoPage(
             },
             label = { Text("Age") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = TextStyle(color = Color.Gray, fontSize = 16.sp)
         )
 
         OutlinedTextField(
             value = if (height > 0) height.toString() else "",
             onValueChange = {
-                it.toFloatOrNull()?.let { height -> onHeightChange(height) }
+                it.toFloatOrNull()?.let { h -> onHeightChange(h) }
             },
             label = { Text("Height (cm)") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = TextStyle(color = Color.Gray, fontSize = 16.sp)
         )
 
         OutlinedTextField(
             value = if (weight > 0) weight.toString() else "",
             onValueChange = {
-                it.toFloatOrNull()?.let { weight -> onWeightChange(weight) }
+                it.toFloatOrNull()?.let { w -> onWeightChange(w) }
             },
             label = { Text("Weight (kg)") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = TextStyle(color = Color.Gray, fontSize = 16.sp)
         )
+
     }
 }

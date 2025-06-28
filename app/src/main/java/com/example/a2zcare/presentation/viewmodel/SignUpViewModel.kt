@@ -1,8 +1,9 @@
 package com.example.a2zcare.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.a2zcare.data.network.response.SignUpResponse
+import com.example.a2zcare.data.network.response.SignUpResultResponse
 import com.example.a2zcare.domain.model.NetworkResult
 import com.example.a2zcare.domain.usecases.SignUpUseCase
 import com.example.a2zcare.domain.usecases.ValidateEmailUseCase
@@ -19,7 +20,6 @@ class SignUpViewModel @Inject constructor(
     private val validatePasswordUseCase: ValidatePasswordUseCase
 ) : ViewModel() {
 
-    // Input fields
     private val _userName = MutableStateFlow("")
     val userName: StateFlow<String> = _userName.asStateFlow()
 
@@ -41,7 +41,6 @@ class SignUpViewModel @Inject constructor(
     private val _agreedToTerms = MutableStateFlow(false)
     val agreedToTerms: StateFlow<Boolean> = _agreedToTerms.asStateFlow()
 
-    // Error messages
     private val _emailError = MutableStateFlow<String?>(null)
     val emailError: StateFlow<String?> = _emailError.asStateFlow()
 
@@ -54,7 +53,7 @@ class SignUpViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val _signUpResult = MutableSharedFlow<Result<SignUpResponse>>()
+    private val _signUpResult = MutableSharedFlow<Result<SignUpResultResponse>>()
     val signUpResult = _signUpResult.asSharedFlow()
 
     fun onUserNameChange(value: String) {
@@ -127,18 +126,19 @@ class SignUpViewModel @Inject constructor(
                 password = _password.value
             )) {
                 is NetworkResult.Success -> {
-                    result.data?.let { signUpResponse ->
-                        _signUpResult.emit(Result.success(signUpResponse))
+                    result.data?.let { signUpResultData ->
+                        Log.d("SignUpViewModel", "SignUp Success: $signUpResultData")
+                        _signUpResult.emit(Result.success(signUpResultData))
                     } ?: run {
+                        Log.e("SignUpViewModel", "SignUp Success but empty result")
                         _signUpResult.emit(Result.failure(Exception("Empty response data")))
                     }
                 }
                 is NetworkResult.Error -> {
+                    Log.e("SignUpViewModel", "SignUp Error: ${result.message}")
                     _signUpResult.emit(Result.failure(Exception(result.message ?: "Unknown error")))
                 }
-                is NetworkResult.Loading -> {
-                    // Handle loading state if needed
-                }
+                is NetworkResult.Loading -> {}
             }
 
             _isLoading.value = false

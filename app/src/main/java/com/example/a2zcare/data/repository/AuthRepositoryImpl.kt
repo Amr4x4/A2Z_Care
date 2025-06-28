@@ -1,10 +1,13 @@
 package com.example.a2zcare.data.repository
 
+import android.util.Log
 import com.example.a2zcare.data.network.api.AuthApiService
+import com.example.a2zcare.data.network.request.LoginRequest
 import com.example.a2zcare.data.network.request.SignUpRequest
-import com.example.a2zcare.data.network.response.SignUpResponse
-import com.example.a2zcare.domain.repository.AuthRepository
+import com.example.a2zcare.data.network.response.*
 import com.example.a2zcare.domain.model.NetworkResult
+import com.example.a2zcare.domain.repository.AuthRepository
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -22,38 +25,88 @@ class AuthRepositoryImpl @Inject constructor(
         email: String,
         password: String,
         role: Int
-    ): NetworkResult<SignUpResponse> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val signUpRequest = SignUpRequest(
-                    userName = userName,
-                    password = password,
-                    email = email,
-                    role = role
-                )
+    ): NetworkResult<SignUpResultResponse> = withContext(Dispatchers.IO) {
+        try {
+            val request = SignUpRequest(userName, email, password, role)
+            val response = authApiService.signUp(request)
 
-                val response = authApiService.signUp(signUpRequest)
+            Log.d("AuthRepository", "SignUp response: ${response.code()} ${response.message()}")
 
-                if (response.isSuccessful) {
-                    response.body()?.let { signUpResponse ->
-                        // Check if the response indicates success
-                        when (signUpResponse.status) {
-                            200, 201 -> NetworkResult.Success(signUpResponse)
-                            else -> NetworkResult.Error(
-                                signUpResponse.detail ?: "Sign up failed with status: ${signUpResponse.status}"
-                            )
-                        }
-                    } ?: NetworkResult.Error("Empty response body")
-                } else {
-                    NetworkResult.Error("HTTP ${response.code()}: ${response.message()}")
+            if (response.isSuccessful) {
+                response.body()?.let { apiResponse ->
+                    return@withContext if (apiResponse.isSuccess()) {
+                        NetworkResult.Success(apiResponse.result!!)
+                    } else {
+                        NetworkResult.Error(apiResponse.getErrorMessage())
+                    }
+                } ?: NetworkResult.Error("Empty response body")
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.e("AuthRepository", "SignUp error body: $errorBody")
+
+                val gson = Gson()
+                val errorMessage = try {
+                    val errorResponse = gson.fromJson(errorBody, ErrorResponse::class.java)
+                    errorResponse.getReadableError()
+                } catch (e: Exception) {
+                    "HTTP ${response.code()}: ${response.message()}"
                 }
-            } catch (e: HttpException) {
-                NetworkResult.Error("Network error: ${e.localizedMessage}")
-            } catch (e: IOException) {
-                NetworkResult.Error("Connection error: ${e.localizedMessage}")
-            } catch (e: Exception) {
-                NetworkResult.Error("Unexpected error: ${e.localizedMessage}")
+
+                NetworkResult.Error(errorMessage)
             }
+        } catch (e: HttpException) {
+            Log.e("AuthRepository", "HttpException: ${e.localizedMessage}", e)
+            NetworkResult.Error("Network error: ${e.localizedMessage}")
+        } catch (e: IOException) {
+            Log.e("AuthRepository", "IOException: ${e.localizedMessage}", e)
+            NetworkResult.Error("Connection error: ${e.localizedMessage}")
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Exception: ${e.localizedMessage}", e)
+            NetworkResult.Error("Unexpected error: ${e.localizedMessage}")
+        }
+    }
+
+    override suspend fun login(
+        email: String,
+        password: String
+    ): NetworkResult<LoginResultResponse> = withContext(Dispatchers.IO) {
+        try {
+            val request = LoginRequest(email = email, password = password)
+            val response = authApiService.login(request)
+
+            Log.d("AuthRepository", "Login response: ${response.code()} ${response.message()}")
+
+            if (response.isSuccessful) {
+                response.body()?.let { apiResponse ->
+                    return@withContext if (apiResponse.isSuccess()) {
+                        NetworkResult.Success(apiResponse.result!!)
+                    } else {
+                        NetworkResult.Error(apiResponse.getErrorMessage())
+                    }
+                } ?: NetworkResult.Error("Empty response body")
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Log.e("AuthRepository", "Login error body: $errorBody")
+
+                val gson = Gson()
+                val errorMessage = try {
+                    val errorResponse = gson.fromJson(errorBody, ErrorResponse::class.java)
+                    errorResponse.getReadableError()
+                } catch (e: Exception) {
+                    "HTTP ${response.code()}: ${response.message()}"
+                }
+
+                NetworkResult.Error(errorMessage)
+            }
+        } catch (e: HttpException) {
+            Log.e("AuthRepository", "HttpException: ${e.localizedMessage}", e)
+            NetworkResult.Error("Network error: ${e.localizedMessage}")
+        } catch (e: IOException) {
+            Log.e("AuthRepository", "IOException: ${e.localizedMessage}", e)
+            NetworkResult.Error("Connection error: ${e.localizedMessage}")
+        } catch (e: Exception) {
+            Log.e("AuthRepository", "Exception: ${e.localizedMessage}", e)
+            NetworkResult.Error("Unexpected error: ${e.localizedMessage}")
         }
     }
 }

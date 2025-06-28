@@ -1,60 +1,79 @@
 package com.example.a2zcare.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.a2zcare.data.network.LoginResponse
-import com.example.a2zcare.data.repository.AuthRepository
+import com.example.a2zcare.data.network.response.LoginResultResponse
+import com.example.a2zcare.domain.model.NetworkResult
+import com.example.a2zcare.domain.usecases.LoginUseCase
+import com.example.a2zcare.domain.usecases.ValidateEmailUseCase
+import com.example.a2zcare.domain.usecases.ValidatePasswordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import android.util.Patterns
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val loginUseCase: LoginUseCase,
+    private val validateEmailUseCase: ValidateEmailUseCase,
+    private val validatePasswordUseCase: ValidatePasswordUseCase
 ) : ViewModel() {
 
     private val _email = MutableStateFlow("")
-    val email = _email.asStateFlow()
+    val email: StateFlow<String> = _email.asStateFlow()
 
     private val _password = MutableStateFlow("")
-    val password = _password.asStateFlow()
+    val password: StateFlow<String> = _password.asStateFlow()
 
     private val _passwordVisible = MutableStateFlow(false)
-    val passwordVisible = _passwordVisible.asStateFlow()
+    val passwordVisible: StateFlow<Boolean> = _passwordVisible.asStateFlow()
 
     private val _emailError = MutableStateFlow<String?>(null)
-    val emailError = _emailError.asStateFlow()
+    val emailError: StateFlow<String?> = _emailError.asStateFlow()
 
     private val _passwordError = MutableStateFlow<String?>(null)
-    val passwordError = _passwordError.asStateFlow()
+    val passwordError: StateFlow<String?> = _passwordError.asStateFlow()
 
     private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val _loginResult = MutableSharedFlow<Result<LoginResponse>>()
-    val loginResult = _loginResult.asSharedFlow()
-
-    private val passwordPattern = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#\$%^&+=!]).{8,}\$")
+    private val _loginResult = MutableSharedFlow<Result<LoginResultResponse>>()
+    val loginResult: SharedFlow<Result<LoginResultResponse>> = _loginResult.asSharedFlow()
 
     fun onEmailChange(value: String) {
         _email.value = value
-        _emailError.value = if (Patterns.EMAIL_ADDRESS.matcher(value).matches()) null else "Invalid email format"
+        validateEmail(value)
     }
 
     fun onPasswordChange(value: String) {
         _password.value = value
-        _passwordError.value = if (passwordPattern.matches(value)) null else
-            "Password must be at least 8 characters with uppercase, lowercase, number, special char"
+        validatePassword(value)
     }
 
     fun onTogglePasswordVisibility() {
         _passwordVisible.value = !_passwordVisible.value
     }
 
-    val isLoginEnabled = combine(emailError, passwordError) { emailErr, passErr ->
-        emailErr == null && passErr == null
+    private fun validateEmail(email: String) {
+        val result = validateEmailUseCase(email)
+        _emailError.value = if (result.successful) null else result.errorMessage
+    }
+
+    private fun validatePassword(password: String) {
+        val result = validatePasswordUseCase(password)
+        _passwordError.value = if (result.successful) null else result.errorMessage
+    }
+
+    val isLoginEnabled = combine(
+        combine(email, password) { email, password ->
+            email.isNotBlank() && password.isNotBlank()
+        },
+        combine(emailError, passwordError) { emailErr, passErr ->
+            emailErr == null && passErr == null
+        }
+    ) { fieldsValid, errorsValid ->
+        fieldsValid && errorsValid
     }.stateIn(viewModelScope, SharingStarted.Lazily, false)
 
     fun login() {
@@ -62,18 +81,30 @@ class LoginViewModel @Inject constructor(
 
         viewModelScope.launch {
             _isLoading.value = true
-            try {
-                val response = authRepository.login(email.value, password.value)
-                if (response.isSuccessful && response.body() != null) {
-                    _loginResult.emit(Result.success(response.body()!!))
-                } else {
-                    _loginResult.emit(Result.failure(Exception(response.errorBody()?.string() ?: "Unknown error")))
+
+            when (val result = loginUseCase(
+                email = _email.value,
+                password = _password.value
+            )) {
+                is NetworkResult.Success -> {
+                    result.data?.let { loginResponse ->
+                        Log.d("LoginViewModel", "Login Success: $loginResponse")
+                        _loginResult.emit(Result.success(loginResponse))
+                    } ?: run {
+                        Log.e("LoginViewModel", "Login Success but empty result")
+                        _loginResult.emit(Result.failure(Exception("Empty response data")))
+                    }
                 }
-            } catch (e: Exception) {
-                _loginResult.emit(Result.failure(e))
-            } finally {
-                _isLoading.value = false
+                is NetworkResult.Error -> {
+                    Log.e("LoginViewModel", "Login Error: ${result.message}")
+                    _loginResult.emit(Result.failure(Exception(result.message ?: "Unknown error")))
+                }
+                is NetworkResult.Loading -> {
+                    // Optional: handle loading if needed
+                }
             }
+
+            _isLoading.value = false
         }
     }
 }

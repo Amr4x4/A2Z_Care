@@ -24,6 +24,22 @@ class PersonalOnboardingViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(OnboardingUiState())
     val uiState: StateFlow<OnboardingUiState> = _uiState.asStateFlow()
 
+    init {
+        checkOnboardingStatus()
+    }
+
+    private fun checkOnboardingStatus() {
+        viewModelScope.launch {
+            try {
+                val userProfile = repository.getUserProfile()
+                if (userProfile != null) {
+                    _uiState.value = _uiState.value.copy(isCompleted = true)
+                }
+            } catch (e: Exception) {
+                // User profile doesn't exist, continue with onboarding
+            }
+        }
+    }
     fun updateAge(age: Int) {
         _uiState.value = _uiState.value.copy(age = age)
         calculateTargets()
