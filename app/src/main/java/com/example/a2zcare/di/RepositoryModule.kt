@@ -7,7 +7,6 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
-import com.example.a2zcare.data.repository.AuthRepositoryImpl
 import com.example.a2zcare.domain.repository.AuthRepository
 
 @Module

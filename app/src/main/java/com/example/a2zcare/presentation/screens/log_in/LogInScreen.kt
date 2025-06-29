@@ -173,7 +173,7 @@ fun LogInScreen(
                             Icon(Icons.Default.Lock, contentDescription = null, tint = Color.White)
                         },
                         placeholder = {
-                            Text("Create Password", color = Color.Gray)
+                            Text("Password", color = Color.Gray)
                         },
                         isError = passwordError != null,
                         errorMessage = passwordError,
