@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.util.Date
+import java.util.*
 import javax.inject.Inject
 
 data class NotificationUiState(
@@ -28,18 +28,21 @@ class NotificationViewModel @Inject constructor(
 
     init {
         loadNotifications()
-        // Simulate receiving notifications
         simulateNotifications()
     }
 
     private fun loadNotifications() {
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
-            notificationRepository.getNotifications().collect { notifications ->
-                _uiState.value = _uiState.value.copy(
-                    notifications = notifications,
-                    isLoading = false
-                )
+            try {
+                notificationRepository.getNotifications().collect { notifications ->
+                    _uiState.value = _uiState.value.copy(
+                        notifications = notifications,
+                        isLoading = false
+                    )
+                }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(isLoading = false)
             }
         }
     }
@@ -48,14 +51,15 @@ class NotificationViewModel @Inject constructor(
         viewModelScope.launch {
             kotlinx.coroutines.delay(5000)
             val mockNotification = LocationNotification(
-                id = "1",
+                id = UUID.randomUUID().toString(),
                 fromUserId = "user123",
                 fromUserName = "John Doe",
                 location = LocationData(37.7749, -122.4194, System.currentTimeMillis()),
                 message = "I'm at Golden Gate Park!",
-                timestamp = Date()
+                timestamp = Date(),
+                isRead = false
             )
-            // Add to notifications (implement with proper repository)
+            notificationRepository.addNotification(mockNotification)
         }
     }
 

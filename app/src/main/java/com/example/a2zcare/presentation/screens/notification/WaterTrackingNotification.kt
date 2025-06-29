@@ -43,7 +43,7 @@ class WaterReminderWorker(
 
         val notification = NotificationCompat.Builder(applicationContext, WATER_REMINDER_CHANNEL_ID)
             .setSmallIcon(R.drawable.dailog_info_24)
-            .setContentTitle("💧 Time to Hydrate!")
+            .setContentTitle("💧 Time to Water!")
             .setContentText("Don't forget to drink water and stay healthy!")
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)

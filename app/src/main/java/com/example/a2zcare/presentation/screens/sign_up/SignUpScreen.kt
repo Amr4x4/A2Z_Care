@@ -1,5 +1,6 @@
 package com.example.a2zcare.presentation.screens.sign_up
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,7 +54,6 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -103,23 +103,29 @@ fun SignUpScreen(
             isTermsAndConditionsDialogOpen = false
         }
     )
-
     LaunchedEffect(Unit) {
         viewModel.signUpResult.collectLatest { result ->
-            result.onSuccess {
-                Toast.makeText(context, "Sign Up Successful!", Toast.LENGTH_LONG).show()
-                navController.navigate(Screen.Home.route)
+            result.onSuccess { signUpResponse ->
+                Log.d("SignUpScreen", "SignUp Success: $signUpResponse")
+                Toast.makeText(
+                    context,
+                    "Sign Up Successful! Welcome ${signUpResponse.userName ?: "User"}!",
+                    Toast.LENGTH_LONG
+                ).show()
+
+                navController.navigate(Screen.PersonalOnBoarding.route) {
+                    popUpTo(Screen.SignUp.route) { inclusive = true }
+                }
             }
             result.onFailure { e ->
+                Log.e("SignUpScreen", "SignUp Failure: ${e.message}")
                 snackBarHostState.showSnackbar("Sign Up Failed: ${e.message ?: "Unknown error"}")
             }
         }
     }
 
     Scaffold(
-        modifier =
-            Modifier
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             SigningTopAppBar(
                 title = "Join A2Z Care Today \uD83E\uDE7A",
@@ -244,6 +250,7 @@ fun SignUpScreen(
                             keyboardType = KeyboardType.Password
                         )
                     )
+
                     Spacer(Modifier.padding(vertical = 10.dp))
 
                     Text(
@@ -267,10 +274,9 @@ fun SignUpScreen(
                         modifier = Modifier.padding(bottom = 12.dp),
                         visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            val image =
-                                if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                            val image = if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
                             IconButton(onClick = viewModel::onToggleConfirmPasswordVisibility) {
-                                Icon(imageVector = image, contentDescription = null)
+                                Icon(imageVector = image, contentDescription = null, tint = Color.White)
                             }
                         },
                         keyboardOptions = KeyboardOptions.Default.copy(
@@ -279,78 +285,107 @@ fun SignUpScreen(
                     )
 
                     Row(
-                        verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
-                            .padding(bottom = 10.dp)
                             .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        horizontalArrangement = Arrangement.Start,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Checkbox(
                             checked = agreedToTerms,
                             onCheckedChange = viewModel::onAgreeToTermsChanged,
-                            colors = CheckboxDefaults.colors(checkedColor = Color.Red)
+                            colors = CheckboxDefaults.colors(
+                                checkmarkColor = Color.White,
+                                uncheckedColor = Color.White,
+                                checkedColor = MaterialTheme.colorScheme.primary
+                            )
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("I agree to A2ZCare ", color = Color.White)
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            modifier = Modifier.clickable(onClick = {
-                                isTermsAndConditionsDialogOpen = true
-                            }),
-                            text = "Terms & Conditions",
-                            color = Color.Red
+                            text = "I agree to the ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White
                         )
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Already have an account? ", color = Color.White)
                         Text(
-                            modifier = Modifier.clickable
-                                (
-                                onClick = {
-                                    navController.navigate(Screen.LogIn.route)
-                                }
+                            text = "Terms and Conditions",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                textDecoration = TextDecoration.Underline,
+                                fontWeight = FontWeight.Bold
                             ),
-                            text = "Sign in",
-                            color = Color.Red,
-                            textDecoration = TextDecoration.Underline,
-                            fontWeight = FontWeight.Bold
-                        )
-
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        HorizontalDivider(
-                            modifier = Modifier.weight(1f),
-                            color = Color.DarkGray
-                        )
-                        Text(" or continue with ", color = Color.Gray, fontSize = 12.sp)
-                        HorizontalDivider(
-                            modifier = Modifier.weight(1f),
-                            color = Color.DarkGray
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.clickable {
+                                isTermsAndConditionsDialogOpen = true
+                            }
                         )
                     }
-                    Spacer(modifier = Modifier.height(10.dp))
-                    GoogleButton()
-                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Spacer(Modifier.padding(vertical = 20.dp))
 
                     ConfirmButton(
+                        text = "Sign Up",
+                        onClick = viewModel::signUp,
                         enabled = isSignUpEnabled,
-                        onClick = {navController.navigate(Screen.Welcome.route)}, // You Have to delete it After test mood
                         isLoading = isLoading,
-                        modifier = Modifier.padding(bottom = 12.dp)
+                        modifier = Modifier.fillMaxWidth()
                     )
+
+                    Spacer(Modifier.padding(vertical = 16.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        HorizontalDivider(
+                            modifier = Modifier.weight(1f),
+                            color = Color.Gray
+                        )
+                        Text(
+                            text = " or ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier.weight(1f),
+                            color = Color.Gray
+                        )
+                    }
+
+                    Spacer(Modifier.padding(vertical = 16.dp))
+                    GoogleButton()
+                    Spacer(Modifier.padding(vertical = 20.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Already have an account? ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White
+                        )
+                        Text(
+                            text = "Sign In",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                textDecoration = TextDecoration.Underline,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.clickable {
+                                navController.navigate(Screen.LogIn.route) {
+                                    popUpTo(Screen.SignUp.route) { inclusive = true }
+                                }
+                            }
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-private fun PreviewSignUp() {
+fun SignUpScreenPreview() {
     SignUpScreen(navController = rememberNavController())
 }

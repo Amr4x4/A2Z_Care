@@ -1,22 +1,25 @@
 package com.example.a2zcare.presentation.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-
+import com.example.a2zcare.data.network.response.SignUpResultResponse
+import com.example.a2zcare.domain.model.NetworkResult
+import com.example.a2zcare.domain.usecases.SignUpUseCase
+import com.example.a2zcare.domain.usecases.ValidateEmailUseCase
+import com.example.a2zcare.domain.usecases.ValidatePasswordUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import android.util.Patterns
-import com.example.a2zcare.data.network.SignUpResponse
-import com.example.a2zcare.data.repository.AuthRepository
 
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val signUpUseCase: SignUpUseCase,
+    private val validateEmailUseCase: ValidateEmailUseCase,
+    private val validatePasswordUseCase: ValidatePasswordUseCase
 ) : ViewModel() {
 
-    // Input fields
     private val _userName = MutableStateFlow("")
     val userName: StateFlow<String> = _userName.asStateFlow()
 
@@ -38,7 +41,6 @@ class SignUpViewModel @Inject constructor(
     private val _agreedToTerms = MutableStateFlow(false)
     val agreedToTerms: StateFlow<Boolean> = _agreedToTerms.asStateFlow()
 
-    // Error messages
     private val _emailError = MutableStateFlow<String?>(null)
     val emailError: StateFlow<String?> = _emailError.asStateFlow()
 
@@ -51,11 +53,8 @@ class SignUpViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val _signUpResult = MutableSharedFlow<Result<SignUpResponse>>()
+    private val _signUpResult = MutableSharedFlow<Result<SignUpResultResponse>>()
     val signUpResult = _signUpResult.asSharedFlow()
-
-    private val passwordPattern =
-        Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#\$%^&+=!]).{8,}\$")
 
     fun onUserNameChange(value: String) {
         _userName.value = value
@@ -67,7 +66,8 @@ class SignUpViewModel @Inject constructor(
     }
 
     private fun validateEmail(email: String) {
-        _emailError.value = if (Patterns.EMAIL_ADDRESS.matcher(email).matches()) null else "Invalid email format"
+        val result = validateEmailUseCase(email)
+        _emailError.value = if (result.successful) null else result.errorMessage
     }
 
     fun onPasswordChange(value: String) {
@@ -77,8 +77,8 @@ class SignUpViewModel @Inject constructor(
     }
 
     private fun validatePassword(password: String) {
-        _passwordError.value = if (passwordPattern.matches(password)) null else
-            "Password must be at least 8 characters and include uppercase, lowercase, number, and special character"
+        val result = validatePasswordUseCase(password)
+        _passwordError.value = if (result.successful) null else result.errorMessage
     }
 
     fun onConfirmPasswordChange(value: String) {
@@ -103,12 +103,15 @@ class SignUpViewModel @Inject constructor(
     }
 
     val isSignUpEnabled = combine(
-        emailError,
-        passwordError,
-        confirmPasswordError,
+        combine(userName, email, password, confirmPassword) { userName, email, password, confirmPassword ->
+            userName.isNotBlank() && email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank()
+        },
+        combine(emailError, passwordError, confirmPasswordError) { emailErr, passErr, confirmPassErr ->
+            emailErr == null && passErr == null && confirmPassErr == null
+        },
         agreedToTerms
-    ) { emailErr, passErr, confirmPassErr, agreed ->
-        emailErr == null && passErr == null && confirmPassErr == null && agreed
+    ) { fieldsValid, errorsValid, agreed ->
+        fieldsValid && errorsValid && agreed
     }.stateIn(viewModelScope, SharingStarted.Lazily, false)
 
     fun signUp() {
@@ -116,22 +119,29 @@ class SignUpViewModel @Inject constructor(
 
         viewModelScope.launch {
             _isLoading.value = true
-            try {
-                val response = authRepository.signUp(
-                    userName = _userName.value,
-                    email = _email.value,
-                    password = _password.value
-                )
-                if (response.isSuccessful && response.body() != null) {
-                    _signUpResult.emit(Result.success(response.body()!!))
-                } else {
-                    _signUpResult.emit(Result.failure(Exception(response.errorBody()?.string() ?: "Unknown error")))
+
+            when (val result = signUpUseCase(
+                userName = _userName.value,
+                email = _email.value,
+                password = _password.value
+            )) {
+                is NetworkResult.Success -> {
+                    result.data?.let { signUpResultData ->
+                        Log.d("SignUpViewModel", "SignUp Success: $signUpResultData")
+                        _signUpResult.emit(Result.success(signUpResultData))
+                    } ?: run {
+                        Log.e("SignUpViewModel", "SignUp Success but empty result")
+                        _signUpResult.emit(Result.failure(Exception("Empty response data")))
+                    }
                 }
-            } catch (e: Exception) {
-                _signUpResult.emit(Result.failure(e))
-            } finally {
-                _isLoading.value = false
+                is NetworkResult.Error -> {
+                    Log.e("SignUpViewModel", "SignUp Error: ${result.message}")
+                    _signUpResult.emit(Result.failure(Exception(result.message ?: "Unknown error")))
+                }
+                is NetworkResult.Loading -> {}
             }
+
+            _isLoading.value = false
         }
     }
 }

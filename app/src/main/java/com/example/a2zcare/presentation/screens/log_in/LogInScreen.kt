@@ -160,7 +160,7 @@ fun LogInScreen(
                     Spacer(Modifier.padding(vertical = 10.dp))
 
                     Text(
-                        text = "Create Password",
+                        text = "Password",
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color.White
                     )

@@ -1,4 +1,4 @@
-package com.example.a2zcare.presentation.screens.steps_tracker
+package com.example.a2zcare.presentation.screens.tracker
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -40,7 +40,7 @@ import com.example.a2zcare.presentation.navegation.Screen
 import com.example.a2zcare.presentation.viewmodel.RunViewModel
 
 @Composable
-fun StepsTrackerScreen(
+fun RunningSession(
     navController: NavController,
     viewModel: RunViewModel = hiltViewModel()
 ) {

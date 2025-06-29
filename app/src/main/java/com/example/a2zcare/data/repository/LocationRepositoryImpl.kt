@@ -192,9 +192,9 @@ class LocationRepositoryImpl @Inject constructor(
 
     override suspend fun getAvailableUsers(): List<User> {
         return try {
-            val response = apiService.getAvailableUsers()
-            if (response.isSuccessful) {
-                response.body() ?: getMockUsers()
+
+            if (true) {
+                 getMockUsers()
             } else {
                 Log.w("LocationRepo", "API failed, returning mock users")
                 getMockUsers()
