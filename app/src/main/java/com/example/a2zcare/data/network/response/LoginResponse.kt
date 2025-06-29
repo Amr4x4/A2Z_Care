@@ -1,8 +1,9 @@
 package com.example.a2zcare.data.network.response
 
+
 import com.google.gson.annotations.SerializedName
 
-data class SignUpResultResponse(
+data class LoginResultResponse(
     @SerializedName("id") val id: String? = null,
     @SerializedName("userName") val userName: String? = null,
     @SerializedName("email") val email: String? = null,
@@ -12,10 +13,10 @@ data class SignUpResultResponse(
     @SerializedName("success") val success: Boolean? = null
 )
 
-fun SignUpResultResponse.getWelcomeMessage(): String {
+fun LoginResultResponse.getWelcomeMessage(): String {
     return when {
         !message.isNullOrBlank() -> message
-        !userName.isNullOrBlank() -> "Welcome $userName! Registration successful!"
-        else -> "Registration successful! Please login to continue."
+        !userName.isNullOrBlank() -> "Welcome back, $userName!"
+        else -> "Login successful!"
     }
 }

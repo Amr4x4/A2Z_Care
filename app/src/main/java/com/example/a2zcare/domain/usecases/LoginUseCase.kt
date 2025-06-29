@@ -9,12 +9,12 @@ class LoginUseCase @Inject constructor(
     private val authRepository: AuthRepository
 ) {
     suspend operator fun invoke(
-        email: String,
+        email: String, // This can be email or username
         password: String
     ): NetworkResult<LoginResultResponse> {
 
         if (email.isBlank()) {
-            return NetworkResult.Error("Email cannot be empty")
+            return NetworkResult.Error("Email/Username cannot be empty")
         }
 
         if (password.isBlank()) {
