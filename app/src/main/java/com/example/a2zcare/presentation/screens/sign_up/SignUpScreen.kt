@@ -190,7 +190,7 @@ fun SignUpScreen(
                         ),
                     )
 
-                    Spacer(Modifier.padding(vertical = 10.dp))
+                    Spacer(Modifier.padding(vertical = 8.dp))
 
                     Text(
                         text = "Email",
@@ -217,7 +217,7 @@ fun SignUpScreen(
                             keyboardType = KeyboardType.Email
                         )
                     )
-                    Spacer(Modifier.padding(vertical = 10.dp))
+                    Spacer(Modifier.padding(vertical = 8.dp))
 
                     Text(
                         text = "Create Password",
@@ -243,7 +243,7 @@ fun SignUpScreen(
                             val image =
                                 if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
                             IconButton(onClick = viewModel::onTogglePasswordVisibility) {
-                                Icon(imageVector = image, contentDescription = null)
+                                Icon(imageVector = image, contentDescription = null, tint = Color.White)
                             }
                         },
                         keyboardOptions = KeyboardOptions.Default.copy(
@@ -251,7 +251,7 @@ fun SignUpScreen(
                         )
                     )
 
-                    Spacer(Modifier.padding(vertical = 10.dp))
+                    Spacer(Modifier.padding(vertical = 8.dp))
 
                     Text(
                         text = "Confirm Password",
@@ -287,7 +287,7 @@ fun SignUpScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 16.dp),
+                            .padding(vertical = 12.dp),
                         horizontalArrangement = Arrangement.Start,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -297,7 +297,7 @@ fun SignUpScreen(
                             colors = CheckboxDefaults.colors(
                                 checkmarkColor = Color.White,
                                 uncheckedColor = Color.White,
-                                checkedColor = MaterialTheme.colorScheme.primary
+                                checkedColor = Color.Red
                             )
                         )
                         Spacer(modifier = Modifier.width(8.dp))
@@ -312,24 +312,36 @@ fun SignUpScreen(
                                 textDecoration = TextDecoration.Underline,
                                 fontWeight = FontWeight.Bold
                             ),
-                            color = MaterialTheme.colorScheme.primary,
+                            color = Color.Red,
                             modifier = Modifier.clickable {
                                 isTermsAndConditionsDialogOpen = true
                             }
                         )
                     }
-
-                    Spacer(Modifier.padding(vertical = 20.dp))
-
-                    ConfirmButton(
-                        text = "Sign Up",
-                        onClick = viewModel::signUp,
-                        enabled = isSignUpEnabled,
-                        isLoading = isLoading,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
-                    Spacer(Modifier.padding(vertical = 16.dp))
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Text(
+                            text = "Already have an account? ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White
+                        )
+                        Text(
+                            text = "Sign In",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                textDecoration = TextDecoration.Underline,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = Color.Red,
+                            modifier = Modifier.clickable {
+                                navController.navigate(Screen.LogIn.route) {
+                                    popUpTo(Screen.SignUp.route) { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+                    Spacer(Modifier.padding(vertical = 12.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -351,33 +363,17 @@ fun SignUpScreen(
                         )
                     }
 
-                    Spacer(Modifier.padding(vertical = 16.dp))
+                    Spacer(Modifier.padding(vertical = 12.dp))
                     GoogleButton()
-                    Spacer(Modifier.padding(vertical = 20.dp))
+                    Spacer(Modifier.padding(vertical = 12.dp))
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = "Already have an account? ",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White
-                        )
-                        Text(
-                            text = "Sign In",
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                textDecoration = TextDecoration.Underline,
-                                fontWeight = FontWeight.Bold
-                            ),
-                            color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.clickable {
-                                navController.navigate(Screen.LogIn.route) {
-                                    popUpTo(Screen.SignUp.route) { inclusive = true }
-                                }
-                            }
-                        )
-                    }
+                    ConfirmButton(
+                        text = "Sign Up",
+                        onClick = viewModel::signUp,
+                        enabled = isSignUpEnabled,
+                        isLoading = isLoading,
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
         }

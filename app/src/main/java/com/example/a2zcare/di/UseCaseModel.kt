@@ -1,8 +1,11 @@
 package com.example.a2zcare.di
 
+import com.example.a2zcare.domain.repository.AuthRepository
 import com.example.a2zcare.domain.repository.StepTrackerRepository
 import com.example.a2zcare.domain.usecases.CalculateTargetsUseCase
+import com.example.a2zcare.domain.usecases.ForgetPasswordUseCase
 import com.example.a2zcare.domain.usecases.StepTrackingUseCase
+import com.example.a2zcare.domain.usecases.ValidateEmailUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,4 +30,16 @@ object UseCaseModule {
     ): StepTrackingUseCase {
         return StepTrackingUseCase(repository, calculateTargetsUseCase)
     }
+
+    @Provides
+    fun provideValidateEmailUseCase(): ValidateEmailUseCase {
+        return ValidateEmailUseCase()
+    }
+    @Provides
+    fun provideForgetPasswordUseCase(
+        authRepository: AuthRepository
+    ): ForgetPasswordUseCase {
+        return ForgetPasswordUseCase(authRepository)
+    }
+
 }

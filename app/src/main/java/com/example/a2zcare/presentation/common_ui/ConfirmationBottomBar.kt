@@ -24,20 +24,22 @@ import com.example.a2zcare.presentation.theme.unselected
 fun ConfirmationBottomBar(
     buttonText: String,
     enabled: Boolean,
-    onConfirmationClick: () -> Unit
+    onConfirmationClick: () -> Unit,
+    content: (@Composable () -> Unit)? = null
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 12.dp, vertical = 36.dp)
+            .padding(start = 12.dp, end = 12.dp, bottom = 36.dp)
     ) {
         HorizontalDivider(
             modifier = Modifier.fillMaxWidth(),
             color = Color.Gray
         )
         Spacer(modifier = Modifier.height(8.dp))
+
         Button(
-            onClick = { onConfirmationClick },
+            onClick = onConfirmationClick,
             modifier = Modifier.fillMaxWidth(),
             enabled = enabled,
             colors = ButtonDefaults.buttonColors(
@@ -47,19 +49,20 @@ fun ConfirmationBottomBar(
                 disabledContentColor = Color.Gray
             )
         ) {
-            Text(
-                text = buttonText,
-                style = MaterialTheme.typography.displaySmall.copy(
-                    fontSize = 12.sp,
-                    lineHeight = 16.sp,
-                    fontWeight = FontWeight.Bold
+            if (content != null) {
+                content()
+            } else {
+                Text(
+                    text = buttonText,
+                    style = MaterialTheme.typography.displaySmall.copy(
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 )
-            )
-
+            }
         }
-
     }
-
 }
 
 @Preview

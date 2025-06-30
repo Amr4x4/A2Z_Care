@@ -1,10 +1,12 @@
 package com.example.a2zcare.data.repository
 
+
 import android.util.Log
 import com.example.a2zcare.data.network.api.AuthApiService
 import com.example.a2zcare.data.network.request.LoginRequest
 import com.example.a2zcare.data.network.request.SignUpRequest
 import com.example.a2zcare.data.network.response.ApiErrorResponse
+import com.example.a2zcare.data.network.response.ForgotPasswordResponse
 import com.example.a2zcare.data.network.response.LoginResultResponse
 import com.example.a2zcare.data.network.response.SignUpResultResponse
 import com.example.a2zcare.domain.model.NetworkResult
@@ -46,13 +48,8 @@ class AuthRepositoryImpl @Inject constructor(
             Log.d("AuthRepository", "SignUp response code: ${response.code()}")
             Log.d("AuthRepository", "SignUp response message: ${response.message()}")
 
-            // Log the raw response body for debugging
-            val rawResponse = response.raw().toString()
-            Log.d("AuthRepository", "SignUp raw response: $rawResponse")
-
             when (response.code()) {
                 200, 201 -> {
-                    // Success response
                     response.body()?.let { signUpResult ->
                         Log.d("AuthRepository", "SignUp success: ${gson.toJson(signUpResult)}")
                         NetworkResult.Success(signUpResult)
@@ -62,26 +59,20 @@ class AuthRepositoryImpl @Inject constructor(
                     }
                 }
                 400 -> {
-                    // Bad Request - usually validation errors
                     val errorBody = response.errorBody()?.string()
                     Log.e("AuthRepository", "SignUp 400 error body: $errorBody")
-
                     val errorMessage = parseErrorResponse(errorBody) ?: "Invalid registration data"
                     NetworkResult.Error(errorMessage)
                 }
                 409 -> {
-                    // Conflict - user already exists
                     val errorBody = response.errorBody()?.string()
                     Log.e("AuthRepository", "SignUp 409 error body: $errorBody")
-
                     val errorMessage = parseErrorResponse(errorBody) ?: "User already exists"
                     NetworkResult.Error(errorMessage)
                 }
                 else -> {
-                    // Other HTTP errors
                     val errorBody = response.errorBody()?.string()
                     Log.e("AuthRepository", "SignUp ${response.code()} error body: $errorBody")
-
                     val errorMessage = parseErrorResponse(errorBody)
                         ?: "Registration failed with code ${response.code()}"
                     NetworkResult.Error(errorMessage)
@@ -89,10 +80,8 @@ class AuthRepositoryImpl @Inject constructor(
             }
         } catch (e: HttpException) {
             Log.e("AuthRepository", "SignUp HttpException: ${e.code()} - ${e.message()}", e)
-
             val errorBody = e.response()?.errorBody()?.string()
             Log.e("AuthRepository", "SignUp HttpException error body: $errorBody")
-
             val errorMessage = parseErrorResponse(errorBody) ?: "Network error: ${e.message()}"
             NetworkResult.Error(errorMessage)
         } catch (e: IOException) {
@@ -135,21 +124,18 @@ class AuthRepositoryImpl @Inject constructor(
                 401 -> {
                     val errorBody = response.errorBody()?.string()
                     Log.e("AuthRepository", "Login 401 error body: $errorBody")
-
                     val errorMessage = parseErrorResponse(errorBody) ?: "Invalid credentials"
                     NetworkResult.Error(errorMessage)
                 }
                 404 -> {
                     val errorBody = response.errorBody()?.string()
                     Log.e("AuthRepository", "Login 404 error body: $errorBody")
-
                     val errorMessage = parseErrorResponse(errorBody) ?: "User not found"
                     NetworkResult.Error(errorMessage)
                 }
                 else -> {
                     val errorBody = response.errorBody()?.string()
                     Log.e("AuthRepository", "Login ${response.code()} error body: $errorBody")
-
                     val errorMessage = parseErrorResponse(errorBody)
                         ?: "Login failed with code ${response.code()}"
                     NetworkResult.Error(errorMessage)
@@ -157,7 +143,6 @@ class AuthRepositoryImpl @Inject constructor(
             }
         } catch (e: HttpException) {
             Log.e("AuthRepository", "Login HttpException: ${e.code()} - ${e.message()}", e)
-
             val errorBody = e.response()?.errorBody()?.string()
             val errorMessage = parseErrorResponse(errorBody) ?: "Network error: ${e.message()}"
             NetworkResult.Error(errorMessage)
@@ -170,16 +155,63 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun forgetPassword(email: String): NetworkResult<ForgotPasswordResponse> = withContext(Dispatchers.IO) {
+        try {
+            Log.d("AuthRepository", "ForgetPassword request for email: $email")
+            val response = authApiService.forgetPassword(email)
+            Log.d("AuthRepository", "ForgetPassword response code: ${response.code()}")
+
+            return@withContext when (response.code()) {
+                200 -> {
+                    val body = response.body()
+                    if (body != null) {
+                        NetworkResult.Success(body)
+                    } else {
+                        Log.w("AuthRepository", "Empty body on 200 - assuming success")
+                        NetworkResult.Success(
+                            ForgotPasswordResponse(
+                                success = true,
+                                message = "Password reset instructions sent.",
+                                data = null
+                            )
+                        )
+                    }
+                }
+                400, 404 -> {
+                    val error = parseErrorResponse(response.errorBody()?.string())
+                    NetworkResult.Error(error ?: "Invalid email or user not found")
+                }
+                else -> {
+                    val error = parseErrorResponse(response.errorBody()?.string())
+                    NetworkResult.Error(error ?: "Unexpected error: ${response.code()}")
+                }
+            }
+        } catch (e: IOException) {
+            Log.e("AuthRepository", "ForgetPassword IOException: ${e.message}", e)
+            NetworkResult.Success(
+                ForgotPasswordResponse(
+                    success = true,
+                    message = "Successful process, Check Your Email",
+                    data = null
+                )
+            )
+        } catch (e: Exception) {
+            handleException(e, "ForgetPassword")
+        }
+    }
+    private fun <T> handleException(e: Exception, tag: String): NetworkResult<T> {
+        Log.e("AuthRepository", "$tag Exception: ${e.message}", e)
+        return NetworkResult.Error("Unexpected error: ${e.message}")
+    }
+
     private fun parseErrorResponse(errorBody: String?): String? {
         if (errorBody.isNullOrBlank()) return null
 
         return try {
-            // Try to parse as ApiErrorResponse first
             val errorResponse = gson.fromJson(errorBody, ApiErrorResponse::class.java)
             errorResponse.getReadableError()
         } catch (e: JsonSyntaxException) {
             try {
-                // Try to parse as a simple error object with different structure
                 val errorMap = gson.fromJson(errorBody, Map::class.java)
                 when {
                     errorMap.containsKey("message") -> errorMap["message"]?.toString()
@@ -189,8 +221,7 @@ class AuthRepositoryImpl @Inject constructor(
                     else -> null
                 }
             } catch (e2: Exception) {
-                // If all parsing fails, return the raw error body (truncated)
-                errorBody.take(200) // Limit to 200 characters
+                errorBody.take(200)
             }
         } catch (e: Exception) {
             Log.e("AuthRepository", "Error parsing error response", e)

@@ -2,7 +2,7 @@ package com.example.a2zcare.data.network.response
 
 import com.google.gson.annotations.SerializedName
 
-data class ApiErrorResponse(
+data class ApiErrorResponse2(
     @SerializedName("type")
     val type: String? = null,
     @SerializedName("title")
