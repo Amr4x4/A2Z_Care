@@ -46,6 +46,8 @@
     </string>
     <string name="welcome_prompt">
     Before we begin, please provide us with some personal information to ensure accurate monitoring.
-</string>
-
+    </string>
+    <string name="forgot_password_description">
+    Don\'t worry, we\'ve got you covered. Enter your registered email address, and we\'ll send you an OTP code to reset your password.
+    </string>
 </resources>
