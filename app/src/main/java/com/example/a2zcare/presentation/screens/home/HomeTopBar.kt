@@ -18,7 +18,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -27,21 +31,40 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.a2zcare.R
 import com.example.a2zcare.presentation.theme.backgroundColor
 import com.example.a2zcare.presentation.theme.darkRed
 import com.example.a2zcare.presentation.theme.lightRed
-
+import com.example.a2zcare.presentation.viewmodel.UserViewModel
+import android.util.Log
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeTopBar(
-    userName: String,
+    username: String,
     onBackButtonClick: () -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior
+    scrollBehavior: TopAppBarScrollBehavior,
+    viewModel: UserViewModel = hiltViewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+
+    // Debug logging
+    LaunchedEffect(username) {
+        Log.d("HomeTopBar", "LaunchedEffect triggered with username: '$username'")
+        if (username.isNotEmpty()) {
+            viewModel.fetchUser(username)
+        } else {
+            Log.w("HomeTopBar", "Username is empty!")
+        }
+    }
+
+    // Log state changes
+    LaunchedEffect(uiState) {
+        Log.d("HomeTopBar", "UI State changed - Loading: ${uiState.isLoading}, User: ${uiState.user?.userName}, Error: ${uiState.error}")
+    }
+
     LargeTopAppBar(
         colors = TopAppBarDefaults.largeTopAppBarColors(
             containerColor = backgroundColor,
@@ -71,11 +94,10 @@ fun HomeTopBar(
                     modifier = Modifier
                         .size(width = 100.dp, height = 30.dp)
                         .background(
-                            brush = Brush
-                                .verticalGradient(listOf<Color>(lightRed, darkRed)),
+                            brush = Brush.verticalGradient(listOf(lightRed, darkRed)),
                             shape = RoundedCornerShape(20.dp)
                         ),
-                    onClick = { onBackButtonClick }
+                    onClick = onBackButtonClick
                 ) {
                     Row(
                         modifier = Modifier
@@ -91,36 +113,47 @@ fun HomeTopBar(
                         )
                         Spacer(modifier = Modifier.width(5.dp))
                         Text(
-                            text = "Git Pro",
+                            text = "Get Pro",
                             color = Color.White,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
                 }
-
             }
-
         },
         title = {
-            Text(
-                text = "Welcome $userName \uD83D\uDC4B",
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.White,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-        }
-    )
-}
+            val welcomeText = when {
+                uiState.isLoading -> "Loading..."
+                uiState.user != null -> "Welcome ${uiState.user!!.userName} 👋"
+                uiState.error != null -> "Welcome $username 👋 (Error)"
+                username.isNotEmpty() -> "Welcome $username 👋"
+                else -> "Welcome 👋"
+            }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
-@Composable
-private fun HomeTopPreview() {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    HomeTopBar(
-        userName = "Amr",
-        onBackButtonClick = { },
-        scrollBehavior = scrollBehavior
+            Log.d("HomeTopBar", "Displaying welcome text: '$welcomeText'")
+
+            if (uiState.isLoading) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = welcomeText,
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = Color.White
+                    )
+                }
+            } else {
+                Text(
+                    text = welcomeText,
+                    style = MaterialTheme.typography.headlineMedium,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
     )
 }

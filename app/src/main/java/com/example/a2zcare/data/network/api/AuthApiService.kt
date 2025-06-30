@@ -26,4 +26,5 @@ interface AuthApiService {
     suspend fun forgetPassword(
         @Query("email") email: String
     ): Response<ForgotPasswordResponse>
+
 }

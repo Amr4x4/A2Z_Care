@@ -5,7 +5,7 @@ import android.content.Context
 import android.location.Location
 import android.os.Looper
 import android.util.Log
-import com.example.a2zcare.data.network.ApiService
+import com.example.a2zcare.data.network.api.ApiService
 import com.example.a2zcare.domain.entities.LocationData
 import com.example.a2zcare.domain.entities.User
 import com.example.a2zcare.domain.repository.LocationRepository

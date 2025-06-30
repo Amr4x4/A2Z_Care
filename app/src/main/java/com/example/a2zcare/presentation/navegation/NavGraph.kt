@@ -17,14 +17,15 @@ import com.example.a2zcare.presentation.screens.log_in.forget_password.OPTSentSu
 import com.example.a2zcare.presentation.screens.log_in.forget_password.SelectEmailScreen
 import com.example.a2zcare.presentation.screens.notification.NotificationScreen
 import com.example.a2zcare.presentation.screens.personal_info_onboarding.PersonalOnboardingScreen
+import com.example.a2zcare.presentation.screens.profile.PersonalInformationScreen
 import com.example.a2zcare.presentation.screens.profile.ProfileScreen
 import com.example.a2zcare.presentation.screens.sign_up.SignUpScreen
+import com.example.a2zcare.presentation.screens.steps_tracker.StepsTrackingScreen
 import com.example.a2zcare.presentation.screens.tracker.LocationSharingScreen
 import com.example.a2zcare.presentation.screens.tracker.RunningSession
 import com.example.a2zcare.presentation.screens.tracker.TrackerScreen
 import com.example.a2zcare.presentation.screens.vip.VIPScreen
 import com.example.a2zcare.presentation.screens.water_tracking.WaterTrackingScreen
-import com.example.a2zcare.presentation.screens.steps_tracker.StepsTrackingScreen
 import com.example.a2zcare.presentation.viewmodel.MainNavigationViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 
@@ -94,6 +95,10 @@ fun SetupNavGraph(
             composable(route = Screen.OPTSentSuccessfullyCheckEmail.route) {
                 OPTSentSuccessfullyCheckEmail(navController = navController)
             }
+            composable(route = Screen.PersonalInformationScreen.route) {
+                PersonalInformationScreen(navController = navController)
+            }
+
         }
     }
 }
