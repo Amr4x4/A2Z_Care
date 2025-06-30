@@ -199,9 +199,9 @@ fun LogInScreen(
                             .padding(bottom = 10.dp)
                             .fillMaxWidth()
                     ) {
-                        Row (
+                        Row(
                             verticalAlignment = Alignment.CenterVertically
-                        ){
+                        ) {
                             Checkbox(
                                 checked = isChecked,
                                 onCheckedChange = { isChecked = it },
@@ -216,7 +216,11 @@ fun LogInScreen(
 
                         Text(
                             modifier = Modifier
-                                .clickable(onClick = { /* TODO*/ }),
+                                .clickable(
+                                    onClick = {
+                                        navController.navigate(Screen.SelectEmail.route)
+                                    }
+                                ),
                             text = "Forget Password?",
                             textDecoration = TextDecoration.Underline,
                             color = Color.Red

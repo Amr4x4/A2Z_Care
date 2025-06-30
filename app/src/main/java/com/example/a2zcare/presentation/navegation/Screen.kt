@@ -15,4 +15,5 @@ sealed class Screen(val route: String) {
     object Profile : Screen(route = "profile")
     object StepsTracking : Screen(route = "steps_tracking")
     object LocationSharing : Screen("location_sharing")
+    object SelectEmail : Screen("select_email")
 }
