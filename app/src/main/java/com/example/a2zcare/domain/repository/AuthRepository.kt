@@ -1,5 +1,7 @@
 package com.example.a2zcare.domain.repository
 
+
+import com.example.a2zcare.data.network.response.ForgotPasswordResponse
 import com.example.a2zcare.data.network.response.LoginResultResponse
 import com.example.a2zcare.data.network.response.SignUpResultResponse
 import com.example.a2zcare.domain.model.NetworkResult
@@ -16,4 +18,8 @@ interface AuthRepository {
         email: String,
         password: String
     ): NetworkResult<LoginResultResponse>
+
+    suspend fun forgetPassword(
+        email: String
+    ): NetworkResult<ForgotPasswordResponse>
 }

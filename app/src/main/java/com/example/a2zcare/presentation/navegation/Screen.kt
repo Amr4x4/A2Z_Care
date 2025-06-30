@@ -16,4 +16,6 @@ sealed class Screen(val route: String) {
     object StepsTracking : Screen(route = "steps_tracking")
     object LocationSharing : Screen("location_sharing")
     object SelectEmail : Screen("select_email")
+    object OPTSentSuccessfullyCheckEmail : Screen("opt_sent_successfully_check_email")
+
 }

@@ -13,6 +13,7 @@ import com.example.a2zcare.presentation.onboarding.OnBoardingNav
 import com.example.a2zcare.presentation.screens.get_start.GetStart
 import com.example.a2zcare.presentation.screens.home.HomeScreen
 import com.example.a2zcare.presentation.screens.log_in.LogInScreen
+import com.example.a2zcare.presentation.screens.log_in.forget_password.OPTSentSuccessfullyCheckEmail
 import com.example.a2zcare.presentation.screens.log_in.forget_password.SelectEmailScreen
 import com.example.a2zcare.presentation.screens.notification.NotificationScreen
 import com.example.a2zcare.presentation.screens.personal_info_onboarding.PersonalOnboardingScreen
@@ -89,6 +90,9 @@ fun SetupNavGraph(
             }
             composable(route = Screen.SelectEmail.route) {
                 SelectEmailScreen(navController = navController)
+            }
+            composable(route = Screen.OPTSentSuccessfullyCheckEmail.route) {
+                OPTSentSuccessfullyCheckEmail(navController = navController)
             }
         }
     }
