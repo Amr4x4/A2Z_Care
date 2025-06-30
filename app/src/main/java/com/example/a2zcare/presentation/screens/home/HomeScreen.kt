@@ -26,7 +26,8 @@ import com.example.a2zcare.presentation.theme.backgroundColor
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    navController: NavController
+    navController: NavController,
+    userName: String = ""
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     var selectedIndex by rememberSaveable { mutableIntStateOf(0) }
@@ -34,8 +35,8 @@ fun HomeScreen(
     Scaffold(
         topBar = {
             HomeTopBar(
-                userName = "Amr",
-                onBackButtonClick = { },
+                username = userName,
+                onBackButtonClick = { /* Handle pro upgrade */ },
                 scrollBehavior = scrollBehavior
             )
         },
@@ -52,12 +53,12 @@ fun HomeScreen(
             )
         }
     ) { innerPadding ->
-        LazyColumn (
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .background(color = backgroundColor)
                 .padding(innerPadding)
-        ){
+        ) {
             item {
                 Column(
                     modifier = Modifier.fillMaxSize(),
@@ -65,10 +66,10 @@ fun HomeScreen(
                     horizontalAlignment = Alignment.Start
                 ) {
                     HeartRateCard()
-                    Row (
+                    Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
-                    ){
+                    ) {
                         StepsCard(
                             modifier = Modifier.weight(1f),
                             navController = navController
@@ -85,12 +86,11 @@ fun HomeScreen(
                 }
             }
         }
-
     }
 }
 
 @Preview
 @Composable
 private fun PreviewHomeScreen() {
-    HomeScreen( navController = rememberNavController())
+    HomeScreen(navController = rememberNavController(), userName = "TestUser")
 }

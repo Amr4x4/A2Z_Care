@@ -1,6 +1,6 @@
 package com.example.a2zcare.di
 
-import com.example.a2zcare.data.network.ApiService
+import com.example.a2zcare.data.network.api.ApiService
 import com.example.a2zcare.data.network.api.ApiConstants
 import com.example.a2zcare.data.network.api.AuthApiService
 import dagger.Module
