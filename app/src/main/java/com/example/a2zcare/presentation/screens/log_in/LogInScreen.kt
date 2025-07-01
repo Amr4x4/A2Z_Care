@@ -90,6 +90,13 @@ fun LogInScreen(
             }
         }
     }
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            viewModel.clearMessages()
+        }
+    }
+
 
     Scaffold(
         modifier =
@@ -268,6 +275,7 @@ fun LogInScreen(
                             viewModel.login(
                                 email = email,
                                 password = password,
+                                username = ""
                             )
                         },
                         isLoading = isLoading,

@@ -151,8 +151,8 @@ class AuthViewModel @Inject constructor(
 
     fun register(userName: String, email: String, password: String, role: Int = 0) {
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
             _isLoading.value = true
+            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
             val request = RegisterRequest(userName, password, email, role)
             when (val result = registerUseCase(request)) {
@@ -173,8 +173,8 @@ class AuthViewModel @Inject constructor(
                 }
 
                 is Result.Loading -> {
-                    _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
                     _isLoading.value = result.isLoading
+                    _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
                 }
             }
         }
@@ -194,11 +194,13 @@ class AuthViewModel @Inject constructor(
 
     fun login(email: String, password: String, username: String = "") {
         viewModelScope.launch {
+            _isLoading.value = true
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
             val request = LoginRequest(email, password, username)
             when (val result = loginUseCase(request)) {
                 is Result.Success<Unit> -> {
+                    _isLoading.value = false
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         isLoggedIn = true,
@@ -207,6 +209,7 @@ class AuthViewModel @Inject constructor(
                 }
 
                 is Result.Error -> {
+                    _isLoading.value = false // Add this line
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         errorMessage = result.message
@@ -214,6 +217,7 @@ class AuthViewModel @Inject constructor(
                 }
 
                 is Result.Loading -> {
+                    _isLoading.value = result.isLoading
                     _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
                 }
             }
@@ -222,6 +226,7 @@ class AuthViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
+            _isLoading.value = true
             _uiState.value = _uiState.value.copy(isLoading = true)
 
             when (val result = logoutUseCase(Unit)) {
@@ -241,6 +246,7 @@ class AuthViewModel @Inject constructor(
                 }
 
                 is Result.Loading -> {
+                    _isLoading.value = result.isLoading
                     _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
                 }
             }
@@ -249,6 +255,7 @@ class AuthViewModel @Inject constructor(
 
     fun forgotPassword(email: String) {
         viewModelScope.launch {
+            _isLoading.value = true
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
             when (val result = forgotPasswordUseCase(email)) {
@@ -267,6 +274,7 @@ class AuthViewModel @Inject constructor(
                 }
 
                 is Result.Loading -> {
+                    _isLoading.value = result.isLoading
                     _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
                 }
             }
@@ -275,6 +283,7 @@ class AuthViewModel @Inject constructor(
 
     fun resetPassword(email: String, currentPassword: String, newPassword: String) {
         viewModelScope.launch {
+            _isLoading.value = true
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
             val request = ResetPasswordRequest(email, currentPassword, newPassword)
@@ -294,6 +303,7 @@ class AuthViewModel @Inject constructor(
                 }
 
                 is Result.Loading -> {
+                    _isLoading.value = result.isLoading
                     _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
                 }
             }
