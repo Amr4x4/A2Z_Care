@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,15 +59,15 @@ import com.example.a2zcare.presentation.common_ui.SigningTopAppBar
 import com.example.a2zcare.presentation.common_ui.ValidatedTextField
 import com.example.a2zcare.presentation.navegation.Screen
 import com.example.a2zcare.presentation.theme.backgroundColor
-import com.example.a2zcare.presentation.viewmodel.LoginViewModel
-import kotlinx.coroutines.flow.collectLatest
+import com.example.a2zcare.presentation.viewmodel.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogInScreen(
     navController: NavController,
-    viewModel: LoginViewModel = hiltViewModel(),
+    viewModel: AuthViewModel = hiltViewModel(),
 ) {
+    val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val email by viewModel.email.collectAsStateWithLifecycle()
     val password by viewModel.password.collectAsStateWithLifecycle()
@@ -81,17 +82,21 @@ fun LogInScreen(
     val snackBarHostState = remember { SnackbarHostState() }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    LaunchedEffect(Unit) {
-        viewModel.loginResult.collectLatest { result ->
-            result.onSuccess {
-                Toast.makeText(context, "Log In Successful!", Toast.LENGTH_LONG).show()
-                navController.navigate(Screen.Home.route)
-            }
-            result.onFailure { e ->
-                snackBarHostState.showSnackbar("Log In Failed: ${e.message ?: "Unknown error"}")
+    LaunchedEffect(uiState.isLoggedIn) {
+        if (uiState.isLoggedIn) {
+            Toast.makeText(context, "Log In Successful!", Toast.LENGTH_LONG).show()
+            navController.navigate(Screen.Home.route) {
+                popUpTo(Screen.LogIn.route) { inclusive = true }
             }
         }
     }
+    LaunchedEffect(uiState.errorMessage) {
+        uiState.errorMessage?.let { message ->
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            viewModel.clearMessages()
+        }
+    }
+
 
     Scaffold(
         modifier =
@@ -266,7 +271,13 @@ fun LogInScreen(
 
                     ConfirmButton(
                         enabled = isLoginEnabled,
-                        onClick = viewModel::login,
+                        onClick = {
+                            viewModel.login(
+                                email = email,
+                                password = password,
+                                username = ""
+                            )
+                        },
                         isLoading = isLoading,
                         text = "Log In",
                         modifier = Modifier.padding(bottom = 12.dp)

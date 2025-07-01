@@ -1,8 +1,8 @@
 package com.example.a2zcare.di
 
-import com.example.a2zcare.data.repository.AuthRepositoryImpl
+import com.example.a2zcare.data.repository.HealthMonitoringRepositoryImpl
 import com.example.a2zcare.data.repository.WaterTrackingRepositoryImpl
-import com.example.a2zcare.domain.repository.AuthRepository
+import com.example.a2zcare.domain.repository.HealthMonitoringRepository
 import com.example.a2zcare.domain.repository.WaterTrackingRepository
 import dagger.Binds
 import dagger.Module
@@ -19,10 +19,9 @@ abstract class RepositoryModule {
     ): WaterTrackingRepository
 
     @Binds
-    @Singleton
-    abstract fun bindAuthRepository(
-        authRepositoryImpl: AuthRepositoryImpl
-    ): AuthRepository
+    abstract fun bindHealthMonitoringRepository(
+        healthMonitoringRepositoryImpl: HealthMonitoringRepositoryImpl
+    ): HealthMonitoringRepository
 
 }
 

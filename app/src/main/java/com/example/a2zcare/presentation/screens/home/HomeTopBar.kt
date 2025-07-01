@@ -54,7 +54,6 @@ fun HomeTopBar(
     LaunchedEffect(username) {
         Log.d("HomeTopBar", "LaunchedEffect triggered with username: '$username'")
         if (username.isNotEmpty()) {
-            viewModel.fetchUser(username)
         } else {
             Log.w("HomeTopBar", "Username is empty!")
         }
@@ -62,7 +61,7 @@ fun HomeTopBar(
 
     // Log state changes
     LaunchedEffect(uiState) {
-        Log.d("HomeTopBar", "UI State changed - Loading: ${uiState.isLoading}, User: ${uiState.user?.userName}, Error: ${uiState.error}")
+        //Log.d("HomeTopBar", "UI State changed - Loading: ${uiState.isLoading}, User: ${uiState.user?.userName}, Error: ${uiState.error}")
     }
 
     LargeTopAppBar(
@@ -124,8 +123,8 @@ fun HomeTopBar(
         title = {
             val welcomeText = when {
                 uiState.isLoading -> "Loading..."
-                uiState.user != null -> "Welcome ${uiState.user!!.userName} 👋"
-                uiState.error != null -> "Welcome $username 👋 (Error)"
+                //uiState.user != null -> "Welcome ${uiState.user!!.userName} 👋"
+                //uiState.error != null -> "Welcome $username 👋 (Error)"
                 username.isNotEmpty() -> "Welcome $username 👋"
                 else -> "Welcome 👋"
             }

@@ -1,8 +1,6 @@
 package com.example.a2zcare.di
 
-import com.example.a2zcare.data.network.api.ApiService
-import com.example.a2zcare.data.network.api.ApiConstants
-import com.example.a2zcare.data.network.api.AuthApiService
+import com.example.a2zcare.data.remote.api.HealthMonitoringApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,25 +16,28 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
+    private const val BASE_URL = "http://healthmonitoring.runasp.net/"
+
     @Provides
     @Singleton
     fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
-            setLevel(HttpLoggingInterceptor.Level.HEADERS) // Add this for headers
         }
     }
 
     @Provides
     @Singleton
     fun provideOkHttpClient(
-        loggingInterceptor: HttpLoggingInterceptor
+        loggingInterceptor: HttpLoggingInterceptor,
+        authInterceptor: AuthInterceptor
     ): OkHttpClient {
         return OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
-            .connectTimeout(ApiConstants.CONNECT_TIMEOUT, TimeUnit.SECONDS)
-            .readTimeout(ApiConstants.READ_TIMEOUT, TimeUnit.SECONDS)
-            .writeTimeout(ApiConstants.WRITE_TIMEOUT, TimeUnit.SECONDS)
+            .addInterceptor(authInterceptor)
+            .connectTimeout(30, TimeUnit.SECONDS)
+            .readTimeout(30, TimeUnit.SECONDS)
+            .writeTimeout(30, TimeUnit.SECONDS)
             .build()
     }
 
@@ -44,22 +45,16 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(ApiConstants.BASE_URL)
+            .baseUrl(BASE_URL)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 
-
     @Provides
     @Singleton
-    fun provideApiService(retrofit: Retrofit): ApiService {
-        return retrofit.create(ApiService::class.java)
-    }
-
-    @Provides
-    @Singleton
-    fun provideAuthApiService(retrofit: Retrofit): AuthApiService {
-        return retrofit.create(AuthApiService::class.java)
+    fun provideHealthMonitoringApiService(retrofit: Retrofit): HealthMonitoringApiService {
+        return retrofit.create(HealthMonitoringApiService::class.java)
     }
 }
+
