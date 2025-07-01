@@ -1,7 +1,5 @@
 package com.example.a2zcare.presentation.screens.sign_up
 
-import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -45,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -64,17 +61,17 @@ import com.example.a2zcare.presentation.common_ui.SigningTopAppBar
 import com.example.a2zcare.presentation.common_ui.ValidatedTextField
 import com.example.a2zcare.presentation.navegation.Screen
 import com.example.a2zcare.presentation.theme.backgroundColor
-import com.example.a2zcare.presentation.viewmodel.SignUpViewModel
-import kotlinx.coroutines.flow.collectLatest
+import com.example.a2zcare.presentation.viewmodel.AuthViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
     navController: NavController,
-    viewModel: SignUpViewModel = hiltViewModel()
+    viewModel: AuthViewModel = hiltViewModel()
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
+    val uiState by viewModel.uiState.collectAsState()
     val userName by viewModel.userName.collectAsState()
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
@@ -87,11 +84,19 @@ fun SignUpScreen(
     val confirmPasswordError by viewModel.confirmPasswordError.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val isSignUpEnabled by viewModel.isSignUpEnabled.collectAsState()
-    val context = LocalContext.current
 
     val snackBarHostState = remember { SnackbarHostState() }
 
     var isTermsAndConditionsDialogOpen by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(uiState) {
+        when {
+            uiState.errorMessage != null -> {
+                snackBarHostState.showSnackbar(uiState.errorMessage!!)
+                viewModel.clearMessages()
+            }
+        }
+    }
 
     TermsAndConditionsAlertDialog(
         isOpen = isTermsAndConditionsDialogOpen,
@@ -103,26 +108,6 @@ fun SignUpScreen(
             isTermsAndConditionsDialogOpen = false
         }
     )
-    LaunchedEffect(Unit) {
-        viewModel.signUpResult.collectLatest { result ->
-            result.onSuccess { signUpResponse ->
-                Log.d("SignUpScreen", "SignUp Success: $signUpResponse")
-                Toast.makeText(
-                    context,
-                    "Sign Up Successful! Welcome ${signUpResponse.userName ?: "User"}!",
-                    Toast.LENGTH_LONG
-                ).show()
-
-                navController.navigate(Screen.PersonalOnBoarding.route) {
-                    popUpTo(Screen.SignUp.route) { inclusive = true }
-                }
-            }
-            result.onFailure { e ->
-                Log.e("SignUpScreen", "SignUp Failure: ${e.message}")
-                snackBarHostState.showSnackbar("Sign Up Failed: ${e.message ?: "Unknown error"}")
-            }
-        }
-    }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -369,7 +354,16 @@ fun SignUpScreen(
 
                     ConfirmButton(
                         text = "Sign Up",
-                        onClick = viewModel::signUp,
+                        onClick = {
+                            viewModel.register(
+                                userName = userName,
+                                email = email,
+                                password = password
+                            )
+                            navController.navigate(Screen.PersonalOnBoarding.route) {
+                                popUpTo(Screen.SignUp.route) { inclusive = true }
+                            }
+                        },
                         enabled = isSignUpEnabled,
                         isLoading = isLoading,
                         modifier = Modifier.fillMaxWidth()

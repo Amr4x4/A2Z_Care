@@ -5,7 +5,7 @@ import android.content.Context
 import android.location.Location
 import android.os.Looper
 import android.util.Log
-import com.example.a2zcare.data.network.api.ApiService
+import com.example.a2zcare.data.remote.api.HealthMonitoringApiService
 import com.example.a2zcare.domain.entities.LocationData
 import com.example.a2zcare.domain.entities.User
 import com.example.a2zcare.domain.repository.LocationRepository
@@ -24,7 +24,7 @@ import kotlin.coroutines.resume
 @Singleton
 class LocationRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val apiService: ApiService
+    private val healthMonitoringApiService: HealthMonitoringApiService
 ) : LocationRepository {
 
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -179,7 +179,7 @@ class LocationRepositoryImpl @Inject constructor(
 
     override suspend fun shareLocationWith(userId: String, location: LocationData) {
         try {
-            val response = apiService.shareLocation(userId, location)
+            val response = healthMonitoringApiService.shareLocation(userId, location)
             if (response.isSuccessful) {
                 Log.d("LocationRepo", "Location shared with $userId")
             } else {

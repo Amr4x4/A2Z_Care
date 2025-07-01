@@ -2,11 +2,11 @@ package com.example.a2zcare.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.a2zcare.data.model.UpdateUserRequest
+import com.example.a2zcare.data.model.EmergencyContactRequest
 import com.example.a2zcare.data.remote.response.TokenManager
-import com.example.a2zcare.domain.usecases.GetUserDataUseCase
-import com.example.a2zcare.domain.usecases.UpdateUserUseCase
-import com.example.a2zcare.presentation.ui_state_classes.UserUiState
+import com.example.a2zcare.domain.usecases.CreateEmergencyContactUseCase
+import com.example.a2zcare.domain.usecases.GetEmergencyContactsUseCase
+import com.example.a2zcare.presentation.ui_state_classes.EmergencyContactUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,26 +16,26 @@ import javax.inject.Inject
 import com.example.a2zcare.domain.model.Result
 
 @HiltViewModel
-class UserViewModel @Inject constructor(
-    private val getUserDataUseCase: GetUserDataUseCase,
-    private val updateUserUseCase: UpdateUserUseCase,
+class EmergencyContactViewModel @Inject constructor(
+    private val createEmergencyContactUseCase: CreateEmergencyContactUseCase,
+    private val getEmergencyContactsUseCase: GetEmergencyContactsUseCase,
     private val tokenManager: TokenManager
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(UserUiState())
-    val uiState: StateFlow<UserUiState> = _uiState.asStateFlow()
+    private val _uiState = MutableStateFlow(EmergencyContactUiState())
+    val uiState: StateFlow<EmergencyContactUiState> = _uiState.asStateFlow()
 
-    fun getUserData() {
+    fun getEmergencyContacts() {
         viewModelScope.launch {
             val userId = tokenManager.getUserId()
             if (userId != null) {
                 _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
-                when (val result = getUserDataUseCase(userId)) {
+                when (val result = getEmergencyContactsUseCase(userId)) {
                     is Result.Success -> {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
-                            userData = result.data
+                            contacts = result.data
                         )
                     }
                     is Result.Error -> {
@@ -56,21 +56,21 @@ class UserViewModel @Inject constructor(
         }
     }
 
-    fun updateUser(request: UpdateUserRequest) {
+    fun createEmergencyContact(request: EmergencyContactRequest) {
         viewModelScope.launch {
             val userId = tokenManager.getUserId()
             if (userId != null) {
                 _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
-                val params = UpdateUserUseCase.Params(userId, request)
-                when (val result = updateUserUseCase(params)) {
+                val params = CreateEmergencyContactUseCase.Params(userId, request)
+                when (val result = createEmergencyContactUseCase(params)) {
                     is Result.Success -> {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
-                            successMessage = "User updated successfully!"
+                            successMessage = "Emergency contact created successfully!"
                         )
-                        // Refresh user data after update
-                        getUserData()
+                        // Refresh contacts after creation
+                        getEmergencyContacts()
                     }
                     is Result.Error -> {
                         _uiState.value = _uiState.value.copy(

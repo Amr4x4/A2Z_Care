@@ -3,11 +3,6 @@ package com.example.a2zcare.domain.usecases
 import com.example.a2zcare.domain.entities.ActivityLevel
 import com.example.a2zcare.domain.entities.CalorieIntakeType
 import com.example.a2zcare.domain.entities.Gender
-import com.example.a2zcare.domain.entities.StepDataTracker
-import com.example.a2zcare.domain.repository.StepTrackerRepository
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 class CalculateTargetsUseCase {
 

@@ -46,14 +46,13 @@ import com.example.a2zcare.presentation.common_ui.ValidatedTextField
 import com.example.a2zcare.presentation.navegation.Screen
 import com.example.a2zcare.presentation.theme.backgroundColor
 import com.example.a2zcare.presentation.theme.successGreen
-import com.example.a2zcare.presentation.viewmodel.forget_password_view_model.SelectEmailViewModel
 import com.google.android.material.snackbar.Snackbar
 
 @Composable
 fun SelectEmailScreen(
     navController: NavController,
-    viewModel: SelectEmailViewModel = hiltViewModel()
 ) {
+    /*
     val email by viewModel.email.collectAsState()
     val emailError by viewModel.emailError.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -177,6 +176,7 @@ fun SelectEmailScreen(
             )
         }
     }
+     */
 }
 
 @Preview

@@ -48,6 +48,7 @@ fun PersonalCard(
     navController: NavController,
     viewModel: UserViewModel = hiltViewModel()
 ) {
+    /*
     val uiState by viewModel.uiState.collectAsState()
 
     // Debug logging
@@ -183,4 +184,5 @@ fun PersonalCard(
             }
         }
     }
+     */
 }
