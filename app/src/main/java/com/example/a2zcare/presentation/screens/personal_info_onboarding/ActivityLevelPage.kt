@@ -9,15 +9,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.a2zcare.domain.entities.ActivityLevel
 import com.example.a2zcare.presentation.theme.backgroundColor
 import com.example.a2zcare.presentation.theme.navBarBackground
 
-
 @Composable
 fun ActivityLevelPage(
-    selectedActivityLevel: ActivityLevel?,
-    onActivityLevelSelected: (ActivityLevel) -> Unit
+    selectedActivityLevel: String?,
+    onActivityLevelSelected: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -34,15 +32,15 @@ fun ActivityLevelPage(
         )
         Spacer(modifier = Modifier.height(15.dp))
 
-        val activityDescriptions = mapOf(
-            ActivityLevel.SEDENTARY to "Little to no exercise",
-            ActivityLevel.LIGHTLY_ACTIVE to "Light exercise 1-3 days/week",
-            ActivityLevel.MODERATELY_ACTIVE to "Moderate exercise 3-5 days/week",
-            ActivityLevel.VERY_ACTIVE to "Hard exercise 6-7 days/week",
-            ActivityLevel.EXTREMELY_ACTIVE to "Very hard exercise, training twice/day"
+        val activityLevels = mapOf(
+            "Sedentary" to "Little to no exercise",
+            "Lightly Active" to "Light exercise 1-3 days/week",
+            "Moderately Active" to "Moderate exercise 3-5 days/week",
+            "Very Active" to "Hard exercise 6-7 days/week",
+            "Extremely Active" to "Very hard exercise, training twice/day"
         )
 
-        ActivityLevel.values().forEach { level ->
+        activityLevels.forEach { (level, description) ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -69,14 +67,12 @@ fun ActivityLevelPage(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = level.name.lowercase().split('_').joinToString(" ") {
-                                it.replaceFirstChar { char -> char.uppercase() }
-                            },
+                            text = level,
                             style = MaterialTheme.typography.bodyLarge,
                             color = Color.White
                         )
                         Text(
-                            text = activityDescriptions[level] ?: "",
+                            text = description,
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.LightGray
                         )

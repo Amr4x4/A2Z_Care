@@ -2,20 +2,25 @@ package com.example.a2zcare.presentation.screens.personal_info_onboarding
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -36,7 +41,6 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import kotlinx.coroutines.launch
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PersonalOnboardingScreen(
@@ -55,80 +59,145 @@ fun PersonalOnboardingScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-            .padding(horizontal = 12.dp, vertical = 24.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        LinearProgressIndicator(
-            progress = { (pagerState.currentPage + 1) / 5f },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            color = Color.Red,
-            trackColor = Color.DarkGray
+    // Show error dialog if there's an error
+    uiState.errorMessage?.let { errorMessage ->
+        AlertDialog(
+            onDismissRequest = { viewModel.clearError() },
+            title = {
+                Text(
+                    text = "Error",
+                    color = Color.White
+                )
+            },
+            text = {
+                Text(
+                    text = errorMessage,
+                    color = Color.White
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { viewModel.clearError() }
+                ) {
+                    Text("OK", color = Color.White)
+                }
+            },
+            containerColor = backgroundColor
         )
+    }
 
-        HorizontalPager(
-            count = 5,
-            state = pagerState,
-            modifier = Modifier.weight(1f)
-        ) { page ->
-            when (page) {
-                0 -> WelcomePage()
-                1 -> PersonalInfoPage(
-                    age = uiState.age,
-                    height = uiState.height,
-                    weight = uiState.weight,
-                    onAgeChange = viewModel::updateAge,
-                    onHeightChange = viewModel::updateHeight,
-                    onWeightChange = viewModel::updateWeight
-                )
-
-                2 -> GenderPage(
-                    selectedGender = uiState.gender,
-                    onGenderSelected = viewModel::updateGender
-                )
-
-                3 -> ActivityLevelPage(
-                    selectedActivityLevel = uiState.activityLevel,
-                    onActivityLevelSelected = viewModel::updateActivityLevel
-                )
-
-                4 -> CalorieIntakePage(
-                    selectedCalorieIntakeType = uiState.calorieIntakeType,
-                    onCalorieIntakeTypeSelected = viewModel::updateCalorieIntakeType,
-                    stepsTarget = uiState.calculatedStepsTarget,
-                    caloriesTarget = uiState.calculatedCaloriesTarget
-                )
-            }
-        }
-
+    Box(modifier = Modifier.fillMaxSize()) {
         Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(backgroundColor)
+                .padding(horizontal = 12.dp, vertical = 24.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            HorizontalDivider(
+            LinearProgressIndicator(
+                progress = { (pagerState.currentPage + 1) / 6f },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
-                color = Color.DarkGray
+                color = Color.Red,
+                trackColor = Color.DarkGray
             )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+
+            HorizontalPager(
+                count = 6,
+                state = pagerState,
+                modifier = Modifier.weight(1f)
+            ) { page ->
+                when (page) {
+                    0 -> WelcomePage()
+                    1 -> BasicInfoPage(
+                        firstName = uiState.firstName,
+                        lastName = uiState.lastName,
+                        phoneNumber = uiState.phoneNumber,
+                        onFirstNameChange = viewModel::updateFirstName,
+                        onLastNameChange = viewModel::updateLastName,
+                        onPhoneNumberChange = viewModel::updatePhoneNumber
+                    )
+                    2 -> PersonalInfoPage(
+                        age = uiState.age,
+                        height = uiState.height,
+                        weight = uiState.weight,
+                        onAgeChange = viewModel::updateAge,
+                        onHeightChange = viewModel::updateHeight,
+                        onWeightChange = viewModel::updateWeight
+                    )
+                    3 -> GenderPage(
+                        selectedGender = uiState.gender,
+                        onGenderSelected = viewModel::updateGender
+                    )
+                    4 -> ActivityLevelPage(
+                        selectedActivityLevel = uiState.activityLevel, // FIXED: Now using correct field
+                        onActivityLevelSelected = viewModel::updateActivityLevel
+                    )
+                    5 -> HealthGoalsPage(
+                        selectedHealthGoals = uiState.healthGoals,
+                        onHealthGoalsSelected = viewModel::updateHealthGoals,
+                        stepsTarget = uiState.calculatedStepsTarget,
+                        caloriesTarget = uiState.calculatedCaloriesTarget
+                    )
+                }
+            }
+
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                if (pagerState.currentPage > 0) {
-                    OutlinedButton(
+                HorizontalDivider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 16.dp),
+                    color = Color.DarkGray
+                )
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    if (pagerState.currentPage > 0) {
+                        OutlinedButton(
+                            onClick = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                                }
+                            },
+                            enabled = !uiState.isLoading,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = selected,
+                                contentColor = Color.White,
+                                disabledContainerColor = unselected,
+                                disabledContentColor = Color.White.copy(alpha = 0.6f)
+                            )
+                        ) {
+                            Text("Previous")
+                        }
+                    } else {
+                        Spacer(modifier = Modifier.width(1.dp))
+                    }
+
+                    Button(
                         onClick = {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                            if (pagerState.currentPage < 5) {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                }
+                            } else {
+                                viewModel.saveUserProfile()
                             }
+                        },
+                        enabled = !uiState.isLoading && when (pagerState.currentPage) {
+                            1 -> uiState.firstName.isNotBlank() && uiState.lastName.isNotBlank()
+                            2 -> uiState.age > 0 && uiState.height > 0 && uiState.weight > 0
+                            3 -> !uiState.gender.isNullOrEmpty()
+                            4 -> !uiState.activityLevel.isNullOrEmpty() // FIXED: Now using correct field
+                            5 -> !uiState.healthGoals.isNullOrEmpty()
+                            else -> true
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = selected,
@@ -137,37 +206,45 @@ fun PersonalOnboardingScreen(
                             disabledContentColor = Color.White.copy(alpha = 0.6f)
                         )
                     ) {
-                        Text("Previous")
-                    }
-                } else {
-                    Spacer(modifier = Modifier.width(1.dp))
-                }
-
-                Button(
-                    onClick = {
-                        if (pagerState.currentPage < 4) {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                        if (uiState.isLoading && pagerState.currentPage == 5) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    color = Color.White,
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Saving...")
                             }
                         } else {
-                            viewModel.saveUserProfile()
+                            Text(if (pagerState.currentPage < 5) "Next" else "Complete Setup")
                         }
-                    },
-                    enabled = when (pagerState.currentPage) {
-                        1 -> uiState.age > 0 && uiState.height > 0 && uiState.weight > 0
-                        2 -> uiState.gender != null
-                        3 -> uiState.activityLevel != null
-                        4 -> uiState.calorieIntakeType != null
-                        else -> true
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = selected,
-                        contentColor = Color.White,
-                        disabledContainerColor = unselected,
-                        disabledContentColor = Color.White.copy(alpha = 0.6f)
-                    )
+                    }
+                }
+            }
+        }
+
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(if (pagerState.currentPage < 4) "Next" else "Complete Setup")
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        strokeWidth = 4.dp
+                    )
+                    Spacer(modifier = Modifier.padding(8.dp))
+                    Text(
+                        text = "Updating your profile...",
+                        color = Color.White
+                    )
                 }
             }
         }

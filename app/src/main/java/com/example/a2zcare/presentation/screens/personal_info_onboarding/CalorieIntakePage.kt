@@ -9,15 +9,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.a2zcare.domain.entities.CalorieIntakeType
 import com.example.a2zcare.presentation.theme.backgroundColor
 import com.example.a2zcare.presentation.theme.fieldCardColor
 import com.example.a2zcare.presentation.theme.navBarBackground
 
 @Composable
-fun CalorieIntakePage(
-    selectedCalorieIntakeType: CalorieIntakeType?,
-    onCalorieIntakeTypeSelected: (CalorieIntakeType) -> Unit,
+fun HealthGoalsPage(
+    selectedHealthGoals: String?,
+    onHealthGoalsSelected: (String) -> Unit,
     stepsTarget: Int,
     caloriesTarget: Int
 ) {
@@ -30,24 +29,24 @@ fun CalorieIntakePage(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Goal Type",
+            text = "Health Goals",
             style = MaterialTheme.typography.headlineMedium,
             color = Color.White
         )
         Spacer(modifier = Modifier.height(15.dp))
 
-        val goalDescriptions = mapOf(
-            CalorieIntakeType.MAINTENANCE to "Maintain current weight",
-            CalorieIntakeType.WEIGHT_LOSS to "Lose weight gradually",
-            CalorieIntakeType.WEIGHT_GAIN to "Gain weight healthily",
-            CalorieIntakeType.MUSCLE_BUILDING to "Build muscle mass"
+        val healthGoals = mapOf(
+            "Lose Weight" to "Lose weight gradually and safely",
+            "Gain Weight" to "Gain weight in a healthy way",
+            "Build Muscle" to "Build muscle mass and strength",
+            "Maintain Current Weight" to "Maintain your current weight"
         )
 
-        CalorieIntakeType.values().forEach { type ->
+        healthGoals.forEach { (goal, description) ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onCalorieIntakeTypeSelected(type) },
+                    .clickable { onHealthGoalsSelected(goal) },
                 colors = CardDefaults.cardColors(
                     containerColor = navBarBackground
                 ),
@@ -60,8 +59,8 @@ fun CalorieIntakePage(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     RadioButton(
-                        selected = selectedCalorieIntakeType == type,
-                        onClick = { onCalorieIntakeTypeSelected(type) },
+                        selected = selectedHealthGoals == goal,
+                        onClick = { onHealthGoalsSelected(goal) },
                         colors = RadioButtonDefaults.colors(
                             selectedColor = Color.White,
                             unselectedColor = Color.LightGray
@@ -70,14 +69,12 @@ fun CalorieIntakePage(
                     Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = type.name.lowercase().split('_').joinToString(" ") {
-                                it.replaceFirstChar { char -> char.uppercase() }
-                            },
+                            text = goal,
                             style = MaterialTheme.typography.bodyLarge,
                             color = Color.White
                         )
                         Text(
-                            text = goalDescriptions[type] ?: "",
+                            text = description,
                             style = MaterialTheme.typography.bodySmall,
                             color = Color.LightGray
                         )
@@ -88,6 +85,7 @@ fun CalorieIntakePage(
         }
 
         if (stepsTarget > 0 && caloriesTarget > 0) {
+            Spacer(modifier = Modifier.height(16.dp))
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(

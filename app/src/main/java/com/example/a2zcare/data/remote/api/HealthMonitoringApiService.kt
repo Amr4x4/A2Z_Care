@@ -1,22 +1,24 @@
 package com.example.a2zcare.data.remote.api
 
 import com.example.a2zcare.data.model.ActivityPredictionRequest
-import com.example.a2zcare.data.model.ApiResponse
+import com.example.a2zcare.data.remote.response.ApiResponse
 import com.example.a2zcare.data.model.ConnectContactRequest
 import com.example.a2zcare.data.model.EmergencyContact
 import com.example.a2zcare.data.model.EmergencyContactRequest
-import com.example.a2zcare.data.model.ErrorResponse
-import com.example.a2zcare.data.model.LoginRequest
-import com.example.a2zcare.data.model.LogoutRequest
-import com.example.a2zcare.data.model.RegisterRequest
-import com.example.a2zcare.data.model.ResetForgotPasswordRequest
-import com.example.a2zcare.data.model.ResetPasswordRequest
-import com.example.a2zcare.data.model.SendEmailRequest
 import com.example.a2zcare.data.model.SendMessageRequest
 import com.example.a2zcare.data.model.SendSMSRequest
 import com.example.a2zcare.data.model.SensorDataRequest
-import com.example.a2zcare.data.model.UpdateUserRequest
+import com.example.a2zcare.data.model.User
 import com.example.a2zcare.data.model.UserWithEmergencyContacts
+import com.example.a2zcare.data.remote.request.LoginRequest
+import com.example.a2zcare.data.remote.request.RegisterRequest
+import com.example.a2zcare.data.remote.request.ResetPasswordRequest
+import com.example.a2zcare.data.remote.request.SendEmailRequest
+import com.example.a2zcare.data.remote.request.UpdateUserRequest
+import com.example.a2zcare.data.remote.response.LoginResponse
+import com.example.a2zcare.data.remote.response.RegisterResponse
+import com.example.a2zcare.data.remote.response.SendEmailResponse
+import com.example.a2zcare.data.remote.response.UpdateUserResponse
 import com.example.a2zcare.domain.entities.LocationData
 import okhttp3.MultipartBody
 import retrofit2.Response
@@ -25,40 +27,29 @@ import retrofit2.http.*
 interface HealthMonitoringApiService {
     // User Authentication Endpoints
     @POST("api/Users/Register")
-    suspend fun register(@Body request: RegisterRequest): Response<ErrorResponse>
+    suspend fun register(@Body request: RegisterRequest): Response<ApiResponse<RegisterResponse>>
 
     @POST("api/Users/Login")
-    suspend fun login(@Body request: LoginRequest): Response<ErrorResponse>
+    suspend fun login(@Body request: LoginRequest): Response<ApiResponse<LoginResponse>>
 
-    @POST("api/Users/logout")
-    suspend fun logout(@Body request: LogoutRequest): Response<Unit>
-
+    // If your backend expects /api/Users/Update{id} (no slash before {id}), use this:
     @PUT("api/Users/Update{id}")
     suspend fun updateUser(
         @Path("id") id: String,
         @Body request: UpdateUserRequest
-    ): Response<ApiResponse<String>>
+    ): Response<ApiResponse<UpdateUserResponse>>
 
     @GET("api/Users/userdata/by-id/{userId}")
-    suspend fun getUserData(@Path("userId") userId: String): Response<ApiResponse<String>>
+    suspend fun getUserData(@Path("userId") userId: String): Response<ApiResponse<User>>
 
-    @POST("api/Users/RestPassword")
-    suspend fun resetPassword(@Body request: ResetPasswordRequest): Response<Unit>
+    @POST("api/Users/ResetPassword")
+    suspend fun resetPassword(@Body request: ResetPasswordRequest): Response<String>
 
     @POST("api/Users/ForgotPassword")
-    suspend fun forgotPassword(@Query("email") email: String): Response<Unit>
+    suspend fun forgotPassword(@Query("email") email: String): Response<String>
 
     @POST("api/Users/Send-Email")
-    suspend fun sendEmail(@Body request: SendEmailRequest): Response<Unit>
-
-    @GET("api/Users/ConfirmEmail")
-    suspend fun confirmEmail(
-        @Query("userId") userId: String,
-        @Query("token") token: String
-    ): Response<Unit>
-
-    @POST("api/Users/RestForgotPassword")
-    suspend fun resetForgotPassword(@Body request: ResetForgotPasswordRequest): Response<Unit>
+    suspend fun sendEmail(@Body request: SendEmailRequest): Response<ApiResponse<SendEmailResponse>>
 
     // Admin Endpoints
     @GET("api/Admin/users")

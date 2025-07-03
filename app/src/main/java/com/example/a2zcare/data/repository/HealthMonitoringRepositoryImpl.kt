@@ -1,8 +1,24 @@
 package com.example.a2zcare.data.repository
 
-import com.example.a2zcare.data.model.*
+import com.example.a2zcare.data.model.ActivityPredictionRequest
+import com.example.a2zcare.data.model.ConnectContactRequest
+import com.example.a2zcare.data.model.EmergencyContactRequest
+import com.example.a2zcare.data.model.SendMessageRequest
+import com.example.a2zcare.data.model.SendSMSRequest
+import com.example.a2zcare.data.model.SensorDataRequest
+import com.example.a2zcare.data.model.User
+import com.example.a2zcare.data.model.UserWithEmergencyContacts
 import com.example.a2zcare.data.remote.api.HealthMonitoringApiService
+import com.example.a2zcare.data.remote.request.LoginRequest
+import com.example.a2zcare.data.remote.request.RegisterRequest
+import com.example.a2zcare.data.remote.request.ResetPasswordRequest
+import com.example.a2zcare.data.remote.request.SendEmailRequest
+import com.example.a2zcare.data.remote.request.UpdateUserRequest
+import com.example.a2zcare.data.remote.response.LoginResponse
+import com.example.a2zcare.data.remote.response.RegisterResponse
+import com.example.a2zcare.data.remote.response.SendEmailResponse
 import com.example.a2zcare.data.remote.response.TokenManager
+import com.example.a2zcare.data.remote.response.UpdateUserResponse
 import com.example.a2zcare.domain.model.Result
 import com.example.a2zcare.domain.repository.HealthMonitoringRepository
 import kotlinx.coroutines.Dispatchers
@@ -16,11 +32,18 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
     private val tokenManager: TokenManager
 ) : HealthMonitoringRepository {
 
-    override suspend fun register(request: RegisterRequest): Result<Unit> = withContext(Dispatchers.IO) {
+    override suspend fun register(request: RegisterRequest): Result<RegisterResponse> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.register(request)
             if (response.isSuccessful) {
-                Result.Success<Unit>(Unit)
+                val body = response.body()
+                if (body?.isSuccess == true && body.result != null) {
+                    // Save user ID for future use
+                    tokenManager.saveUserId(body.result.id)
+                    Result.Success(body.result)
+                } else {
+                    Result.Error("Registration failed: ${body?.errors?.joinToString()}")
+                }
             } else {
                 Result.Error("Registration failed: ${response.message()}")
             }
@@ -29,13 +52,19 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun login(request: LoginRequest): Result<Unit> = withContext(Dispatchers.IO) {
+    override suspend fun login(request: LoginRequest): Result<LoginResponse> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.login(request)
             if (response.isSuccessful) {
-                val token = response.headers()["Authorization"] ?: response.headers()["Token"]
-                token?.let { tokenManager.saveToken(it) }
-                Result.Success<Unit>(Unit)
+                val body = response.body()
+                if (body?.isSuccess == true && body.result != null) {
+                    tokenManager.saveToken(body.result.token)
+                    tokenManager.saveUserId(body.result.user.id)
+                    tokenManager.saveUserData(body.result.user)
+                    Result.Success(body.result)
+                } else {
+                    Result.Error("Login failed: ${body?.errors?.joinToString()}")
+                }
             } else {
                 Result.Error("Login failed: ${response.message()}")
             }
@@ -44,53 +73,38 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun logout(): Result<Unit> = withContext(Dispatchers.IO) {
+    override suspend fun updateUser(id: String, request: UpdateUserRequest): Result<UpdateUserResponse> = withContext(Dispatchers.IO) {
         try {
-            val userId = tokenManager.getUserId()
-            val token = tokenManager.getToken()
-            val deviceId = tokenManager.getDeviceId()
-            if (userId != null && token != null && deviceId != null) {
-                val response = apiService.logout(LogoutRequest(userId, token, deviceId))
-                if (response.isSuccessful) {
-                    tokenManager.clearAllTokens()
-                    Result.Success<Unit>(Unit)
-                } else {
-                    Result.Error("Logout failed: ${response.message()}")
-                }
-            } else {
-                tokenManager.clearAllTokens()
-                Result.Success<Unit>(Unit)
-            }
-        } catch (e: Exception) {
-            Result.Error("Network error: ${e.message}", e)
-        }
-    }
-
-    override suspend fun updateUser(id: String, request: UpdateUserRequest): Result<String> = withContext(Dispatchers.IO) {
-        try {
+            println("updateUser() - Request: $request")
             val response = apiService.updateUser(id, request)
+            val errorBodyString = response.errorBody()?.string()
+            println("updateUser() - Raw response: code=${response.code()}, message=${response.message()}, body=${response.body()}, errorBody=$errorBodyString")
             if (response.isSuccessful) {
                 val body = response.body()
-                if (body?.isSuccess == true) {
-                    Result.Success<String>(body.result ?: "")
+                if (body?.isSuccess == true && body.result != null) {
+                    Result.Success(body.result)
                 } else {
-                    Result.Error("Update failed: ${body?.errors?.joinToString()}")
+                    Result.Error("Update failed: ${body?.errors?.joinToString() ?: "Unknown error"}")
                 }
             } else {
-                Result.Error("Update failed: ${response.message()}")
+                // Print error body for debugging
+                Result.Error("Update failed: ${response.message()}${if (!errorBodyString.isNullOrBlank()) " | $errorBodyString" else ""}")
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             Result.Error("Network error: ${e.message}", e)
         }
     }
 
-    override suspend fun getUserData(userId: String): Result<String> = withContext(Dispatchers.IO) {
+    override suspend fun getUserData(userId: String): Result<User> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.getUserData(userId)
             if (response.isSuccessful) {
                 val body = response.body()
-                if (body?.isSuccess == true) {
-                    Result.Success<String>(body.result ?: "")
+                if (body?.isSuccess == true && body.result != null) {
+                    // Update stored user data
+                    tokenManager.saveUserData(body.result)
+                    Result.Success(body.result)
                 } else {
                     Result.Error("Failed to get user data: ${body?.errors?.joinToString()}")
                 }
@@ -106,7 +120,7 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
         try {
             val response = apiService.resetPassword(request)
             if (response.isSuccessful) {
-                Result.Success<Unit>(Unit)
+                Result.Success(Unit)
             } else {
                 Result.Error("Password reset failed: ${response.message()}")
             }
@@ -119,9 +133,82 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
         try {
             val response = apiService.forgotPassword(email)
             if (response.isSuccessful) {
-                Result.Success<Unit>(Unit)
+                Result.Success(Unit)
             } else {
                 Result.Error("Forgot password failed: ${response.message()}")
+            }
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}", e)
+        }
+    }
+
+    override suspend fun sendEmail(request: SendEmailRequest): Result<SendEmailResponse> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.sendEmail(request)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body?.isSuccess == true && body.result != null) {
+                    Result.Success(body.result)
+                } else {
+                    Result.Error("Failed to send email: ${body?.errors?.joinToString()}")
+                }
+            } else {
+                Result.Error("Failed to send email: ${response.message()}")
+            }
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}", e)
+        }
+    }
+
+    // Keep all the existing methods from your original repository for backward compatibility
+    override suspend fun getAllUsers(): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getAllUsers()
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body?.isSuccess == true) {
+                    Result.Success<String>(body.result ?: "")
+                } else {
+                    Result.Error("Failed to get users: ${body?.errors?.joinToString()}")
+                }
+            } else {
+                Result.Error("Failed to get users: ${response.message()}")
+            }
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}", e)
+        }
+    }
+
+    override suspend fun getUserById(userId: String): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getUserById(userId)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body?.isSuccess == true) {
+                    Result.Success<String>(body.result ?: "")
+                } else {
+                    Result.Error("Failed to get user by ID: ${body?.errors?.joinToString()}")
+                }
+            } else {
+                Result.Error("Failed to get user by ID: ${response.message()}")
+            }
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}", e)
+        }
+    }
+
+    override suspend fun getUserByUsername(username: String): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getUserByUsername(username)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body?.isSuccess == true) {
+                    Result.Success<String>(body.result ?: "")
+                } else {
+                    Result.Error("Failed to get user by username: ${body?.errors?.joinToString()}")
+                }
+            } else {
+                Result.Error("Failed to get user by username: ${response.message()}")
             }
         } catch (e: Exception) {
             Result.Error("Network error: ${e.message}", e)

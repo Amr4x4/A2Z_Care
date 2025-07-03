@@ -1,24 +1,33 @@
 package com.example.a2zcare.data.remote.response
 
+import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.preferencesDataStore
+import com.example.a2zcare.data.model.User
+import com.google.gson.Gson
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 import javax.inject.Singleton
 
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "auth_preferences")
+
 @Singleton
 class TokenManager @Inject constructor(
-    private val dataStore: DataStore<Preferences>
+    @ApplicationContext private val context: Context,
+    private val gson: Gson
 ) {
+    private val dataStore = context.dataStore
 
     companion object {
         private val TOKEN_KEY = stringPreferencesKey("auth_token")
         private val USER_ID_KEY = stringPreferencesKey("user_id")
+        private val USER_DATA_KEY = stringPreferencesKey("user_data")
         private val DEVICE_ID_KEY = stringPreferencesKey("device_id")
     }
 
@@ -28,10 +37,30 @@ class TokenManager @Inject constructor(
         }
     }
 
+    suspend fun getToken(): String? {
+        return dataStore.data.first()[TOKEN_KEY]
+    }
+
     suspend fun saveUserId(userId: String) {
         dataStore.edit { preferences ->
             preferences[USER_ID_KEY] = userId
         }
+    }
+
+    suspend fun getUserId(): String? {
+        return dataStore.data.first()[USER_ID_KEY]
+    }
+
+    suspend fun saveUserData(user: User) {
+        dataStore.edit { preferences ->
+            preferences[USER_DATA_KEY] = gson.toJson(user)
+            preferences[USER_ID_KEY] = user.id
+        }
+    }
+
+    suspend fun getUserData(): User? {
+        val userJson = dataStore.data.first()[USER_DATA_KEY]
+        return userJson?.let { gson.fromJson(it, User::class.java) }
     }
 
     suspend fun saveDeviceId(deviceId: String) {
@@ -40,22 +69,8 @@ class TokenManager @Inject constructor(
         }
     }
 
-    fun getToken(): String? {
-        return runBlocking {
-            dataStore.data.first()[TOKEN_KEY]
-        }
-    }
-
-    fun getUserId(): String? {
-        return runBlocking {
-            dataStore.data.first()[USER_ID_KEY]
-        }
-    }
-
-    fun getDeviceId(): String? {
-        return runBlocking {
-            dataStore.data.first()[DEVICE_ID_KEY]
-        }
+    suspend fun getDeviceId(): String? {
+        return dataStore.data.first()[DEVICE_ID_KEY]
     }
 
     suspend fun clearAllTokens() {
@@ -66,7 +81,20 @@ class TokenManager @Inject constructor(
 
     fun isLoggedIn(): Flow<Boolean> {
         return dataStore.data.map { preferences ->
-            preferences[TOKEN_KEY] != null
+            !preferences[TOKEN_KEY].isNullOrEmpty() && !preferences[USER_ID_KEY].isNullOrEmpty()
+        }
+    }
+
+    fun getCurrentUserId(): Flow<String?> {
+        return dataStore.data.map { preferences ->
+            preferences[USER_ID_KEY]
+        }
+    }
+
+    fun getCurrentUserData(): Flow<User?> {
+        return dataStore.data.map { preferences ->
+            val userJson = preferences[USER_DATA_KEY]
+            userJson?.let { gson.fromJson(it, User::class.java) }
         }
     }
 }
