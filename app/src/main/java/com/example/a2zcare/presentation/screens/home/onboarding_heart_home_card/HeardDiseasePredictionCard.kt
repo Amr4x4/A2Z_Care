@@ -1,4 +1,4 @@
-package com.example.a2zcare.presentation.screens.home
+package com.example.a2zcare.presentation.screens.home.onboarding_heart_home_card
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -42,11 +42,12 @@ import coil.decode.GifDecoder
 import coil.request.ImageRequest
 import com.example.a2zcare.R
 import com.example.a2zcare.presentation.model.LiveStatusManager
+import com.example.a2zcare.presentation.screens.home.HeartRateInformationDialog
 import com.example.a2zcare.presentation.theme.fieldCardColor
 import java.util.Locale
 
 @Composable
-fun HeartRateCard(
+fun HeardDiseasePredictionCard(
     status: String = "Normal",
     numSPB: Int = 122,
     numDBP: Int = 80
@@ -121,7 +122,7 @@ fun HeartRateCard(
 
                 Spacer(modifier = Modifier.width(1.dp))
                 Text(
-                    text = "Heart Rate",
+                    text = "Heard Disease",
                     style = MaterialTheme.typography.headlineSmall,
                     color = Color.DarkGray
                 )
@@ -130,7 +131,7 @@ fun HeartRateCard(
                 IconButton(onClick = { isHeartRateInformationDialogOpen = true }) {
                     Icon(
                         imageVector = Icons.Default.Info,
-                        contentDescription = "Heart Rate info",
+                        contentDescription = "Heard Disease Prediction Card info",
                         tint = Color.Yellow
                     )
                 }
@@ -186,6 +187,6 @@ fun HeartRateCard(
 
 @Preview(showBackground = true)
 @Composable
-private fun PreviewHeartRateCard() {
-    HeartRateCard("Normal")
+private fun PreviewHeardDiseasePredictionCard() {
+    HeardDiseasePredictionCard("Normal")
 }

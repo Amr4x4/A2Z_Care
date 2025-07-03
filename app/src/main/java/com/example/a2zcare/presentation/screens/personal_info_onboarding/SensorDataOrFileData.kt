@@ -61,12 +61,14 @@ import java.io.InputStream
 
 @Composable
 fun SensorDataScreen(
-    viewModel: SensorDataViewModel = hiltViewModel()
+    viewModel: SensorDataViewModel = hiltViewModel(),
+    onUploadOrSkip: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     var selectedFileName by remember { mutableStateOf<String?>(null) }
     var selectedFile by remember { mutableStateOf<File?>(null) }
+    var uploadDone by remember { mutableStateOf(false) }
 
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -136,7 +138,13 @@ fun SensorDataScreen(
     // Success Dialog
     uiState.successMessage?.let { successMessage ->
         AlertDialog(
-            onDismissRequest = { viewModel.clearMessages() },
+            onDismissRequest = {
+                viewModel.clearMessages()
+                if (!uploadDone) {
+                    uploadDone = true
+                    onUploadOrSkip()
+                }
+            },
             title = {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
@@ -171,7 +179,13 @@ fun SensorDataScreen(
             },
             confirmButton = {
                 TextButton(
-                    onClick = { viewModel.clearMessages() }
+                    onClick = {
+                        viewModel.clearMessages()
+                        if (!uploadDone) {
+                            uploadDone = true
+                            onUploadOrSkip()
+                        }
+                    }
                 ) {
                     Text("OK", color = Color.White)
                 }
@@ -181,6 +195,23 @@ fun SensorDataScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
+        // Top bar with Skip button
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.End
+        ) {
+            TextButton(
+                onClick = {
+                    onUploadOrSkip()
+                },
+                enabled = !uiState.isLoading
+            ) {
+                Text("Skip", color = Color.White)
+            }
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -302,7 +333,7 @@ fun SensorDataScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // Upload Button (optional)
+            // Upload Button (required)
             Button(
                 onClick = {
                     selectedFile?.let { file ->
@@ -395,5 +426,5 @@ fun getFileName(uri: Uri, context: android.content.Context): String? {
 @Preview
 @Composable
 private fun PreviewSensorData() {
-    SensorDataScreen()
+    SensorDataScreen(onUploadOrSkip = {})
 }
