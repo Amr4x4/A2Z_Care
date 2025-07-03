@@ -9,8 +9,10 @@ import com.example.a2zcare.data.remote.request.UpdateUserRequest
 import com.example.a2zcare.data.remote.response.LoginResponse
 import com.example.a2zcare.data.remote.response.RegisterResponse
 import com.example.a2zcare.data.remote.response.SendEmailResponse
+import com.example.a2zcare.data.remote.response.SensorDataImportResponse
 import com.example.a2zcare.data.remote.response.UpdateUserResponse
 import com.example.a2zcare.domain.model.Result
+import okhttp3.MultipartBody
 
 interface HealthMonitoringRepository {
     suspend fun register(request: RegisterRequest): Result<RegisterResponse>
@@ -37,7 +39,7 @@ interface HealthMonitoringRepository {
     suspend fun disconnectContact(userId: String, contactId: Int): Result<Unit>
 
     // Sensor Data
-    suspend fun importSensorData(userId: String, request: SensorDataRequest): Result<Unit>
+    suspend fun importSensorDataFile(userId: String, file: MultipartBody.Part): Result<SensorDataImportResponse>
     suspend fun getCachedSensorData(userId: String): Result<Unit>
 
     // Activity Data
