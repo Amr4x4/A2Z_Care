@@ -18,6 +18,7 @@ import com.example.a2zcare.data.remote.request.UpdateUserRequest
 import com.example.a2zcare.data.remote.response.LoginResponse
 import com.example.a2zcare.data.remote.response.RegisterResponse
 import com.example.a2zcare.data.remote.response.SendEmailResponse
+import com.example.a2zcare.data.remote.response.SensorDataImportResponse
 import com.example.a2zcare.data.remote.response.UpdateUserResponse
 import com.example.a2zcare.domain.entities.LocationData
 import okhttp3.MultipartBody
@@ -93,7 +94,7 @@ interface HealthMonitoringApiService {
     ): Response<Unit>
 
     // Sensor Data Endpoints
-    @POST("api/SensorData/import")
+    @POST("api/SensorDataScreen/import")
     suspend fun importSensorData(
         @Query("userId") userId: String,
         @Body request: SensorDataRequest
@@ -104,12 +105,12 @@ interface HealthMonitoringApiService {
     suspend fun importSensorDataFile(
         @Query("userId") userId: String,
         @Part file: MultipartBody.Part
-    ): Response<Unit>
+    ): Response<SensorDataImportResponse>
 
-    @GET("api/SensorData/cached/{userId}")
+    @GET("api/SensorDataScreen/cached/{userId}")
     suspend fun getCachedSensorData(@Path("userId") userId: String): Response<Unit>
 
-    @GET("api/SensorData/Get-ById")
+    @GET("api/SensorDataScreen/Get-ById")
     suspend fun getSensorDataById(@Query("userid") userId: String): Response<Unit>
 
     // Activity Data Endpoints

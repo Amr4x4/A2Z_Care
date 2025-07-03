@@ -1,17 +1,18 @@
 package com.example.a2zcare.domain.usecases
 
-import com.example.a2zcare.data.model.SensorDataRequest
+import com.example.a2zcare.data.remote.response.SensorDataImportResponse
 import com.example.a2zcare.domain.repository.HealthMonitoringRepository
+import okhttp3.MultipartBody
 import javax.inject.Inject
 import com.example.a2zcare.domain.model.Result
 
-class ImportSensorDataUseCase @Inject constructor(
+class ImportSensorDataFileUseCase @Inject constructor(
     private val repository: HealthMonitoringRepository
-) : UseCase<ImportSensorDataUseCase.Params, Result<Unit>>() {
+) : UseCase<ImportSensorDataFileUseCase.Params, Result<SensorDataImportResponse>>() {
 
-    data class Params(val userId: String, val request: SensorDataRequest)
+    data class Params(val userId: String, val file: MultipartBody.Part)
 
-    override suspend fun execute(parameters: Params): Result<Unit> {
-        return repository.importSensorData(parameters.userId, parameters.request)
+    override suspend fun execute(parameters: Params): Result<SensorDataImportResponse> {
+        return repository.importSensorDataFile(parameters.userId, parameters.file)
     }
 }

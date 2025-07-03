@@ -9,7 +9,6 @@ import com.example.a2zcare.domain.usecases.GetLatestActivityDataUseCase
 import com.example.a2zcare.domain.usecases.GetLatestBloodPressurePredictionUseCase
 import com.example.a2zcare.domain.usecases.GetLatestHeartDiseasePredictionUseCase
 import com.example.a2zcare.domain.usecases.GetLatestHeartRateCalculationUseCase
-import com.example.a2zcare.domain.usecases.ImportSensorDataUseCase
 import com.example.a2zcare.domain.usecases.PredictActivityUseCase
 import com.example.a2zcare.domain.usecases.SendBloodPressureAIUseCase
 import com.example.a2zcare.domain.usecases.SendHeartDiseaseAIUseCase
@@ -32,41 +31,12 @@ class HealthDataViewModel @Inject constructor(
     private val sendHeartDiseaseAIUseCase: SendHeartDiseaseAIUseCase,
     private val getLatestHeartDiseasePredictionUseCase: GetLatestHeartDiseasePredictionUseCase,
     private val getLatestActivityDataUseCase: GetLatestActivityDataUseCase,
-    private val importSensorDataUseCase: ImportSensorDataUseCase,
     private val predictActivityUseCase: PredictActivityUseCase,
     private val tokenManager: TokenManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HealthDataUiState())
     val uiState: StateFlow<HealthDataUiState> = _uiState.asStateFlow()
-
-    fun importSensorData(request: SensorDataRequest) {
-        viewModelScope.launch {
-            val userId = tokenManager.getUserId()
-            if (userId != null) {
-                _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-
-                val params = ImportSensorDataUseCase.Params(userId, request)
-                when (val result = importSensorDataUseCase(params)) {
-                    is Result.Success -> {
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            successMessage = "Sensor data imported successfully!"
-                        )
-                    }
-                    is Result.Error -> {
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            errorMessage = result.message
-                        )
-                    }
-                    is Result.Loading -> {
-                        _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
-                    }
-                }
-            }
-        }
-    }
 
     fun predictActivity(request: ActivityPredictionRequest) {
         viewModelScope.launch {

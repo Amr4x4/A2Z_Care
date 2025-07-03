@@ -17,12 +17,14 @@ import com.example.a2zcare.data.remote.request.UpdateUserRequest
 import com.example.a2zcare.data.remote.response.LoginResponse
 import com.example.a2zcare.data.remote.response.RegisterResponse
 import com.example.a2zcare.data.remote.response.SendEmailResponse
+import com.example.a2zcare.data.remote.response.SensorDataImportResponse
 import com.example.a2zcare.data.remote.response.TokenManager
 import com.example.a2zcare.data.remote.response.UpdateUserResponse
 import com.example.a2zcare.domain.model.Result
 import com.example.a2zcare.domain.repository.HealthMonitoringRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.MultipartBody
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -269,13 +271,19 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun importSensorData(userId: String, request: SensorDataRequest): Result<Unit> = withContext(Dispatchers.IO) {
+    override suspend fun importSensorDataFile(
+        userId: String,
+        file: MultipartBody.Part
+    ): Result<SensorDataImportResponse> = withContext(Dispatchers.IO) {
         try {
-            val response = apiService.importSensorData(userId, request)
+            val response = apiService.importSensorDataFile(userId, file)
             if (response.isSuccessful) {
-                Result.Success<Unit>(Unit)
+                response.body()?.let { responseBody ->
+                    Result.Success(responseBody)
+                } ?: Result.Error("Empty response body")
             } else {
-                Result.Error("Failed to import sensor data: ${response.message()}")
+                val errorBody = response.errorBody()?.string()
+                Result.Error("Failed to import sensor data: ${response.message()}${if (!errorBody.isNullOrBlank()) " | $errorBody" else ""}")
             }
         } catch (e: Exception) {
             Result.Error("Network error: ${e.message}", e)

@@ -66,3 +66,11 @@ data class OnboardingUiState(
                 !healthGoals.isNullOrEmpty()
     }
 }
+
+data class SensorDataUiState(
+    val watchId: String = "",
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
+    val successMessage: String? = null,
+    val totalReadings: Int = 0
+)

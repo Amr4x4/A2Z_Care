@@ -59,7 +59,6 @@ fun PersonalOnboardingScreen(
         }
     }
 
-    // Show error dialog if there's an error
     uiState.errorMessage?.let { errorMessage ->
         AlertDialog(
             onDismissRequest = { viewModel.clearError() },
@@ -96,7 +95,7 @@ fun PersonalOnboardingScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             LinearProgressIndicator(
-                progress = { (pagerState.currentPage + 1) / 6f },
+                progress = { (pagerState.currentPage + 1) / 7f },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(vertical = 16.dp),
@@ -105,7 +104,7 @@ fun PersonalOnboardingScreen(
             )
 
             HorizontalPager(
-                count = 6,
+                count = 7,
                 state = pagerState,
                 modifier = Modifier.weight(1f)
             ) { page ->
@@ -141,6 +140,7 @@ fun PersonalOnboardingScreen(
                         stepsTarget = uiState.calculatedStepsTarget,
                         caloriesTarget = uiState.calculatedCaloriesTarget
                     )
+                    6 -> SensorDataScreen()
                 }
             }
 
@@ -183,7 +183,7 @@ fun PersonalOnboardingScreen(
 
                     Button(
                         onClick = {
-                            if (pagerState.currentPage < 5) {
+                            if (pagerState.currentPage < 6) {
                                 coroutineScope.launch {
                                     pagerState.animateScrollToPage(pagerState.currentPage + 1)
                                 }
@@ -206,7 +206,7 @@ fun PersonalOnboardingScreen(
                             disabledContentColor = Color.White.copy(alpha = 0.6f)
                         )
                     ) {
-                        if (uiState.isLoading && pagerState.currentPage == 5) {
+                        if (uiState.isLoading && pagerState.currentPage == 6) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -219,7 +219,7 @@ fun PersonalOnboardingScreen(
                                 Text("Saving...")
                             }
                         } else {
-                            Text(if (pagerState.currentPage < 5) "Next" else "Complete Setup")
+                            Text(if (pagerState.currentPage < 6) "Next" else "Complete Setup")
                         }
                     }
                 }
