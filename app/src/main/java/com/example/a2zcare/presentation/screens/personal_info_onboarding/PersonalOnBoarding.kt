@@ -25,6 +25,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +52,8 @@ fun PersonalOnboardingScreen(
     val uiState by viewModel.uiState.collectAsState()
     val pagerState = rememberPagerState(initialPage = 0)
     val coroutineScope = rememberCoroutineScope()
+    // Track if file upload or skip is done
+    val fileUploadOrSkipDone = remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.isCompleted) {
         if (uiState.isCompleted) {
@@ -140,7 +144,9 @@ fun PersonalOnboardingScreen(
                         stepsTarget = uiState.calculatedStepsTarget,
                         caloriesTarget = uiState.calculatedCaloriesTarget
                     )
-                    6 -> SensorDataScreen()
+                    6 -> SensorDataScreen(
+                        onUploadOrSkip = { fileUploadOrSkipDone.value = true }
+                    )
                 }
             }
 
@@ -195,8 +201,9 @@ fun PersonalOnboardingScreen(
                             1 -> uiState.firstName.isNotBlank() && uiState.lastName.isNotBlank()
                             2 -> uiState.age > 0 && uiState.height > 0 && uiState.weight > 0
                             3 -> !uiState.gender.isNullOrEmpty()
-                            4 -> !uiState.activityLevel.isNullOrEmpty() // FIXED: Now using correct field
+                            4 -> !uiState.activityLevel.isNullOrEmpty()
                             5 -> !uiState.healthGoals.isNullOrEmpty()
+                            6 -> fileUploadOrSkipDone.value // Only enable if file uploaded or skipped
                             else -> true
                         },
                         colors = ButtonDefaults.buttonColors(

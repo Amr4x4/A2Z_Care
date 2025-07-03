@@ -97,4 +97,27 @@ class TokenManager @Inject constructor(
             userJson?.let { gson.fromJson(it, User::class.java) }
         }
     }
+
+    suspend fun getUserFirstName(): String {
+        val userData = getUserData()
+        return when {
+            !userData?.firstName.isNullOrBlank() -> userData!!.firstName!!
+            !userData?.name.isNullOrBlank() -> userData!!.name!!
+            !userData?.userName.isNullOrBlank() -> userData!!.userName!!
+            else -> "User"
+        }
+    }
+
+    fun getCurrentUserFirstName(): Flow<String> {
+        return dataStore.data.map { preferences ->
+            val userJson = preferences[USER_DATA_KEY]
+            val userData = userJson?.let { gson.fromJson(it, User::class.java) }
+            when {
+                !userData?.firstName.isNullOrBlank() -> userData.firstName!!
+                !userData?.name.isNullOrBlank() -> userData.name!!
+                !userData?.userName.isNullOrBlank() -> userData.userName!!
+                else -> "User"
+            }
+        }
+    }
 }

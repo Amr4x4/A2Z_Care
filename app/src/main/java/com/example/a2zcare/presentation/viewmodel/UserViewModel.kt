@@ -25,6 +25,15 @@ class UserViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(UserUiState())
     val uiState: StateFlow<UserUiState> = _uiState.asStateFlow()
 
+    // Add a separate StateFlow for first name to make it easier to observe
+    private val _firstName = MutableStateFlow("")
+    val firstName: StateFlow<String> = _firstName.asStateFlow()
+
+    init {
+        // Load user data when ViewModel is created
+        getUserData()
+    }
+
     fun getUserData() {
         viewModelScope.launch {
             val userId = tokenManager.getUserId()
@@ -33,16 +42,27 @@ class UserViewModel @Inject constructor(
 
                 when (val result = getUserDataUseCase(userId)) {
                     is Result.Success -> {
+                        val user = result.data
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
-                            userData = result.data.toString()
+                            userData = user.toString()
                         )
+
+                        // Extract first name with fallback logic
+                        val displayName = when {
+                            !user.firstName.isNullOrBlank() -> user.firstName
+                            !user.name.isNullOrBlank() -> user.name
+                            !user.userName.isNullOrBlank() -> user.userName
+                            else -> "User"
+                        }
+                        _firstName.value = displayName
                     }
                     is Result.Error -> {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
                             errorMessage = result.message
                         )
+                        _firstName.value = "User" // Fallback name
                     }
                     is Result.Loading -> {
                         _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
@@ -52,6 +72,7 @@ class UserViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(
                     errorMessage = "User not logged in"
                 )
+                _firstName.value = "User"
             }
         }
     }
