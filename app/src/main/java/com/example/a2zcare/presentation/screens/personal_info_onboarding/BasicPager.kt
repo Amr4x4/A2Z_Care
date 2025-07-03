@@ -24,13 +24,13 @@ import androidx.compose.ui.unit.sp
 import com.example.a2zcare.presentation.theme.backgroundColor
 
 @Composable
-fun PersonalInfoPage(
-    age: Int,
-    height: Int, // Changed from Double to Int
-    weight: Double,
-    onAgeChange: (Int) -> Unit,
-    onHeightChange: (Int) -> Unit, // Changed from Double to Int
-    onWeightChange: (Double) -> Unit
+fun BasicInfoPage(
+    firstName: String,
+    lastName: String,
+    phoneNumber: String,
+    onFirstNameChange: (String) -> Unit,
+    onLastNameChange: (String) -> Unit,
+    onPhoneNumberChange: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -41,20 +41,16 @@ fun PersonalInfoPage(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Physical Information",
+            text = "Basic Information",
             style = MaterialTheme.typography.headlineMedium,
             color = Color.White
         )
         Spacer(modifier = Modifier.height(32.dp))
 
         OutlinedTextField(
-            value = if (age > 0) age.toString() else "",
-            onValueChange = {
-                it.toIntOrNull()?.let { age -> onAgeChange(age) }
-                    ?: if (it.isEmpty()) onAgeChange(0) else TODO()
-            },
-            label = { Text("Age", color = Color.Gray) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            value = firstName,
+            onValueChange = onFirstNameChange,
+            label = { Text("First Name", color = Color.Gray) },
             modifier = Modifier.fillMaxWidth(),
             textStyle = TextStyle(color = Color.White, fontSize = 16.sp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -67,13 +63,9 @@ fun PersonalInfoPage(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = if (height > 0) height.toString() else "",
-            onValueChange = {
-                it.toIntOrNull()?.let { h -> onHeightChange(h) }
-                    ?: if (it.isEmpty()) onHeightChange(0) else TODO()
-            },
-            label = { Text("Height (cm)", color = Color.Gray) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            value = lastName,
+            onValueChange = onLastNameChange,
+            label = { Text("Last Name", color = Color.Gray) },
             modifier = Modifier.fillMaxWidth(),
             textStyle = TextStyle(color = Color.White, fontSize = 16.sp),
             colors = OutlinedTextFieldDefaults.colors(
@@ -86,13 +78,10 @@ fun PersonalInfoPage(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = if (weight > 0) weight.toString() else "",
-            onValueChange = {
-                it.toDoubleOrNull()?.let { w -> onWeightChange(w) }
-                    ?: if (it.isEmpty()) onWeightChange(0.0) else TODO()
-            },
-            label = { Text("Weight (kg)", color = Color.Gray) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+            value = phoneNumber,
+            onValueChange = onPhoneNumberChange,
+            label = { Text("Phone Number (Optional)", color = Color.Gray) },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             modifier = Modifier.fillMaxWidth(),
             textStyle = TextStyle(color = Color.White, fontSize = 16.sp),
             colors = OutlinedTextFieldDefaults.colors(

@@ -1,30 +1,37 @@
 package com.example.a2zcare.domain.repository
 
-import com.example.a2zcare.data.model.ActivityPredictionRequest
-import com.example.a2zcare.data.model.ConnectContactRequest
-import com.example.a2zcare.data.model.EmergencyContactRequest
-import com.example.a2zcare.data.model.LoginRequest
-import com.example.a2zcare.data.model.RegisterRequest
-import com.example.a2zcare.data.model.ResetPasswordRequest
-import com.example.a2zcare.data.model.SendMessageRequest
-import com.example.a2zcare.data.model.SendSMSRequest
-import com.example.a2zcare.data.model.SensorDataRequest
-import com.example.a2zcare.data.model.UpdateUserRequest
-import com.example.a2zcare.data.model.UserWithEmergencyContacts
+import com.example.a2zcare.data.model.*
+import com.example.a2zcare.data.remote.request.LoginRequest
+import com.example.a2zcare.data.remote.request.RegisterRequest
+import com.example.a2zcare.data.remote.request.ResetPasswordRequest
+import com.example.a2zcare.data.remote.request.SendEmailRequest
+import com.example.a2zcare.data.remote.request.UpdateUserRequest
+import com.example.a2zcare.data.remote.response.LoginResponse
+import com.example.a2zcare.data.remote.response.RegisterResponse
+import com.example.a2zcare.data.remote.response.SendEmailResponse
+import com.example.a2zcare.data.remote.response.UpdateUserResponse
 import com.example.a2zcare.domain.model.Result
 
 interface HealthMonitoringRepository {
-    // User Authentication
-    suspend fun register(request: RegisterRequest): Result<Unit>
-    suspend fun login(request: LoginRequest): Result<Unit>
-    suspend fun logout(): Result<Unit>
-    suspend fun updateUser(id: String, request: UpdateUserRequest): Result<String>
-    suspend fun getUserData(userId: String): Result<String>
+    suspend fun register(request: RegisterRequest): Result<RegisterResponse>
+    suspend fun login(request: LoginRequest): Result<LoginResponse>
+    suspend fun getUserData(userId: String): Result<User>
+    suspend fun updateUser(id: String, request: UpdateUserRequest): Result<UpdateUserResponse>
     suspend fun resetPassword(request: ResetPasswordRequest): Result<Unit>
     suspend fun forgotPassword(email: String): Result<Unit>
+    suspend fun sendEmail(request: SendEmailRequest): Result<SendEmailResponse>
+
+    // Additional methods that match your implementation
+    suspend fun getAllUsers(): Result<String>
+    suspend fun getUserById(userId: String): Result<String>
+    suspend fun getUserByUsername(username: String): Result<String>
 
     // Emergency Contacts
-    suspend fun createEmergencyContact(userId: String, request: EmergencyContactRequest): Result<String>
+    suspend fun createEmergencyContact(
+        userId: String,
+        request: EmergencyContactRequest
+    ): Result<String>
+
     suspend fun getEmergencyContacts(userId: String): Result<UserWithEmergencyContacts>
     suspend fun connectContact(request: ConnectContactRequest): Result<Unit>
     suspend fun disconnectContact(userId: String, contactId: Int): Result<Unit>

@@ -2,14 +2,13 @@ package com.example.a2zcare.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.a2zcare.data.model.LoginRequest
-import com.example.a2zcare.data.model.RegisterRequest
-import com.example.a2zcare.data.model.ResetPasswordRequest
+import com.example.a2zcare.data.remote.request.LoginRequest
+import com.example.a2zcare.data.remote.request.RegisterRequest
+import com.example.a2zcare.data.remote.request.ResetPasswordRequest
 import com.example.a2zcare.data.remote.response.TokenManager
 import com.example.a2zcare.domain.model.Result
 import com.example.a2zcare.domain.usecases.ForgotPasswordUseCase
 import com.example.a2zcare.domain.usecases.LoginUseCase
-import com.example.a2zcare.domain.usecases.LogoutUseCase
 import com.example.a2zcare.domain.usecases.RegisterUseCase
 import com.example.a2zcare.domain.usecases.ResetPasswordUseCase
 import com.example.a2zcare.domain.usecases.ValidateEmailUseCase
@@ -29,7 +28,6 @@ import javax.inject.Inject
 class AuthViewModel @Inject constructor(
     private val registerUseCase: RegisterUseCase,
     private val loginUseCase: LoginUseCase,
-    private val logoutUseCase: LogoutUseCase,
     private val forgotPasswordUseCase: ForgotPasswordUseCase,
     private val resetPasswordUseCase: ResetPasswordUseCase,
     private val validateEmailUseCase: ValidateEmailUseCase,
@@ -63,6 +61,24 @@ class AuthViewModel @Inject constructor(
     private val _confirmPasswordError = MutableStateFlow<String?>(null)
     val confirmPasswordError: StateFlow<String?> = _confirmPasswordError.asStateFlow()
 
+    private val _email = MutableStateFlow("")
+    val email: StateFlow<String> = _email.asStateFlow()
+
+    private val _password = MutableStateFlow("")
+    val password: StateFlow<String> = _password.asStateFlow()
+
+    private val _passwordVisible = MutableStateFlow(false)
+    val passwordVisible: StateFlow<Boolean> = _passwordVisible.asStateFlow()
+
+    private val _emailError = MutableStateFlow<String?>(null)
+    val emailError: StateFlow<String?> = _emailError.asStateFlow()
+
+    private val _passwordError = MutableStateFlow<String?>(null)
+    val passwordError: StateFlow<String?> = _passwordError.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
     fun onUserNameChange(value: String) {
         _userName.value = value
     }
@@ -85,24 +101,6 @@ class AuthViewModel @Inject constructor(
         _agreedToTerms.value = checked
     }
 
-    private val _email = MutableStateFlow("")
-    val email: StateFlow<String> = _email.asStateFlow()
-
-    private val _password = MutableStateFlow("")
-    val password: StateFlow<String> = _password.asStateFlow()
-
-    private val _passwordVisible = MutableStateFlow(false)
-    val passwordVisible: StateFlow<Boolean> = _passwordVisible.asStateFlow()
-
-    private val _emailError = MutableStateFlow<String?>(null)
-    val emailError: StateFlow<String?> = _emailError.asStateFlow()
-
-    private val _passwordError = MutableStateFlow<String?>(null)
-    val passwordError: StateFlow<String?> = _passwordError.asStateFlow()
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
     fun onEmailChange(value: String) {
         _email.value = value
         validateEmail(value)
@@ -111,6 +109,10 @@ class AuthViewModel @Inject constructor(
     fun onPasswordChange(value: String) {
         _password.value = value
         validatePassword(value)
+        // Re-validate confirm password when password changes
+        if (_confirmPassword.value.isNotEmpty()) {
+            validateConfirmPassword(_confirmPassword.value)
+        }
     }
 
     fun onTogglePasswordVisibility() {
@@ -126,7 +128,6 @@ class AuthViewModel @Inject constructor(
         val result = validatePasswordUseCase(password)
         _passwordError.value = if (result.successful) null else result.errorMessage
     }
-
 
     val isSignUpEnabled = combine(
         combine(
@@ -156,7 +157,7 @@ class AuthViewModel @Inject constructor(
 
             val request = RegisterRequest(userName, password, email, role)
             when (val result = registerUseCase(request)) {
-                is Result.Success<Unit> -> {
+                is Result.Success -> {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         successMessage = "Registration successful!"
@@ -180,7 +181,6 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-
     val isLoginEnabled = combine(
         combine(email, password) { email, password ->
             email.isNotBlank() && password.isNotBlank()
@@ -199,7 +199,7 @@ class AuthViewModel @Inject constructor(
 
             val request = LoginRequest(email, password, username)
             when (val result = loginUseCase(request)) {
-                is Result.Success<Unit> -> {
+                is Result.Success -> {
                     _isLoading.value = false
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
@@ -209,36 +209,7 @@ class AuthViewModel @Inject constructor(
                 }
 
                 is Result.Error -> {
-                    _isLoading.value = false // Add this line
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = result.message
-                    )
-                }
-
-                is Result.Loading -> {
-                    _isLoading.value = result.isLoading
-                    _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
-                }
-            }
-        }
-    }
-
-    fun logout() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _uiState.value = _uiState.value.copy(isLoading = true)
-
-            when (val result = logoutUseCase(Unit)) {
-                is Result.Success<Unit> -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        isLoggedIn = false,
-                        successMessage = "Logged out successfully!"
-                    )
-                }
-
-                is Result.Error -> {
+                    _isLoading.value = false
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         errorMessage = result.message
@@ -259,11 +230,12 @@ class AuthViewModel @Inject constructor(
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
             when (val result = forgotPasswordUseCase(email)) {
-                is Result.Success<Unit> -> {
+                is Result.Success -> {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         successMessage = "Password reset email sent! Please check your email."
                     )
+                    _isLoading.value = false
                 }
 
                 is Result.Error -> {
@@ -271,6 +243,7 @@ class AuthViewModel @Inject constructor(
                         isLoading = false,
                         errorMessage = result.message
                     )
+                    _isLoading.value = false
                 }
 
                 is Result.Loading -> {
@@ -288,11 +261,12 @@ class AuthViewModel @Inject constructor(
 
             val request = ResetPasswordRequest(email, currentPassword, newPassword)
             when (val result = resetPasswordUseCase(request)) {
-                is Result.Success<Unit> -> {
+                is Result.Success -> {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         successMessage = "Password reset successful!"
                     )
+                    _isLoading.value = false
                 }
 
                 is Result.Error -> {
@@ -300,6 +274,7 @@ class AuthViewModel @Inject constructor(
                         isLoading = false,
                         errorMessage = result.message
                     )
+                    _isLoading.value = false
                 }
 
                 is Result.Loading -> {

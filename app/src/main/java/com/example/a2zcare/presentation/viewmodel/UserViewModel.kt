@@ -2,7 +2,7 @@ package com.example.a2zcare.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.a2zcare.data.model.UpdateUserRequest
+import com.example.a2zcare.data.remote.request.UpdateUserRequest
 import com.example.a2zcare.data.remote.response.TokenManager
 import com.example.a2zcare.domain.usecases.GetUserDataUseCase
 import com.example.a2zcare.domain.usecases.UpdateUserUseCase
@@ -35,7 +35,7 @@ class UserViewModel @Inject constructor(
                     is Result.Success -> {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
-                            userData = result.data
+                            userData = result.data.toString()
                         )
                     }
                     is Result.Error -> {

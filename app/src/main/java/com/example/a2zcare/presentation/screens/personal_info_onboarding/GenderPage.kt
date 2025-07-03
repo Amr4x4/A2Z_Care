@@ -9,15 +9,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.a2zcare.domain.entities.Gender
 import com.example.a2zcare.presentation.theme.backgroundColor
 import com.example.a2zcare.presentation.theme.navBarBackground
 
-
 @Composable
 fun GenderPage(
-    selectedGender: Gender?,
-    onGenderSelected: (Gender) -> Unit
+    selectedGender: String?,
+    onGenderSelected: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -35,13 +33,15 @@ fun GenderPage(
 
         Spacer(modifier = Modifier.height(15.dp))
 
-        Gender.values().forEach { gender ->
+        val genders = listOf("Male", "Female")
+
+        genders.forEach { gender ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onGenderSelected(gender) },
                 colors = CardDefaults.cardColors(
-                    containerColor = navBarBackground // use your color here
+                    containerColor = navBarBackground
                 ),
                 elevation = CardDefaults.cardElevation(4.dp)
             ) {
@@ -61,9 +61,9 @@ fun GenderPage(
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = gender.name.lowercase().replaceFirstChar { it.uppercase() },
+                        text = gender,
                         style = MaterialTheme.typography.bodyLarge,
-                        color = Color.White // ensure content matches background
+                        color = Color.White
                     )
                 }
             }
