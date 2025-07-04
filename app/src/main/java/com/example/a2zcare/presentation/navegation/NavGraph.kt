@@ -10,6 +10,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.a2zcare.presentation.onboarding.OnBoardingNav
+import com.example.a2zcare.presentation.screens.calories.CaloriesScreen
 import com.example.a2zcare.presentation.screens.get_start.GetStart
 import com.example.a2zcare.presentation.screens.home.HomeScreen
 import com.example.a2zcare.presentation.screens.log_in.LogInScreen
@@ -97,6 +98,9 @@ fun SetupNavGraph(
             }
             composable(route = Screen.PersonalInformationScreen.route) {
                 PersonalInformationScreen(navController = navController)
+            }
+            composable(route = Screen.CaloriesScreen.route) {
+                CaloriesScreen(navController = navController)
             }
 
         }

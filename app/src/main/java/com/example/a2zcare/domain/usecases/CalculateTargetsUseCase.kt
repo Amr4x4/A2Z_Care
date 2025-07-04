@@ -40,7 +40,7 @@ class CalculateTargetsUseCase {
         return (baseSteps * ageMultiplier * genderMultiplier).toInt()
     }
 
-    fun calculateDailyCaloriesBurnTarget(
+    fun calculateDailyCaloriesGainTarget(
         age: Int,
         gender: Gender,
         weight: Float,
@@ -66,7 +66,7 @@ class CalculateTargetsUseCase {
 
         val totalDailyCalories = bmr * activityMultiplier
 
-        // Adjust based on calorie intake type
+        // Adjust based on calorie intake type (goal)
         val calorieAdjustment = when (calorieIntakeType) {
             CalorieIntakeType.WEIGHT_LOSS -> totalDailyCalories * 0.8
             CalorieIntakeType.WEIGHT_GAIN -> totalDailyCalories * 1.1
@@ -74,8 +74,7 @@ class CalculateTargetsUseCase {
             CalorieIntakeType.MAINTENANCE -> totalDailyCalories
         }
 
-        // Return calories to burn through exercise (about 20-25% of total)
-        return (calorieAdjustment * 0.2).toInt()
+        // Return calories to gain (target intake)
+        return calorieAdjustment.toInt()
     }
 }
-

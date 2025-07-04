@@ -49,7 +49,8 @@ import java.util.Locale
 
 @Composable
 fun BloodPressurePredictionCard(
-    bloodPressureData: BloodPressureResult? = null
+    bloodPressureData: BloodPressureResult? = null,
+    trackingOff: Boolean = false
 ) {
     val context = LocalContext.current
     val imageLoader = remember {
@@ -73,6 +74,28 @@ fun BloodPressurePredictionCard(
             onDismissRequest = { isHeartRateInformationDialogOpen = false },
             onConfirmButtonClick = { isHeartRateInformationDialogOpen = false }
         )
+    }
+
+    if (trackingOff) {
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(320.dp)
+                .padding(12.dp),
+            colors = CardDefaults.cardColors(containerColor = fieldCardColor)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Tracking is OFF",
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
+        }
+        return
     }
 
     Card(

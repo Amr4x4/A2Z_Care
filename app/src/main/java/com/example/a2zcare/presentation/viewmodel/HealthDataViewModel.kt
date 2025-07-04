@@ -44,7 +44,8 @@ class HealthDataViewModel @Inject constructor(
     val heartDiseasePrediction: StateFlow<String> = _heartDiseasePrediction.asStateFlow()
 
     private val _shouldShowWarningNotification = MutableStateFlow(false)
-    val shouldShowWarningNotification: StateFlow<Boolean> = _shouldShowWarningNotification.asStateFlow()
+    val shouldShowWarningNotification: StateFlow<Boolean> =
+        _shouldShowWarningNotification.asStateFlow()
 
     private val _warningMessage = MutableStateFlow("")
     val warningMessage: StateFlow<String> = _warningMessage.asStateFlow()
@@ -58,6 +59,9 @@ class HealthDataViewModel @Inject constructor(
     private var heartDiseaseJob: Job? = null
     private var currentHeartDiseaseBatchSize = 0
 
+    // Store timestamps of heart disease predictions (NOT heart rate) for the last minute
+    private val heartDiseasePredictionTimestamps = mutableListOf<Pair<Long, String>>()
+
     init {
         startBloodPressureMonitoring()
         startHeartRateMonitoring()
@@ -70,7 +74,8 @@ class HealthDataViewModel @Inject constructor(
         heartDiseaseJob = viewModelScope.launch {
             while (true) {
                 sendHeartDiseaseAI(currentHeartDiseaseBatchSize)
-                currentHeartDiseaseBatchSize = if (currentHeartDiseaseBatchSize >= 35) 0 else currentHeartDiseaseBatchSize + 1
+                currentHeartDiseaseBatchSize =
+                    if (currentHeartDiseaseBatchSize >= 35) 0 else currentHeartDiseaseBatchSize + 1
                 delay(1000) // 1 second delay
             }
         }
@@ -82,7 +87,16 @@ class HealthDataViewModel @Inject constructor(
     }
 
     private fun checkHeartDiseaseWarning(prediction: String) {
-        val countPerMinute = getCurrentHeartRateCount() // Implement this based on your heart rate data
+        // Add current prediction to tracking
+        val currentTime = System.currentTimeMillis()
+        heartDiseasePredictionTimestamps.add(currentTime to prediction)
+
+        // Remove predictions older than 1 minute
+        val oneMinuteAgo = currentTime - 60_000
+        heartDiseasePredictionTimestamps.removeAll { it.first < oneMinuteAgo }
+
+        // Count occurrences of current prediction type in the last minute
+        val countPerMinute = heartDiseasePredictionTimestamps.count { it.second == prediction }
 
         val shouldWarn = when (prediction) {
             "Supraventricular premature" -> countPerMinute > 6
@@ -94,15 +108,66 @@ class HealthDataViewModel @Inject constructor(
 
         if (shouldWarn) {
             _shouldShowWarningNotification.value = true
-            _warningMessage.value = "Warning: Heart condition detected - $prediction (Count: $countPerMinute/min)"
+            _warningMessage.value = getWarningMessage(prediction, countPerMinute)
         }
     }
 
-    // You'll need to implement this based on your heart rate data source
-    private fun getCurrentHeartRateCount(): Int {
-        // This should return the current heart rate count per minute
-        // You might need to get this from your heart rate monitoring system
-        return 0 // Placeholder - implement based on your heart rate data
+    private fun getWarningMessage(prediction: String, count: Int): String {
+        return when (prediction) {
+            "Supraventricular premature" ->
+                "⚠️ Heart Alert: Supraventricular Premature beats detected ($count/min). " +
+                        "This may indicate irregular heart rhythm. Please avoid caffeine, rest, and consult your doctor if symptoms persist."
+
+            "Premature ventricular contraction" ->
+                "⚠️ Heart Alert: Premature Ventricular Contractions detected ($count/min). " +
+                        "This may indicate heart rhythm irregularities. Please rest, avoid stimulants, and seek medical attention if you feel chest pain or shortness of breath."
+
+            "Fusion of ventricular and normal" ->
+                "⚠️ Heart Alert: Mixed heart rhythm pattern detected ($count/min). " +
+                        "This indicates complex heart rhythm changes. Please rest and consult your healthcare provider immediately."
+
+            "Unclassifiable" ->
+                "⚠️ Heart Alert: Unusual heart rhythm detected ($count/min). " +
+                        "The pattern is unclear and may need medical evaluation. Please rest and contact your doctor for assessment."
+
+            else -> "Heart rhythm appears normal."
+        }
+    }
+
+    // Get current count for a specific prediction type in the last minute
+    fun getCurrentHeartDiseaseCount(predictionType: String): Int {
+        val now = System.currentTimeMillis()
+        val oneMinuteAgo = now - 60_000
+
+        // Clean old timestamps
+        heartDiseasePredictionTimestamps.removeAll { it.first < oneMinuteAgo }
+
+        // Count occurrences of the specific prediction type
+        return heartDiseasePredictionTimestamps.count { it.second == predictionType }
+    }
+
+    // Get all prediction counts for the last minute (for the card display)
+    fun getAllHeartDiseaseCountsLastMinute(): Map<String, Int> {
+        val now = System.currentTimeMillis()
+        val oneMinuteAgo = now - 60_000
+
+        // Clean old timestamps
+        heartDiseasePredictionTimestamps.removeAll { it.first < oneMinuteAgo }
+
+        // Count all prediction types
+        val counts = mutableMapOf(
+            "Normal" to 0,
+            "Supraventricular premature" to 0,
+            "Premature ventricular contraction" to 0,
+            "Fusion of ventricular and normal" to 0,
+            "Unclassifiable" to 0
+        )
+
+        heartDiseasePredictionTimestamps.forEach { (_, prediction) ->
+            counts[prediction] = counts[prediction]!! + 1
+        }
+
+        return counts
     }
 
     fun dismissWarningNotification() {
@@ -139,12 +204,14 @@ class HealthDataViewModel @Inject constructor(
                             errorMessage = null
                         )
                     }
+
                     is Result.Error -> {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
                             errorMessage = result.message
                         )
                     }
+
                     is Result.Loading -> {
                         _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
                     }
@@ -164,12 +231,14 @@ class HealthDataViewModel @Inject constructor(
                         activityData = result.data
                     )
                 }
+
                 is Result.Error -> {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
                         errorMessage = result.message
                     )
                 }
+
                 is Result.Loading -> {
                     _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
                 }
@@ -190,12 +259,14 @@ class HealthDataViewModel @Inject constructor(
                             activityData = result.data
                         )
                     }
+
                     is Result.Error -> {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
                             errorMessage = result.message
                         )
                     }
+
                     is Result.Loading -> {
                         _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
                     }
@@ -217,12 +288,14 @@ class HealthDataViewModel @Inject constructor(
                             bloodPressureData = result.data
                         )
                     }
+
                     is Result.Error -> {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
                             errorMessage = result.message
                         )
                     }
+
                     is Result.Loading -> {
                         _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
                     }
@@ -236,7 +309,8 @@ class HealthDataViewModel @Inject constructor(
         heartRateJob = viewModelScope.launch {
             while (true) {
                 sendHeartRateAI(currentHeartRateBatchSize)
-                currentHeartRateBatchSize = if (currentHeartRateBatchSize >= 35) 0 else currentHeartRateBatchSize + 1
+                currentHeartRateBatchSize =
+                    if (currentHeartRateBatchSize >= 35) 0 else currentHeartRateBatchSize + 1
                 delay(60000)
             }
         }
@@ -260,12 +334,14 @@ class HealthDataViewModel @Inject constructor(
                             errorMessage = null
                         )
                     }
+
                     is Result.Error -> {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
                             errorMessage = result.message
                         )
                     }
+
                     is Result.Loading -> {
                         _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
                     }
@@ -286,12 +362,14 @@ class HealthDataViewModel @Inject constructor(
                             isLoading = false,
                         )
                     }
+
                     is Result.Error -> {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
                             errorMessage = result.message
                         )
                     }
+
                     is Result.Loading -> {
                         _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
                     }
@@ -319,12 +397,14 @@ class HealthDataViewModel @Inject constructor(
                             heartDiseaseData = result.data
                         )
                     }
+
                     is Result.Error -> {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
                             errorMessage = result.message
                         )
                     }
+
                     is Result.Loading -> {
                         _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
                     }
@@ -332,7 +412,6 @@ class HealthDataViewModel @Inject constructor(
             }
         }
     }
-
 
     fun getLatestHeartDiseasePrediction() {
         viewModelScope.launch {
@@ -347,12 +426,14 @@ class HealthDataViewModel @Inject constructor(
                             heartDiseaseData = result.data
                         )
                     }
+
                     is Result.Error -> {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
                             errorMessage = result.message
                         )
                     }
+
                     is Result.Loading -> {
                         _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
                     }

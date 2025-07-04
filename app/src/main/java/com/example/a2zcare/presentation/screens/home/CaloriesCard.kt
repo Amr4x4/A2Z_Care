@@ -1,30 +1,42 @@
 package com.example.a2zcare.presentation.screens.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocalFireDepartment
+import androidx.compose.material.icons.filled.KeyboardDoubleArrowRight
+import androidx.compose.material.icons.filled.Restaurant
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.a2zcare.domain.entities.StepDataTracker
+import com.example.a2zcare.presentation.viewmodel.CalorieViewModel
+import androidx.compose.runtime.getValue
 
 @Composable
-fun CaloriesProgressCard(
-    currentCalories: Int,
-    targetCalories: Int,
-    modifier: Modifier = Modifier
+fun SummaryCaloriesCard(
+    modifier: Modifier = Modifier,
+    viewModel: CalorieViewModel = hiltViewModel(), // FIX: Use hiltViewModel() for consistency
+    onCardClick: () -> Unit = {}
 ) {
-    val progress = if (targetCalories > 0) currentCalories.toFloat() / targetCalories else 0f
+    val uiState by viewModel.uiState.collectAsState()
 
     Card(
-        modifier = modifier,
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { onCardClick() }
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.tertiaryContainer
+            containerColor = MaterialTheme.colorScheme.surface
         )
     ) {
         Column(
@@ -35,46 +47,116 @@ fun CaloriesProgressCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Column {
-                    Text(
-                        text = "Calories Burned",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Restaurant,
+                        contentDescription = "Calories",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "$currentCalories / $targetCalories",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.onTertiaryContainer
+                        text = "Calories Intake",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 
                 Icon(
-                    imageVector = Icons.Default.LocalFireDepartment,
-                    contentDescription = null,
-                    modifier = Modifier.size(48.dp),
-                    tint = MaterialTheme.colorScheme.onTertiaryContainer
+                    imageVector = Icons.Default.KeyboardDoubleArrowRight,
+                    contentDescription = "View Details",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Progress Section
+            val totalConsumed = viewModel.totalCaloriesConsumed
+            val dailyGoal = uiState.dailyGoal?.targetCalories ?: viewModel.dailyCalorieGoal
+            val progress = if (dailyGoal > 0) viewModel.calorieProgress else 0f
+            val remaining = viewModel.getRemainingCalories()
+
+            // Progress Bar
+            LinearProgressIndicator(
+                progress = progress,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .clip(RoundedCornerShape(4.dp)),
+                color = if (viewModel.isGoalExceeded())
+                    MaterialTheme.colorScheme.error
+                else
+                    MaterialTheme.colorScheme.primary
+            )
+
             Spacer(modifier = Modifier.height(12.dp))
 
-            LinearProgressIndicator(
-                progress = { progress.coerceIn(0f, 1f) },
+            Row(
                 modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.tertiary,
-                trackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
-            )
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Consumed
+                Column(
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Text(
+                        text = "${totalConsumed.toInt()} cal",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "Consumed",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Column(
+                    horizontalAlignment = Alignment.End
+                ) {
+                    Text(
+                        text = if (viewModel.isGoalExceeded())
+                            "+${(totalConsumed - dailyGoal).toInt()} cal"
+                        else
+                            "${remaining.toInt()} cal",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = if (viewModel.isGoalExceeded())
+                            MaterialTheme.colorScheme.error
+                        else
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = if (viewModel.isGoalExceeded()) "Over Goal" else "Remaining",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "${(progress * 100).toInt()}% Complete",
+                text = "Daily Goal: ${dailyGoal.toInt()} cal",
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onTertiaryContainer
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
+
+            // Show loading state
+            if (uiState.isLoading) {
+                Spacer(modifier = Modifier.height(8.dp))
+                LinearProgressIndicator(
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
         }
     }
 }
+
 
 @Composable
 fun WeeklyProgressCard(
@@ -193,3 +275,5 @@ fun StatCard(
         }
     }
 }
+
+// No changes needed. The card will reflect the updated dailyCalorieGoal from the ViewModel.

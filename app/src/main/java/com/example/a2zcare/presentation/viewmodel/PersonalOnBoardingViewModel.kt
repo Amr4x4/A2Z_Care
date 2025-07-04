@@ -127,7 +127,7 @@ class PersonalOnboardingViewModel @Inject constructor(
                 state.age, genderEnum, activityEnum, state.weight.toFloat(), state.height.toFloat()
             )
 
-            val caloriesTarget = calculateTargetsUseCase.calculateDailyCaloriesBurnTarget(
+            val caloriesTarget = calculateTargetsUseCase.calculateDailyCaloriesGainTarget(
                 state.age, genderEnum, state.weight.toFloat(), state.height.toFloat(),
                 activityEnum, calorieIntakeEnum
             )

@@ -18,7 +18,8 @@ fun HealthGoalsPage(
     selectedHealthGoals: String?,
     onHealthGoalsSelected: (String) -> Unit,
     stepsTarget: Int,
-    caloriesTarget: Int
+    caloriesTarget: Int,
+    caloriesConsumed: Int = 0
 ) {
     Column(
         modifier = Modifier
@@ -105,10 +106,18 @@ fun HealthGoalsPage(
                         color = Color.White
                     )
                     Text(
-                        text = "Calories to burn: $caloriesTarget",
+                        text = "Calories to gain: $caloriesTarget",
                         style = MaterialTheme.typography.bodyLarge,
                         color = Color.White
                     )
+                    if (caloriesConsumed > caloriesTarget) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "You exceeded your daily target by ${caloriesConsumed - caloriesTarget} cal. You need to burn this much to return to your target.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Red
+                        )
+                    }
                 }
             }
         }

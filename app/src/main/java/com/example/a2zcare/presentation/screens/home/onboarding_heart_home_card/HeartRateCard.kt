@@ -50,7 +50,8 @@ import java.util.Locale
 @Composable
 fun HeartRateCard(
     viewModel: HealthDataViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    trackingOff: Boolean = false
 ) {
     val context = LocalContext.current
     val imageLoader = remember {
@@ -75,6 +76,28 @@ fun HeartRateCard(
             onDismissRequest = { isHeartRateInformationDialogOpen = false },
             onConfirmButtonClick = { isHeartRateInformationDialogOpen = false }
         )
+    }
+
+    if (trackingOff) {
+        Card(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(320.dp)
+                .padding(12.dp),
+            colors = CardDefaults.cardColors(containerColor = fieldCardColor)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Tracking is OFF",
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
+        }
+        return
     }
 
     Card(
@@ -209,4 +232,3 @@ fun HeartRateCard(
         }
     }
 }
-
