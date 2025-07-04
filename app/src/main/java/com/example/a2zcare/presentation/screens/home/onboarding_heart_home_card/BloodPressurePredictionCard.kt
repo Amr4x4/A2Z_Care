@@ -1,5 +1,6 @@
 package com.example.a2zcare.presentation.screens.home.onboarding_heart_home_card
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,10 +31,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.ImageLoader
@@ -41,32 +42,38 @@ import coil.compose.rememberAsyncImagePainter
 import coil.decode.GifDecoder
 import coil.request.ImageRequest
 import com.example.a2zcare.R
+import com.example.a2zcare.data.remote.request.BloodPressureResult
 import com.example.a2zcare.presentation.model.LiveStatusManager
-import com.example.a2zcare.presentation.screens.home.HeartRateInformationDialog
 import com.example.a2zcare.presentation.theme.fieldCardColor
 import java.util.Locale
 
 @Composable
 fun BloodPressurePredictionCard(
-    status: String = "Normal",
-    numSPB: Int = 122,
-    numDBP: Int = 80
+    bloodPressureData: BloodPressureResult? = null
 ) {
     val context = LocalContext.current
     val imageLoader = remember {
         ImageLoader.Builder(context).components { add(GifDecoder.Factory()) }.build()
     }
-    var isHeartRateInformationDialogOpen by rememberSaveable { mutableStateOf(false) }
 
     val isOnline by LiveStatusManager.isOnline.collectAsState()
     val lastSeen by LiveStatusManager.lastSeen.collectAsState()
 
-    HeartRateInformationDialog(
-        isOpen = isHeartRateInformationDialogOpen,
-        title = "Heart rate Status",
-        onDismissRequest = { isHeartRateInformationDialogOpen = false },
-        onConfirmButtonClick = { isHeartRateInformationDialogOpen = false }
-    )
+    val systolic = bloodPressureData?.systolic?.toInt() ?: 122
+    val diastolic = bloodPressureData?.diastolic?.toInt() ?: 80
+    val status = bloodPressureData?.category ?: "Normal"
+
+    var isHeartRateInformationDialogOpen by rememberSaveable { mutableStateOf(false) }
+
+    // Show dialog with advice based on status
+    if (isHeartRateInformationDialogOpen) {
+        BloodPressureAdviceDialog(
+            isOpen = true,
+            status = status,
+            onDismissRequest = { isHeartRateInformationDialogOpen = false },
+            onConfirmButtonClick = { isHeartRateInformationDialogOpen = false }
+        )
+    }
 
     Card(
         modifier = Modifier
@@ -111,9 +118,7 @@ fun BloodPressurePredictionCard(
                     }
                     Text(
                         text = if (isOnline) "" else "Last ${
-                            LiveStatusManager.formatTimestamp(
-                                lastSeen
-                            )
+                            LiveStatusManager.formatTimestamp(lastSeen)
                         }",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.DarkGray
@@ -129,11 +134,26 @@ fun BloodPressurePredictionCard(
                 Spacer(modifier = Modifier.width(20.dp))
 
                 IconButton(onClick = { isHeartRateInformationDialogOpen = true }) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = "Blood Pressure info",
-                        tint = Color.Yellow
-                    )
+                    Box {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "Blood Pressure info",
+                            tint = Color.Yellow
+                        )
+                        if (status.lowercase(Locale.ROOT) != "normal") {
+                            Canvas(
+                                modifier = Modifier
+                                    .size(6.dp)
+                                    .align(Alignment.TopEnd)
+                            ) {
+                                drawCircle(
+                                    color = Color.Red,
+                                    radius = size.minDimension / 2,
+                                    center = Offset(x = size.width, y = 0f)
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
@@ -150,7 +170,7 @@ fun BloodPressurePredictionCard(
                         .build(),
                     imageLoader = imageLoader
                 ),
-                contentDescription = "Heart Rate GIF",
+                contentDescription = "Blood Pressure Image",
                 modifier = Modifier
                     .size(250.dp, 160.dp)
                     .background(fieldCardColor),
@@ -164,12 +184,12 @@ fun BloodPressurePredictionCard(
                 horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "SBP: $numSPB/120",
+                    text = "SBP: $systolic/120",
                     color = if (status.lowercase(Locale.ROOT) == "normal") Color.Green else Color.Red
                 )
                 Spacer(modifier = Modifier.width(50.dp))
                 Text(
-                    text = "DBP: $numDBP/80",
+                    text = "DBP: $diastolic/80",
                     color = if (status.lowercase(Locale.ROOT) == "normal") Color.Green else Color.Red
                 )
             }
@@ -183,10 +203,4 @@ fun BloodPressurePredictionCard(
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun PreviewBloodPressurePredictionCard() {
-    BloodPressurePredictionCard("Normal")
 }

@@ -9,15 +9,19 @@ import com.example.a2zcare.data.model.SensorDataRequest
 import com.example.a2zcare.data.model.User
 import com.example.a2zcare.data.model.UserWithEmergencyContacts
 import com.example.a2zcare.data.remote.api.HealthMonitoringApiService
+import com.example.a2zcare.data.remote.request.BloodPressureResult
+import com.example.a2zcare.data.remote.request.HeartRateResult
 import com.example.a2zcare.data.remote.request.LoginRequest
 import com.example.a2zcare.data.remote.request.RegisterRequest
 import com.example.a2zcare.data.remote.request.ResetPasswordRequest
 import com.example.a2zcare.data.remote.request.SendEmailRequest
 import com.example.a2zcare.data.remote.request.UpdateUserRequest
+import com.example.a2zcare.data.remote.response.HeartDiseasePredictionResponse
 import com.example.a2zcare.data.remote.response.LoginResponse
 import com.example.a2zcare.data.remote.response.RegisterResponse
 import com.example.a2zcare.data.remote.response.SendEmailResponse
 import com.example.a2zcare.data.remote.response.SensorDataImportResponse
+import com.google.gson.Gson
 import com.example.a2zcare.data.remote.response.TokenManager
 import com.example.a2zcare.data.remote.response.UpdateUserResponse
 import com.example.a2zcare.domain.model.Result
@@ -104,7 +108,6 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body?.isSuccess == true && body.result != null) {
-                    // Update stored user data
                     tokenManager.saveUserData(body.result)
                     Result.Success(body.result)
                 } else {
@@ -162,7 +165,6 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
         }
     }
 
-    // Keep all the existing methods from your original repository for backward compatibility
     override suspend fun getAllUsers(): Result<String> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.getAllUsers()
@@ -345,26 +347,34 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendBloodPressureAI(userId: String, batchSize: Int): Result<String> = withContext(Dispatchers.IO) {
-        try {
-            val response = apiService.sendBloodPressureAI(userId, batchSize)
-            val body = response.body()
-            if (response.isSuccessful && body?.isSuccess == true) {
-                Result.Success<String>(body.result ?: "")
-            } else {
-                Result.Error("Blood pressure AI failed: ${body?.errors?.joinToString()}")
+    override suspend fun sendBloodPressureAI(userId: String, batchSize: Int): Result<BloodPressureResult> =
+        withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.sendBloodPressureAI(userId, batchSize)
+                val body = response.body()
+                if (response.isSuccessful && body?.isSuccess == true) {
+                    Result.Success(body.result ?: BloodPressureResult(0.0, 0.0, "Unknown"))
+                } else {
+                    Result.Error("Blood pressure AI failed: ${body?.errors?.joinToString()}")
+                }
+            } catch (e: Exception) {
+                Result.Error("Network error: ${e.message}", e)
             }
-        } catch (e: Exception) {
-            Result.Error("Network error: ${e.message}", e)
         }
-    }
 
-    override suspend fun getLatestBloodPressurePrediction(userId: String): Result<String> = withContext(Dispatchers.IO) {
+    override suspend fun getLatestBloodPressurePrediction(userId: String): Result<BloodPressureResult> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.getLatestBloodPressurePrediction(userId)
             val body = response.body()
-            if (response.isSuccessful && body?.isSuccess == true) {
-                Result.Success<String>(body.result ?: "")
+            if (response.isSuccessful && body?.isSuccess == true && body.result != null) {
+                // Fix: If result is already an object, use it directly; if it's a string, parse it.
+                val bpResult: BloodPressureResult = when (body.result) {
+                    is BloodPressureResult -> body.result
+                    is Map<*, *> -> Gson().fromJson(Gson().toJson(body.result), BloodPressureResult::class.java)
+                    is String -> Gson().fromJson(body.result, BloodPressureResult::class.java)
+                    else -> throw IllegalStateException("Unexpected result type: ${body.result?.javaClass}")
+                }
+                Result.Success(bpResult)
             } else {
                 Result.Error("Failed to get blood pressure prediction: ${body?.errors?.joinToString()}")
             }
@@ -373,40 +383,52 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendHeartDiseaseAI(userId: String, batchSize: Int): Result<String> = withContext(Dispatchers.IO) {
-        try {
-            val response = apiService.sendHeartDiseaseAI(userId, batchSize)
-            val body = response.body()
-            if (response.isSuccessful && body?.isSuccess == true) {
-                Result.Success<String>(body.result ?: "")
-            } else {
-                Result.Error("Heart disease AI failed: ${body?.errors?.joinToString()}")
-            }
-        } catch (e: Exception) {
-            Result.Error("Network error: ${e.message}", e)
-        }
-    }
+    override suspend fun sendHeartDiseaseAI(userId: String, batchSize: Int): Result<HeartDiseasePredictionResponse> =
+        withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.sendHeartDiseaseAI(userId, batchSize)
+                val body = response.body()
 
-    override suspend fun getLatestHeartDiseasePrediction(userId: String): Result<String> = withContext(Dispatchers.IO) {
-        try {
-            val response = apiService.getLatestHeartDiseasePrediction(userId)
-            val body = response.body()
-            if (response.isSuccessful && body?.isSuccess == true) {
-                Result.Success<String>(body.result ?: "")
-            } else {
-                Result.Error("Failed to get heart disease prediction: ${body?.errors?.joinToString()}")
+                if (response.isSuccessful && body?.isSuccess == true && body.result != null) {
+                    // Extract the nested prediction correctly
+                    val prediction = body.result.prediction.prediction
+                    val unifiedResponse = HeartDiseasePredictionResponse(prediction)
+                    Result.Success(unifiedResponse)
+                } else {
+                    val errorMessage = body?.errors?.joinToString() ?: "Unknown error"
+                    Result.Error("Heart disease AI failed: $errorMessage")
+                }
+            } catch (e: Exception) {
+                Result.Error("Network error: ${e.message}", e)
             }
-        } catch (e: Exception) {
-            Result.Error("Network error: ${e.message}", e)
         }
-    }
 
-    override suspend fun sendHeartRateAI(userId: String, batchSize: Int): Result<String> = withContext(Dispatchers.IO) {
+    override suspend fun getLatestHeartDiseasePrediction(userId: String): Result<HeartDiseasePredictionResponse> =
+        withContext(Dispatchers.IO) {
+            try {
+                val response = apiService.getLatestHeartDiseasePrediction(userId)
+                val body = response.body()
+
+                if (response.isSuccessful && body?.isSuccess == true && body.result != null) {
+                    // Extract diseases field and convert to unified format
+                    val prediction = body.result.diseases
+                    val unifiedResponse = HeartDiseasePredictionResponse(prediction)
+                    Result.Success(unifiedResponse)
+                } else {
+                    val errorMessage = body?.errors?.joinToString() ?: "Unknown error"
+                    Result.Error("Failed to get heart disease prediction: $errorMessage")
+                }
+            } catch (e: Exception) {
+                Result.Error("Network error: ${e.message}", e)
+            }
+        }
+
+    override suspend fun sendHeartRateAI(userId: String, batchSize: Int): Result<HeartRateResult> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.sendHeartRateAI(userId, batchSize)
             val body = response.body()
             if (response.isSuccessful && body?.isSuccess == true) {
-                Result.Success<String>(body.result ?: "")
+                Result.Success(body.result ?: HeartRateResult(0, "Unknown"))
             } else {
                 Result.Error("Heart rate AI failed: ${body?.errors?.joinToString()}")
             }
@@ -414,6 +436,7 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
             Result.Error("Network error: ${e.message}", e)
         }
     }
+
 
     override suspend fun getLatestHeartRateCalculation(userId: String): Result<String> = withContext(Dispatchers.IO) {
         try {

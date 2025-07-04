@@ -10,11 +10,15 @@ import com.example.a2zcare.data.model.SendSMSRequest
 import com.example.a2zcare.data.model.SensorDataRequest
 import com.example.a2zcare.data.model.User
 import com.example.a2zcare.data.model.UserWithEmergencyContacts
+import com.example.a2zcare.data.remote.request.BloodPressureResult
+import com.example.a2zcare.data.remote.request.HeartRateResult
 import com.example.a2zcare.data.remote.request.LoginRequest
 import com.example.a2zcare.data.remote.request.RegisterRequest
 import com.example.a2zcare.data.remote.request.ResetPasswordRequest
 import com.example.a2zcare.data.remote.request.SendEmailRequest
 import com.example.a2zcare.data.remote.request.UpdateUserRequest
+import com.example.a2zcare.data.remote.response.HeartDiseaseAIResponse
+import com.example.a2zcare.data.remote.response.HeartDiseaseLatestResponse
 import com.example.a2zcare.data.remote.response.LoginResponse
 import com.example.a2zcare.data.remote.response.RegisterResponse
 import com.example.a2zcare.data.remote.response.SendEmailResponse
@@ -148,7 +152,7 @@ interface HealthMonitoringApiService {
     suspend fun sendBloodPressureAI(
         @Query("userId") userId: String,
         @Query("batchsize") batchSize: Int
-    ): Response<ApiResponse<String>>
+    ): Response<ApiResponse<BloodPressureResult>>
 
     @GET("api/BloodPressurePrediction/GetAllByUserId/{userId}")
     suspend fun getAllBloodPressurePredictions(@Path("userId") userId: String): Response<ApiResponse<String>>
@@ -168,15 +172,17 @@ interface HealthMonitoringApiService {
     suspend fun sendHeartDiseaseAI(
         @Query("userId") userId: String,
         @Query("batchsize") batchSize: Int
-    ): Response<ApiResponse<String>>
+    ): Response<HeartDiseaseAIResponse>  // <- Changed response type
+
+    @GET("api/HeartDiseasePrediction/GetLatestByUserId/{userId}")
+    suspend fun getLatestHeartDiseasePrediction(
+        @Path("userId") userId: String
+    ): Response<HeartDiseaseLatestResponse>  // <- Changed response ty
 
     @GET("api/HeartDiseasePrediction/GetAllByUserId/{userId}")
     suspend fun getAllHeartDiseasePredictions(@Path("userId") userId: String): Response<ApiResponse<String>>
 
     @GET("api/HeartDiseasePrediction/GetLatestByUserId/{userId}")
-    suspend fun getLatestHeartDiseasePrediction(@Path("userId") userId: String): Response<ApiResponse<String>>
-
-    @GET("api/HeartDiseasePrediction/GetRangeByUserId/{userId}")
     suspend fun getHeartDiseasePredictionRange(
         @Path("userId") userId: String,
         @Query("startdate") startDate: String,
@@ -188,7 +194,7 @@ interface HealthMonitoringApiService {
     suspend fun sendHeartRateAI(
         @Query("userId") userId: String,
         @Query("batchsize") batchSize: Int
-    ): Response<ApiResponse<String>>
+    ): Response<ApiResponse<HeartRateResult>>
 
     @GET("api/HeartRateCalculation/GetAllByUserId/{userId}")
     suspend fun getAllHeartRateCalculations(@Path("userId") userId: String): Response<ApiResponse<String>>

@@ -1,6 +1,9 @@
 package com.example.a2zcare.presentation.ui_state_classes
 
 import com.example.a2zcare.data.model.UserWithEmergencyContacts
+import com.example.a2zcare.data.remote.request.BloodPressureResult
+import com.example.a2zcare.data.remote.request.HeartRateResult
+import com.example.a2zcare.data.remote.response.HeartDiseasePredictionResponse
 
 data class AuthUiState(
     val isLoading: Boolean = false,
@@ -25,12 +28,12 @@ data class EmergencyContactUiState(
 
 data class HealthDataUiState(
     val isLoading: Boolean = false,
-    val bloodPressureData: String? = null,
-    val heartRateData: String? = null,
-    val heartDiseaseData: String? = null,
-    val activityData: String? = null,
     val errorMessage: String? = null,
-    val successMessage: String? = null
+    val heartRateData: HeartRateResult? = null,
+    val successMessage: String? = null,
+    val bloodPressureData: BloodPressureResult? = null,
+    val heartDiseaseData: HeartDiseasePredictionResponse? = null,
+    val activityData: Any? = null
 )
 
 data class MessagingUiState(
