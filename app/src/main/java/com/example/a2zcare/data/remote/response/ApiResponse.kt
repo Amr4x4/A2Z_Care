@@ -2,14 +2,6 @@ package com.example.a2zcare.data.remote.response
 
 import com.google.gson.annotations.SerializedName
 
-/*
-data class ApiResponse<T>(
-    val statusCode: Int,
-    val isSuccess: Boolean,
-    val errors: List<String>?,
-    val result: T?
-)
- */
 data class ApiResponse<T>(
     @SerializedName("statusCode") val statusCode: Int,
     @SerializedName("isSuccess") val isSuccess: Boolean,

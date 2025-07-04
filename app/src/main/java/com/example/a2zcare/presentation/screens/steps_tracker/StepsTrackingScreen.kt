@@ -18,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.a2zcare.presentation.common_ui.MiniTopBar
-import com.example.a2zcare.presentation.screens.home.CaloriesProgressCard
 import com.example.a2zcare.presentation.screens.home.StatCard
 import com.example.a2zcare.presentation.screens.home.WeeklyProgressCard
 import com.example.a2zcare.presentation.theme.backgroundColor

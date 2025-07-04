@@ -18,6 +18,5 @@ sealed class Screen(val route: String) {
     object SelectEmail : Screen("select_email")
     object OPTSentSuccessfullyCheckEmail : Screen("opt_sent_successfully_check_email")
     object PersonalInformationScreen : Screen("personal_information_screen")
-
-
+    object CaloriesScreen : Screen("calories_screen")
 }

@@ -2,6 +2,8 @@ package com.example.a2zcare.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
+val activeBarColor = Color(0xFF0F1117)
+val darGreen = Color(0xFF006400)
 val gold = Color(0xFFFFD700)
 val unselected = Color(0xFF7C6868)
 val selected = Color(0xFFFA0000)
@@ -22,10 +24,8 @@ val successGreen = Color(0xFF4CAF50)
 val errorRed = Color(0xFFD32F2F)
 val errorBackground = Color(0xFFFFEBEE)
 val progressTrack = Color(0xFFE0E0E0)
-val primaryText = Color(0xFF1565C0)
 val secondaryText = Color.Gray
 val whiteText = Color.White
-val whiteCardBackground = Color.White.copy(alpha = 0.9f)
 val selectedItemBackground = Color(0xFF4CAF50)
 val unselectedItemBackground = Color(0xFFE3F2FD)
 

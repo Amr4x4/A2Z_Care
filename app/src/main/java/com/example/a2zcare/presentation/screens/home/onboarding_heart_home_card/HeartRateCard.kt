@@ -1,5 +1,6 @@
 package com.example.a2zcare.presentation.screens.home.onboarding_heart_home_card
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,10 +31,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.ImageLoader
@@ -42,15 +43,15 @@ import coil.decode.GifDecoder
 import coil.request.ImageRequest
 import com.example.a2zcare.R
 import com.example.a2zcare.presentation.model.LiveStatusManager
-import com.example.a2zcare.presentation.screens.home.HeartRateInformationDialog
 import com.example.a2zcare.presentation.theme.fieldCardColor
+import com.example.a2zcare.presentation.viewmodel.HealthDataViewModel
 import java.util.Locale
 
 @Composable
 fun HeartRateCard(
-    status: String = "Normal",
-    numSPB: Int = 122,
-    numDBP: Int = 80
+    viewModel: HealthDataViewModel,
+    modifier: Modifier = Modifier,
+    trackingOff: Boolean = false
 ) {
     val context = LocalContext.current
     val imageLoader = remember {
@@ -58,18 +59,49 @@ fun HeartRateCard(
     }
     var isHeartRateInformationDialogOpen by rememberSaveable { mutableStateOf(false) }
 
+    val uiState by viewModel.uiState.collectAsState()
     val isOnline by LiveStatusManager.isOnline.collectAsState()
     val lastSeen by LiveStatusManager.lastSeen.collectAsState()
 
-    HeartRateInformationDialog(
-        isOpen = isHeartRateInformationDialogOpen,
-        title = "Heart rate Status",
-        onDismissRequest = { isHeartRateInformationDialogOpen = false },
-        onConfirmButtonClick = { isHeartRateInformationDialogOpen = false }
-    )
+    // Get heart rate data from ViewModel
+    val heartRateData = uiState.heartRateData
+    val beats = heartRateData?.heartrate ?: 0
+    val status = heartRateData?.category ?: "Unknown"
+
+    // Show dialog with advice based on heart rate status
+    if (isHeartRateInformationDialogOpen) {
+        HeartRateAdviceDialog(
+            isOpen = true,
+            status = status,
+            onDismissRequest = { isHeartRateInformationDialogOpen = false },
+            onConfirmButtonClick = { isHeartRateInformationDialogOpen = false }
+        )
+    }
+
+    if (trackingOff) {
+        Card(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(320.dp)
+                .padding(12.dp),
+            colors = CardDefaults.cardColors(containerColor = fieldCardColor)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Tracking is OFF",
+                    color = Color.Gray,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
+        }
+        return
+    }
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(320.dp)
             .padding(12.dp),
@@ -111,9 +143,7 @@ fun HeartRateCard(
                     }
                     Text(
                         text = if (isOnline) "" else "Last ${
-                            LiveStatusManager.formatTimestamp(
-                                lastSeen
-                            )
+                            LiveStatusManager.formatTimestamp(lastSeen)
                         }",
                         style = MaterialTheme.typography.bodySmall,
                         color = Color.DarkGray
@@ -129,53 +159,71 @@ fun HeartRateCard(
                 Spacer(modifier = Modifier.width(20.dp))
 
                 IconButton(onClick = { isHeartRateInformationDialogOpen = true }) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = "Heart Rate info",
-                        tint = Color.Yellow
-                    )
+                    Box {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = "Heart Rate info",
+                            tint = Color.Yellow
+                        )
+                        if (status.lowercase(Locale.ROOT) != "normal") {
+                            Canvas(
+                                modifier = Modifier
+                                    .size(6.dp)
+                                    .align(Alignment.TopEnd)
+                            ) {
+                                drawCircle(
+                                    color = Color.Red,
+                                    radius = size.minDimension / 2,
+                                    center = Offset(x = size.width, y = 0f)
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Image(
-                painter = rememberAsyncImagePainter(
-                    model = ImageRequest.Builder(context)
-                        .data(
-                            if (status.lowercase(Locale.ROOT) == "normal")
-                                R.drawable.heart_rate_good
-                            else R.drawable.heart_rate_not_good
-                        )
-                        .build(),
-                    imageLoader = imageLoader
-                ),
-                contentDescription = "Heart Rate GIF",
-                modifier = Modifier
-                    .size(250.dp, 160.dp)
-                    .background(fieldCardColor),
-                contentScale = ContentScale.Fit
-            )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "SBP: $numSPB/120",
-                    color = if (status.lowercase(Locale.ROOT) == "normal") Color.Green else Color.Red
-                )
-                Spacer(modifier = Modifier.width(50.dp))
-                Text(
-                    text = "DBP: $numDBP/80",
-                    color = if (status.lowercase(Locale.ROOT) == "normal") Color.Green else Color.Red
+            // Show loading indicator if data is being fetched
+            if (uiState.isLoading && heartRateData == null) {
+                Box(
+                    modifier = Modifier
+                        .size(250.dp, 160.dp)
+                        .background(fieldCardColor),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Loading...",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.DarkGray
+                    )
+                }
+            } else {
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        model = ImageRequest.Builder(context)
+                            .data(
+                                if (status.lowercase(Locale.ROOT) == "normal")
+                                    R.drawable.heart_beat_normal
+                                else R.drawable.heart_beat_not_normal
+                            )
+                            .build(),
+                        imageLoader = imageLoader
+                    ),
+                    contentDescription = "Heart Rate GIF",
+                    modifier = Modifier
+                        .size(250.dp, 160.dp)
+                        .background(fieldCardColor),
+                    contentScale = ContentScale.Fit
                 )
             }
 
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "Heart Beats: $beats b/m",
+                color = if (status.lowercase(Locale.ROOT) == "normal") Color.Green else Color.Red
+            )
             Spacer(modifier = Modifier.height(12.dp))
-
             Text(
                 text = "Status: $status",
                 color = if (status.lowercase(Locale.ROOT) == "normal") Color.Green else Color.Red,
@@ -183,10 +231,4 @@ fun HeartRateCard(
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun PreviewHeartRateCard() {
-    HeartRateCard("Normal")
 }

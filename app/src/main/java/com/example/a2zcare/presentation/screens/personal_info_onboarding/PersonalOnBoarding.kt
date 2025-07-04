@@ -38,6 +38,7 @@ import com.example.a2zcare.presentation.navegation.Screen
 import com.example.a2zcare.presentation.theme.backgroundColor
 import com.example.a2zcare.presentation.theme.selected
 import com.example.a2zcare.presentation.theme.unselected
+import com.example.a2zcare.presentation.viewmodel.CalorieViewModel
 import com.example.a2zcare.presentation.viewmodel.PersonalOnboardingViewModel
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -49,6 +50,8 @@ fun PersonalOnboardingScreen(
     navController: NavController,
     viewModel: PersonalOnboardingViewModel = hiltViewModel()
 ) {
+    val calorieViewModel: CalorieViewModel = hiltViewModel()
+
     val uiState by viewModel.uiState.collectAsState()
     val pagerState = rememberPagerState(initialPage = 0)
     val coroutineScope = rememberCoroutineScope()
@@ -60,6 +63,12 @@ fun PersonalOnboardingScreen(
             navController.navigate(Screen.Home.route) {
                 popUpTo(Screen.PersonalOnBoarding.route) { inclusive = true }
             }
+        }
+    }
+
+    LaunchedEffect(uiState.calculatedCaloriesTarget) {
+        if (uiState.calculatedCaloriesTarget > 0) {
+            calorieViewModel.applyCalculatedCaloriesTarget(uiState.calculatedCaloriesTarget)
         }
     }
 

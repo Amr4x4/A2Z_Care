@@ -2,30 +2,45 @@ package com.example.a2zcare.presentation.screens.get_start
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.example.a2zcare.R
 import com.example.a2zcare.presentation.common_ui.CustomButton
 import com.example.a2zcare.presentation.common_ui.GoogleButton
 import com.example.a2zcare.presentation.navegation.Screen
 import com.example.a2zcare.presentation.theme.backgroundColor
 import com.example.a2zcare.presentation.theme.selected
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun GetStart(
     navController: NavController
 ) {
+    val signUpLoading = remember { mutableStateOf(false) }
+    val signInLoading = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -47,7 +62,6 @@ fun GetStart(
                 text = "Let's Get Started!",
                 style = MaterialTheme.typography.headlineSmall,
                 color = Color.White
-
             )
 
             Text(
@@ -62,18 +76,30 @@ fun GetStart(
 
             CustomButton(
                 onClick = {
-                    navController.navigate(Screen.SignUp.route)
+                    coroutineScope.launch {
+                        signUpLoading.value = true
+                        signUpLoading.value = false
+                        navController.navigate(Screen.SignUp.route)
+                    }
                 },
                 text = "Sign up",
-                color = selected
+                color = selected,
+                loading = signUpLoading.value
             )
+
             CustomButton(
                 onClick = {
-                    navController.navigate(Screen.LogIn.route)
+                    coroutineScope.launch {
+                        signInLoading.value = true
+                        signInLoading.value = false
+                        navController.navigate(Screen.LogIn.route)
+                    }
                 },
                 text = "Sign in",
-                color = Color.DarkGray
+                color = Color.DarkGray,
+                loading = signInLoading.value
             )
+
             Spacer(modifier = Modifier.height(32.dp))
 
             Row(
@@ -84,10 +110,7 @@ fun GetStart(
                     color = Color.Gray,
                     style = MaterialTheme.typography.bodySmall
                 )
-                Text(
-                    text = "·",
-                    color = Color.Gray
-                )
+                Text(text = "·", color = Color.Gray)
                 Text(
                     text = "Terms of Service",
                     color = Color.Gray,
@@ -96,10 +119,4 @@ fun GetStart(
             }
         }
     }
-}
-
-@Preview
-@Composable
-private fun PreviewGetStart() {
-    GetStart( navController = rememberNavController())
 }

@@ -1,11 +1,14 @@
 package com.example.a2zcare.domain.repository
 
 import com.example.a2zcare.data.model.*
+import com.example.a2zcare.data.remote.request.BloodPressureResult
+import com.example.a2zcare.data.remote.request.HeartRateResult
 import com.example.a2zcare.data.remote.request.LoginRequest
 import com.example.a2zcare.data.remote.request.RegisterRequest
 import com.example.a2zcare.data.remote.request.ResetPasswordRequest
 import com.example.a2zcare.data.remote.request.SendEmailRequest
 import com.example.a2zcare.data.remote.request.UpdateUserRequest
+import com.example.a2zcare.data.remote.response.HeartDiseasePredictionResponse
 import com.example.a2zcare.data.remote.response.LoginResponse
 import com.example.a2zcare.data.remote.response.RegisterResponse
 import com.example.a2zcare.data.remote.response.SendEmailResponse
@@ -48,11 +51,11 @@ interface HealthMonitoringRepository {
     suspend fun getLatestActivityData(userId: String): Result<String>
 
     // Predictions
-    suspend fun sendBloodPressureAI(userId: String, batchSize: Int): Result<String>
-    suspend fun getLatestBloodPressurePrediction(userId: String): Result<String>
-    suspend fun sendHeartDiseaseAI(userId: String, batchSize: Int): Result<String>
-    suspend fun getLatestHeartDiseasePrediction(userId: String): Result<String>
-    suspend fun sendHeartRateAI(userId: String, batchSize: Int): Result<String>
+    suspend fun sendBloodPressureAI(userId: String, batchSize: Int): Result<BloodPressureResult>
+    suspend fun getLatestBloodPressurePrediction(userId: String): Result<BloodPressureResult>
+    suspend fun sendHeartDiseaseAI(userId: String, batchSize: Int): Result<HeartDiseasePredictionResponse>
+    suspend fun getLatestHeartDiseasePrediction(userId: String): Result<HeartDiseasePredictionResponse>
+    suspend fun sendHeartRateAI(userId: String, batchSize: Int): Result<HeartRateResult>
     suspend fun getLatestHeartRateCalculation(userId: String): Result<String>
 
     // SMS
