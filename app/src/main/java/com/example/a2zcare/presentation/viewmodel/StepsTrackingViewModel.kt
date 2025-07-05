@@ -8,9 +8,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 import javax.inject.Inject
 import com.example.a2zcare.domain.repository.StepTrackerRepository
 import com.example.a2zcare.domain.usecases.StepTrackingUseCase
@@ -32,9 +29,6 @@ class StepsTrackingViewModel @Inject constructor(
     private val _errorState = MutableStateFlow<String?>(null)
     val errorState: StateFlow<String?> = _errorState.asStateFlow()
 
-    private val _lastRefreshTime = MutableStateFlow(0L)
-    val lastRefreshTime: StateFlow<Long> = _lastRefreshTime.asStateFlow()
-
     init {
         loadData()
     }
@@ -46,9 +40,8 @@ class StepsTrackingViewModel @Inject constructor(
 
             try {
                 val userProfile = repository.getUserProfile()
-                val today = getCurrentDate()
-                val todayData = repository.getStepDataByDate(today)
-                val weeklyData = repository.getLastSevenDays()
+                val todayData = stepTrackingUseCase.getTodaySteps()
+                val weeklyData = stepTrackingUseCase.getWeeklySteps()
 
                 _uiState.value = _uiState.value.copy(
                     userProfile = userProfile,
@@ -74,74 +67,11 @@ class StepsTrackingViewModel @Inject constructor(
     }
 
     fun refreshData() {
-        viewModelScope.launch {
-            _isRefreshing.value = true
-            _errorState.value = null
-
-            try {
-                loadData()
-                _lastRefreshTime.value = System.currentTimeMillis()
-                Log.d("StepsTrackingViewModel", "Data refreshed successfully")
-            } catch (e: Exception) {
-                Log.e("StepsTrackingViewModel", "Error refreshing data", e)
-
-                val errorMessage = when (e) {
-                    is java.net.UnknownHostException -> "No internet connection"
-                    is java.net.SocketTimeoutException -> "Request timed out"
-                    is IllegalStateException -> "App is not ready"
-                    else -> "Failed to refresh data"
-                }
-                _errorState.value = errorMessage
-            } finally {
-                _isRefreshing.value = false
-            }
-        }
-    }
-
-    fun isRefreshNeeded(): Boolean {
-        val currentTime = System.currentTimeMillis()
-        val lastRefresh = _lastRefreshTime.value
-        val refreshInterval = 5 * 60 * 1000L // 5 minutes
-        return currentTime - lastRefresh > refreshInterval
-    }
-
-    fun forceRefresh() {
-        if (!_isRefreshing.value) {
-            refreshData()
-        }
+        loadData()
     }
 
     fun clearError() {
         _errorState.value = null
-    }
-
-    fun addSteps(steps: Int) {
-        viewModelScope.launch {
-            try {
-                val currentSteps = _uiState.value.todaySteps
-                _uiState.value = _uiState.value.copy(
-                    todaySteps = currentSteps + steps
-                )
-
-                // Update in repository if needed
-                stepTrackingUseCase.updateStepCount(steps)
-
-                Log.d("StepsTrackingViewModel", "Added $steps steps. Total: ${_uiState.value.todaySteps}")
-            } catch (e: Exception) {
-                Log.e("StepsTrackingViewModel", "Error adding steps", e)
-                _errorState.value = "Failed to add steps"
-            }
-        }
-    }
-
-    private fun getCurrentDate(): String {
-        val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return sdf.format(Date())
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Log.d("StepsTrackingViewModel", "ViewModel cleared")
     }
 }
 

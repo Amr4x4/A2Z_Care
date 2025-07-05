@@ -1,10 +1,14 @@
 package com.example.a2zcare
 
 import android.Manifest
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -22,6 +26,7 @@ import com.example.a2zcare.presentation.navegation.SetupNavGraph
 import com.example.a2zcare.presentation.theme.A2ZCareTheme
 import com.example.a2zcare.presentation.viewmodel.SplashScreenViewModel
 import com.example.a2zcare.service.StepCounterService
+import com.example.a2zcare.util.StepServiceManager
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,6 +40,19 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var splashViewModel: SplashScreenViewModel
 
+    private lateinit var stepServiceManager: StepServiceManager
+
+    private val permissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val allGranted = permissions.all { it.value }
+        if (allGranted) {
+            startStepTracking()
+        } else {
+            // Handle permission denied
+            Log.w("MainActivity", "Required permissions not granted")
+        }
+    }
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
@@ -76,6 +94,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        stepServiceManager = StepServiceManager(this)
+        requestPermissionsAndStartService()
 
         if (!hasAllPermissions()) {
             requestPermissionsLauncher.launch(getRequiredPermissions())
@@ -130,5 +151,29 @@ class MainActivity : ComponentActivity() {
         } else {
             startService(serviceIntent)
         }
+    }
+    private fun requestPermissionsAndStartService() {
+        val requiredPermissions = stepServiceManager.getRequiredPermissions()
+        val missingPermissions = requiredPermissions.filter { permission ->
+            ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (missingPermissions.isNotEmpty()) {
+            permissionLauncher.launch(missingPermissions.toTypedArray())
+        } else {
+            startStepTracking()
+        }
+    }
+
+    private fun startStepTracking() {
+        if (stepServiceManager.startStepTracking()) {
+            Log.d("MainActivity", "Step tracking service started")
+        } else {
+            Log.w("MainActivity", "Failed to start step tracking service")
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 }

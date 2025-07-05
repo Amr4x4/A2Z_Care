@@ -8,7 +8,9 @@ import com.example.a2zcare.domain.entities.StepDataTracker
 import com.example.a2zcare.domain.entities.UserProfile
 import com.example.a2zcare.domain.repository.StepTrackerRepository
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class StepTrackerRepositoryImpl @Inject constructor(
     private val stepCounterDao: StepCounterDao,
     private val userProfileDao: UserProfileDao

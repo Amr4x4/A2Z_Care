@@ -26,7 +26,7 @@ object UseCaseModule {
         repository: StepTrackerRepository,
         calculateTargetsUseCase: CalculateTargetsUseCase
     ): StepTrackingUseCase {
-        return StepTrackingUseCase(repository, calculateTargetsUseCase)
+        return StepTrackingUseCase(repository)
     }
 
     @Provides

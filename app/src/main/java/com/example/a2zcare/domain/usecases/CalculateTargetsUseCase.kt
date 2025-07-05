@@ -1,10 +1,19 @@
 package com.example.a2zcare.domain.usecases
 
+import com.example.a2zcare.data.local.entity.UserProfileEntity
 import com.example.a2zcare.domain.entities.ActivityLevel
 import com.example.a2zcare.domain.entities.CalorieIntakeType
 import com.example.a2zcare.domain.entities.Gender
+import com.example.a2zcare.domain.entities.UserProfile
 
 class CalculateTargetsUseCase {
+    fun getStepTarget(userProfile: UserProfileEntity?): Int {
+        return userProfile?.dailyStepsTarget?.takeIf { it > 0 } ?: 10000
+    }
+
+    fun getStepTarget(userProfile: UserProfile?): Int {
+        return userProfile?.dailyStepsTarget?.takeIf { it > 0 } ?: 10000
+    }
 
     fun calculateDailyStepsTarget(
         age: Int,
