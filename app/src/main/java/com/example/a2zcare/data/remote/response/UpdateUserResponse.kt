@@ -11,7 +11,7 @@ data class UpdateUserResponse(
     val dateOfBirth: String?,
     val gender: String?,
     val weightKg: Double,
-    val height: Double,
+    val height: Int,
     val healthGoals: String?,
     val updatedAt: String?
 )

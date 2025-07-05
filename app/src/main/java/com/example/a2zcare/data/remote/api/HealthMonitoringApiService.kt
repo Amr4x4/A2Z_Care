@@ -37,7 +37,6 @@ interface HealthMonitoringApiService {
     @POST("api/Users/Login")
     suspend fun login(@Body request: LoginRequest): Response<ApiResponse<LoginResponse>>
 
-    // If your backend expects /api/Users/Update{id} (no slash before {id}), use this:
     @PUT("api/Users/Update{id}")
     suspend fun updateUser(
         @Path("id") id: String,

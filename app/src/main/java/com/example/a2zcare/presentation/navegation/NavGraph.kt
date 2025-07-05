@@ -18,7 +18,7 @@ import com.example.a2zcare.presentation.screens.log_in.forget_password.OPTSentSu
 import com.example.a2zcare.presentation.screens.log_in.forget_password.SelectEmailScreen
 import com.example.a2zcare.presentation.screens.notification.NotificationScreen
 import com.example.a2zcare.presentation.screens.personal_info_onboarding.PersonalOnboardingScreen
-import com.example.a2zcare.presentation.screens.profile.PersonalInformationScreen
+import com.example.a2zcare.presentation.screens.profile.PersonalInfoScreen
 import com.example.a2zcare.presentation.screens.profile.ProfileScreen
 import com.example.a2zcare.presentation.screens.sign_up.SignUpScreen
 import com.example.a2zcare.presentation.screens.steps_tracker.StepsTrackingScreen
@@ -97,7 +97,7 @@ fun SetupNavGraph(
                 OPTSentSuccessfullyCheckEmail(navController = navController)
             }
             composable(route = Screen.PersonalInformationScreen.route) {
-                PersonalInformationScreen(navController = navController)
+                PersonalInfoScreen(navController = navController)
             }
             composable(route = Screen.CaloriesScreen.route) {
                 CaloriesScreen(navController = navController)
