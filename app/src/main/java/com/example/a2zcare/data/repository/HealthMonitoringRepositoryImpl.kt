@@ -1,5 +1,6 @@
 package com.example.a2zcare.data.repository
 
+import android.util.Log
 import com.example.a2zcare.data.model.ActivityPredictionRequest
 import com.example.a2zcare.data.model.ConnectContactRequest
 import com.example.a2zcare.data.model.EmergencyContactRequest
@@ -124,15 +125,40 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
     override suspend fun resetPassword(request: ResetPasswordRequest): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.resetPassword(request)
+
+            // Log the response for debugging
+            Log.d("ResetPassword", "Response code: ${response.code()}")
+            Log.d("ResetPassword", "Response headers: ${response.headers()}")
+
             if (response.isSuccessful) {
-                Result.Success(Unit)
+                val responseBody = response.body()?.string()
+                Log.d("ResetPassword", "Response body: $responseBody")
+
+                if (responseBody?.contains("Password Changed Correctly", ignoreCase = true) == true) {
+                    Result.Success(Unit)
+                } else {
+                    Result.Error("Unexpected response format")
+                }
             } else {
-                Result.Error("Password reset failed: ${response.message()}")
+                val errorBody = response.errorBody()?.string()
+                Log.e("ResetPassword", "Error response: $errorBody")
+
+                // Try to parse error as JSON, fallback to plain text
+                val errorMessage = try {
+                    // If your error responses are JSON, parse them here
+                    errorBody ?: "Password reset failed"
+                } catch (e: Exception) {
+                    errorBody ?: "Password reset failed"
+                }
+
+                Result.Error(errorMessage)
             }
         } catch (e: Exception) {
-            Result.Error("Network error: ${e.message}", e)
+            Log.e("ResetPassword", "Network error", e)
+            Result.Error("Network error: ${e.message ?: "Unknown error"}")
         }
     }
+
 
     override suspend fun forgotPassword(email: String): Result<Unit> = withContext(Dispatchers.IO) {
         try {

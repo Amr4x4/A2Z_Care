@@ -26,6 +26,7 @@ import com.example.a2zcare.data.remote.response.SensorDataImportResponse
 import com.example.a2zcare.data.remote.response.UpdateUserResponse
 import com.example.a2zcare.domain.entities.LocationData
 import okhttp3.MultipartBody
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -47,8 +48,7 @@ interface HealthMonitoringApiService {
     suspend fun getUserData(@Path("userId") userId: String): Response<ApiResponse<User>>
 
     @POST("api/Users/ResetPassword")
-    suspend fun resetPassword(@Body request: ResetPasswordRequest): Response<String>
-
+    suspend fun resetPassword(@Body request: ResetPasswordRequest): Response<ResponseBody>
     @POST("api/Users/ForgotPassword")
     suspend fun forgotPassword(@Query("email") email: String): Response<String>
 

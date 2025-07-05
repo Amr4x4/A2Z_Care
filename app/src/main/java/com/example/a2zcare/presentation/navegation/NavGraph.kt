@@ -18,8 +18,16 @@ import com.example.a2zcare.presentation.screens.log_in.forget_password.OPTSentSu
 import com.example.a2zcare.presentation.screens.log_in.forget_password.SelectEmailScreen
 import com.example.a2zcare.presentation.screens.notification.NotificationScreen
 import com.example.a2zcare.presentation.screens.personal_info_onboarding.PersonalOnboardingScreen
+import com.example.a2zcare.presentation.screens.profile.AboutScreen
+import com.example.a2zcare.presentation.screens.profile.ChangePasswordScreen
+import com.example.a2zcare.presentation.screens.profile.HelpSupportScreen
+import com.example.a2zcare.presentation.screens.profile.NotificationSettingsScreen
+import com.example.a2zcare.presentation.screens.profile.PaymentMethodsScreen
 import com.example.a2zcare.presentation.screens.profile.PersonalInfoScreen
+import com.example.a2zcare.presentation.screens.profile.PrivacyPolicyScreen
 import com.example.a2zcare.presentation.screens.profile.ProfileScreen
+import com.example.a2zcare.presentation.screens.profile.SecuritySettingsScreen
+import com.example.a2zcare.presentation.screens.profile.SubscriptionsScreen
 import com.example.a2zcare.presentation.screens.sign_up.SignUpScreen
 import com.example.a2zcare.presentation.screens.steps_tracker.StepsTrackingScreen
 import com.example.a2zcare.presentation.screens.tracker.LocationSharingScreen
@@ -98,6 +106,30 @@ fun SetupNavGraph(
             }
             composable(route = Screen.PersonalInformationScreen.route) {
                 PersonalInfoScreen(navController = navController)
+            }
+            composable(route = Screen.NotificationSittingScreen.route) {
+                NotificationSettingsScreen(navController = navController)
+            }
+            composable(route = Screen.SecuritySettingScreen.route) {
+                SecuritySettingsScreen(navController = navController)
+            }
+            composable(route = Screen.ChangePassword.route) {
+                ChangePasswordScreen(navController = navController)
+            }
+            composable(route = Screen.PaymentMethodsScreen.route) {
+                PaymentMethodsScreen(navController = navController)
+            }
+            composable(route = Screen.SubscriptionsScreen.route) {
+                SubscriptionsScreen(navController = navController)
+            }
+            composable(route = Screen.HelpSupportScreen.route) {
+                HelpSupportScreen(navController = navController)
+            }
+            composable(route = Screen.PrivacyPolicyScreen.route) {
+                PrivacyPolicyScreen(navController = navController)
+            }
+            composable(route = Screen.AboutScreen.route) {
+                AboutScreen(navController = navController)
             }
             composable(route = Screen.CaloriesScreen.route) {
                 CaloriesScreen(navController = navController)

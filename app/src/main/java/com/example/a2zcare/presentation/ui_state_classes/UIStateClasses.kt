@@ -77,3 +77,18 @@ data class SensorDataUiState(
     val successMessage: String? = null,
     val totalReadings: Int = 0
 )
+
+data class ChangePasswordUiState(
+    val isLoading: Boolean = false,
+    val successMessage: String? = null,
+    val errorMessage: String? = null,
+    val currentPassword: String = "",
+    val newPassword: String = "",
+    val confirmPassword: String = "",
+    val currentPasswordVisible: Boolean = false,
+    val newPasswordVisible: Boolean = false,
+    val confirmPasswordVisible: Boolean = false,
+    val currentPasswordError: String? = null,
+    val newPasswordError: String? = null,
+    val confirmPasswordError: String? = null
+)

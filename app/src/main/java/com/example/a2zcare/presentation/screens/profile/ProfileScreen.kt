@@ -148,13 +148,13 @@ fun ProfileScreen(
                                     icon = Icons.Default.Notifications,
                                     title = "Notifications",
                                     subtitle = "Manage your notification preferences",
-                                    onClick = { navController.navigate(Screen.PersonalInformationScreen.route) }
+                                    onClick = { navController.navigate(Screen.NotificationSittingScreen.route) }
                                 ),
                                 ProfileItem(
                                     icon = Icons.Default.Security,
                                     title = "Security",
                                     subtitle = "Password and security settings",
-                                    onClick = { navController.navigate(Screen.PersonalInformationScreen.route) }
+                                    onClick = { navController.navigate(Screen.SecuritySettingScreen.route) }
                                 )
                             )
                         )
@@ -168,13 +168,13 @@ fun ProfileScreen(
                                     icon = Icons.Default.CreditCard,
                                     title = "Payment Methods",
                                     subtitle = "Manage your payment methods",
-                                    onClick = { navController.navigate(Screen.PersonalInformationScreen.route) }
+                                    onClick = { navController.navigate(Screen.PaymentMethodsScreen.route) }
                                 ),
                                 ProfileItem(
                                     icon = Icons.Default.Subscriptions,
                                     title = "Subscriptions",
                                     subtitle = "View your active subscriptions",
-                                    onClick = { navController.navigate(Screen.PersonalInformationScreen.route) }
+                                    onClick = { navController.navigate(Screen.SubscriptionsScreen.route) }
                                 )
                             )
                         )
@@ -188,19 +188,19 @@ fun ProfileScreen(
                                     icon = Icons.Default.Help,
                                     title = "Help & Support",
                                     subtitle = "Get help with your account",
-                                    onClick = { navController.navigate(Screen.PersonalInformationScreen.route) }
+                                    onClick = { navController.navigate(Screen.HelpSupportScreen.route) }
                                 ),
                                 ProfileItem(
                                     icon = Icons.Default.PrivacyTip,
                                     title = "Privacy Policy",
                                     subtitle = "Read our privacy policy",
-                                    onClick = { navController.navigate(Screen.PersonalInformationScreen.route) }
+                                    onClick = { navController.navigate(Screen.PrivacyPolicyScreen.route) }
                                 ),
                                 ProfileItem(
                                     icon = Icons.Default.Info,
                                     title = "About",
                                     subtitle = "App information and version",
-                                    onClick = { navController.navigate(Screen.PersonalInformationScreen.route) }
+                                    onClick = { navController.navigate(Screen.AboutScreen.route) }
                                 )
                             )
                         )
