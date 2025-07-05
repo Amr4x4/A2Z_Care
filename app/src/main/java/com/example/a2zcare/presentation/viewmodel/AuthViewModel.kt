@@ -29,7 +29,6 @@ class AuthViewModel @Inject constructor(
     private val registerUseCase: RegisterUseCase,
     private val loginUseCase: LoginUseCase,
     private val forgotPasswordUseCase: ForgotPasswordUseCase,
-    private val resetPasswordUseCase: ResetPasswordUseCase,
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val tokenManager: TokenManager
@@ -253,38 +252,6 @@ class AuthViewModel @Inject constructor(
             }
         }
     }
-
-    fun resetPassword(email: String, currentPassword: String, newPassword: String) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
-
-            val request = ResetPasswordRequest(email, currentPassword, newPassword)
-            when (val result = resetPasswordUseCase(request)) {
-                is Result.Success -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        successMessage = "Password reset successful!"
-                    )
-                    _isLoading.value = false
-                }
-
-                is Result.Error -> {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        errorMessage = result.message
-                    )
-                    _isLoading.value = false
-                }
-
-                is Result.Loading -> {
-                    _isLoading.value = result.isLoading
-                    _uiState.value = _uiState.value.copy(isLoading = result.isLoading)
-                }
-            }
-        }
-    }
-
     fun clearMessages() {
         _uiState.value = _uiState.value.copy(errorMessage = null, successMessage = null)
     }

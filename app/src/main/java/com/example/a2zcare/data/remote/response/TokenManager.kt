@@ -38,7 +38,11 @@ class TokenManager @Inject constructor(
     }
 
     suspend fun getToken(): String? {
-        return dataStore.data.first()[TOKEN_KEY]
+        return try {
+            dataStore.data.first()[TOKEN_KEY]
+        } catch (e: Exception) {
+            null
+        }
     }
 
     suspend fun saveUserId(userId: String) {
@@ -48,7 +52,11 @@ class TokenManager @Inject constructor(
     }
 
     suspend fun getUserId(): String? {
-        return dataStore.data.first()[USER_ID_KEY]
+        return try {
+            dataStore.data.first()[USER_ID_KEY]
+        } catch (e: Exception) {
+            null
+        }
     }
 
     suspend fun saveUserData(user: User) {
@@ -58,9 +66,28 @@ class TokenManager @Inject constructor(
         }
     }
 
+    suspend fun getUserEmail(): String? {
+        return try {
+            val userData = getUserData()
+            userData?.email
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     suspend fun getUserData(): User? {
-        val userJson = dataStore.data.first()[USER_DATA_KEY]
-        return userJson?.let { gson.fromJson(it, User::class.java) }
+        return try {
+            val userJson = dataStore.data.first()[USER_DATA_KEY]
+            userJson?.let {
+                try {
+                    gson.fromJson(it, User::class.java)
+                } catch (e: Exception) {
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            null
+        }
     }
 
     suspend fun saveDeviceId(deviceId: String) {
@@ -70,7 +97,11 @@ class TokenManager @Inject constructor(
     }
 
     suspend fun getDeviceId(): String? {
-        return dataStore.data.first()[DEVICE_ID_KEY]
+        return try {
+            dataStore.data.first()[DEVICE_ID_KEY]
+        } catch (e: Exception) {
+            null
+        }
     }
 
     suspend fun clearAllTokens() {
@@ -81,42 +112,92 @@ class TokenManager @Inject constructor(
 
     fun isLoggedIn(): Flow<Boolean> {
         return dataStore.data.map { preferences ->
-            !preferences[TOKEN_KEY].isNullOrEmpty() && !preferences[USER_ID_KEY].isNullOrEmpty()
+            try {
+                !preferences[TOKEN_KEY].isNullOrEmpty() && !preferences[USER_ID_KEY].isNullOrEmpty()
+            } catch (e: Exception) {
+                false
+            }
         }
     }
 
     fun getCurrentUserId(): Flow<String?> {
         return dataStore.data.map { preferences ->
-            preferences[USER_ID_KEY]
+            try {
+                preferences[USER_ID_KEY]
+            } catch (e: Exception) {
+                null
+            }
         }
     }
 
     fun getCurrentUserData(): Flow<User?> {
         return dataStore.data.map { preferences ->
-            val userJson = preferences[USER_DATA_KEY]
-            userJson?.let { gson.fromJson(it, User::class.java) }
+            try {
+                val userJson = preferences[USER_DATA_KEY]
+                userJson?.let {
+                    try {
+                        gson.fromJson(it, User::class.java)
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+            } catch (e: Exception) {
+                null
+            }
         }
     }
 
     suspend fun getUserFirstName(): String {
-        val userData = getUserData()
-        return when {
-            !userData?.firstName.isNullOrBlank() -> userData!!.firstName!!
-            !userData?.name.isNullOrBlank() -> userData!!.name!!
-            !userData?.userName.isNullOrBlank() -> userData!!.userName!!
-            else -> "User"
+        return try {
+            val userData = getUserData()
+            when {
+                !userData?.firstName.isNullOrBlank() -> userData!!.firstName!!
+                !userData?.name.isNullOrBlank() -> userData!!.name!!
+                !userData?.userName.isNullOrBlank() -> userData!!.userName!!
+                else -> "User"
+            }
+        } catch (e: Exception) {
+            "User"
         }
     }
 
     fun getCurrentUserFirstName(): Flow<String> {
         return dataStore.data.map { preferences ->
-            val userJson = preferences[USER_DATA_KEY]
-            val userData = userJson?.let { gson.fromJson(it, User::class.java) }
-            when {
-                !userData?.firstName.isNullOrBlank() -> userData.firstName!!
-                !userData?.name.isNullOrBlank() -> userData.name!!
-                !userData?.userName.isNullOrBlank() -> userData.userName!!
-                else -> "User"
+            try {
+                val userJson = preferences[USER_DATA_KEY]
+                val userData = userJson?.let {
+                    try {
+                        gson.fromJson(it, User::class.java)
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+                when {
+                    !userData?.firstName.isNullOrBlank() -> userData.firstName!!
+                    !userData?.name.isNullOrBlank() -> userData.name!!
+                    !userData?.userName.isNullOrBlank() -> userData.userName!!
+                    else -> "User"
+                }
+            } catch (e: Exception) {
+                "User"
+            }
+        }
+    }
+
+    fun getCurrentUserEmail(): Flow<String?> {
+        return dataStore.data.map { preferences ->
+            try {
+                val userJson = preferences[USER_DATA_KEY]
+                val userData = userJson?.let {
+                    try {
+                        gson.fromJson(it, User::class.java)
+                    } catch (e: Exception) {
+                        null
+                    }
+                }
+                userData?.email
+            } catch (e: Exception) {
+                null
             }
         }
     }

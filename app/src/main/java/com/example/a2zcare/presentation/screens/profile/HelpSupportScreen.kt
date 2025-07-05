@@ -1,11 +1,11 @@
 package com.example.a2zcare.presentation.screens.profile
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -18,136 +18,148 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.a2zcare.presentation.common_ui.MiniTopBar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HelpSupportScreen(navController: NavController) {
+fun HelpSupportScreen(
+    navController: NavController
+) {
+    var selectedFaqIndex by remember { mutableStateOf(-1) }
+    val faqItems = listOf(
+        FAQItem(
+            question = "How do I track my daily steps?",
+            answer = "The app automatically tracks your steps using your phone's built-in sensors. Simply carry your phone with you throughout the day. You can view your step count on the home screen and set daily goals in the Activity Tracking section."
+        ),
+        FAQItem(
+            question = "How does the AI blood pressure prediction work?",
+            answer = "Our AI model analyzes your activity data, health metrics, and historical patterns to predict your blood pressure levels. The predictions are based on machine learning algorithms trained on health data patterns. Always consult with healthcare professionals for medical decisions."
+        ),
+        FAQItem(
+            question = "How do I set up medication reminders?",
+            answer = "Go to the Medication Tracking section, tap 'Add Medication', enter your medication details including name, dosage, and schedule. The app will send you notifications at the specified times and track your medication history."
+        ),
+        FAQItem(
+            question = "What happens during an emergency alert?",
+            answer = "When you trigger an emergency alert, the app automatically sends your current location and emergency details to your pre-configured emergency contacts. Make sure to set up your emergency contacts in the settings for this feature to work properly."
+        ),
+        FAQItem(
+            question = "How do I upgrade to VIP membership?",
+            answer = "You can upgrade to VIP membership from the Profile screen by tapping on the VIP card. VIP members get access to exclusive features like direct medicine orders, priority doctor consultations, and advanced health insights."
+        ),
+        FAQItem(
+            question = "Why am I not receiving notifications?",
+            answer = "Check your notification settings in both the app and your phone's system settings. Make sure notifications are enabled for the HealthCare app. You can also customize notification preferences in the Notifications section of your profile."
+        ),
+        FAQItem(
+            question = "How accurate is the calorie tracking?",
+            answer = "Calorie tracking accuracy depends on the completeness and accuracy of the food data you input. The app uses a comprehensive food database to calculate calories. For best results, log all your meals and snacks throughout the day."
+        ),
+        FAQItem(
+            question = "Can I export my health data?",
+            answer = "Yes, you can export your health data from the app settings. This includes your activity history, medication records, and health metrics. The exported data can be shared with healthcare providers or used for personal records."
+        )
+    )
+
+    val supportOptions = listOf(
+        SupportOption(
+            icon = Icons.Default.Email,
+            title = "Email Support",
+            description = "Get help via email",
+            action = "support@a2zcare.com"
+        ),
+        SupportOption(
+            icon = Icons.Default.Phone,
+            title = "Phone Support",
+            description = "Call us for immediate assistance",
+            action = "+1-800-A2Z-CARE"
+        ),
+        SupportOption(
+            icon = Icons.Default.Chat,
+            title = "Live Chat",
+            description = "Chat with our support team",
+            action = "Available 24/7"
+        ),
+        SupportOption(
+            icon = Icons.Default.Forum,
+            title = "Community Forum",
+            description = "Connect with other users",
+            action = "Join Discussion"
+        )
+    )
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Help & Support") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigateUp() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
+            MiniTopBar(
+                title = "Help & Support",
+                navController = navController
             )
         }
-    ) { paddingValues ->
+    ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background)
+                .padding(innerPadding),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                // Search Bar
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp)
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            "Search help articles...",
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        )
+                Text(
+                    text = "Contact Support",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
+            items(supportOptions) { option ->
+                SupportOptionCard(option = option)
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "Frequently Asked Questions",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
+
+            items(faqItems.size) { index ->
+                FAQCard(
+                    faqItem = faqItems[index],
+                    isExpanded = selectedFaqIndex == index,
+                    onClick = {
+                        selectedFaqIndex = if (selectedFaqIndex == index) -1 else index
                     }
-                }
-            }
-
-            item {
-                // Quick Actions
-                Text(
-                    "Quick Actions",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(16.dp)
                 )
             }
 
-            val quickActions = listOf(
-                HelpItem("Contact Support", Icons.Default.Chat, "Get in touch with our support team"),
-                HelpItem("Report a Bug", Icons.Default.BugReport, "Help us improve by reporting issues"),
-                HelpItem("Feature Request", Icons.Default.Add, "Suggest new features"),
-                HelpItem("Privacy Policy", Icons.Default.PrivacyTip, "Read our privacy policy")
-            )
-
-            items(quickActions) { item ->
-                HelpItemRow(item = item) {
-                    // Handle click
-                }
-            }
-
             item {
-                // FAQ Section
-                Text(
-                    "Frequently Asked Questions",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-
-            val faqItems = listOf(
-                FAQItem("How do I upgrade my subscription?", "You can upgrade your subscription from the Billing & Subscriptions section in your account settings."),
-                FAQItem("How to sync my health data?", "Connect your health apps through the Linked Accounts section to automatically sync your data."),
-                FAQItem("How to set up reminders?", "Go to Reminder settings to customize notification times and preferences."),
-                FAQItem("How to change my password?", "Visit Account & Security to update your password and security settings."),
-                FAQItem("How to export my data?", "Use the Data & Analytics section to download a copy of your personal data.")
-            )
-
-            items(faqItems) { item ->
-                FAQItemRow(item = item)
-            }
-
-            item {
-                // Contact Information
+                Spacer(modifier = Modifier.height(16.dp))
                 Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer
                     )
                 ) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
+                        modifier = Modifier.padding(16.dp)
                     ) {
                         Text(
-                            "Still need help?",
+                            text = "Need More Help?",
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            "Email: support@a2zcare.pro",
+                            text = "If you can't find the answer to your question, don't hesitate to contact our support team. We're here to help you get the most out of your HealthCare app experience.",
                             fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                        Text(
-                            "Phone: +1 (555) 123-4567",
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                        Text(
-                            "Available 24/7",
-                            fontSize = 14.sp,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
                         )
                     }
                 }
@@ -156,27 +168,16 @@ fun HelpSupportScreen(navController: NavController) {
     }
 }
 
-data class HelpItem(
-    val title: String,
-    val icon: ImageVector,
-    val description: String
-)
-
-data class FAQItem(
-    val question: String,
-    val answer: String
-)
-
 @Composable
-fun HelpItemRow(
-    item: HelpItem,
-    onClick: () -> Unit
-) {
+private fun SupportOptionCard(option: SupportOption) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .clickable { onClick() }
+            .clickable { /* Handle click */ },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Row(
             modifier = Modifier
@@ -185,49 +186,54 @@ fun HelpItemRow(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
-                item.icon,
+                imageVector = option.icon,
                 contentDescription = null,
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
             Spacer(modifier = Modifier.width(16.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Text(
-                    item.title,
+                    text = option.title,
                     fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    item.description,
+                    text = option.description,
                     fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             }
-
-            Icon(
-                Icons.Default.KeyboardArrowRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+            Text(
+                text = option.action,
+                fontSize = 12.sp,
+                color = MaterialTheme.colorScheme.primary,
+                fontWeight = FontWeight.Medium
             )
         }
     }
 }
 
 @Composable
-fun FAQItemRow(item: FAQItem) {
-    var isExpanded by remember { mutableStateOf(false) }
-
+private fun FAQCard(
+    faqItem: FAQItem,
+    isExpanded: Boolean,
+    onClick: () -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .clickable { isExpanded = !isExpanded }
+            .clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -235,25 +241,40 @@ fun FAQItemRow(item: FAQItem) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    item.question,
+                    text = faqItem.question,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
+                    color = Color.White,
                     modifier = Modifier.weight(1f)
                 )
                 Icon(
-                    if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                    contentDescription = null
+                    imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             }
 
             if (isExpanded) {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    item.answer,
+                    text = faqItem.answer,
                     fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    color = Color.DarkGray,
+                    lineHeight = 20.sp
                 )
             }
         }
     }
 }
+
+private data class SupportOption(
+    val icon: ImageVector,
+    val title: String,
+    val description: String,
+    val action: String
+)
+
+private data class FAQItem(
+    val question: String,
+    val answer: String
+)

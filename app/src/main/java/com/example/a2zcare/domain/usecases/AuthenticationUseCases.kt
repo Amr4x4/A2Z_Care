@@ -60,12 +60,12 @@ class UpdateUserUseCase @Inject constructor(
 
 class ResetPasswordUseCase @Inject constructor(
     private val repository: HealthMonitoringRepository
-) : UseCase0<ResetPasswordRequest, Result<Unit>>() {
-
-    override suspend fun execute(parameters: ResetPasswordRequest): Result<Unit> {
+) {
+    suspend fun execute(parameters: ResetPasswordRequest): Result<Unit> {
         return repository.resetPassword(parameters)
     }
 }
+
 
 class ForgotPasswordUseCase @Inject constructor(
     private val repository: HealthMonitoringRepository
