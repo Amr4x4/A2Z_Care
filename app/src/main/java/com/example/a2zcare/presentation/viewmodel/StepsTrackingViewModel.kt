@@ -3,6 +3,7 @@ package com.example.a2zcare.presentation.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.a2zcare.data.local.LiveStepDataManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,11 +14,14 @@ import com.example.a2zcare.domain.repository.StepTrackerRepository
 import com.example.a2zcare.domain.usecases.StepTrackingUseCase
 import com.example.a2zcare.domain.entities.UserProfile
 import com.example.a2zcare.domain.entities.StepDataTracker
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterNotNull
 
 @HiltViewModel
 class StepsTrackingViewModel @Inject constructor(
     private val repository: StepTrackerRepository,
-    private val stepTrackingUseCase: StepTrackingUseCase
+    private val stepTrackingUseCase: StepTrackingUseCase,
+    private val liveStepDataManager: LiveStepDataManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainUiState())
@@ -31,6 +35,28 @@ class StepsTrackingViewModel @Inject constructor(
 
     init {
         loadData()
+        observeLiveStepData()
+    }
+
+    private fun observeLiveStepData() {
+        viewModelScope.launch {
+            liveStepDataManager.stepDataFlow
+                .filterNotNull()
+                .collectLatest { stepData ->
+                    Log.d("StepsTrackingViewModel", "Received live step data: ${stepData.steps} steps")
+                    updateUIWithLiveData(stepData)
+                }
+        }
+    }
+
+    private fun updateUIWithLiveData(stepData: StepDataTracker) {
+        _uiState.value = _uiState.value.copy(
+            todaySteps = stepData.steps,
+            todayCaloriesBurned = stepData.caloriesBurned,
+            todayDistance = stepData.distanceKm,
+            todayActiveMinutes = stepData.activeMinutes,
+            error = null
+        )
     }
 
     fun loadData() {
@@ -42,6 +68,11 @@ class StepsTrackingViewModel @Inject constructor(
                 val userProfile = repository.getUserProfile()
                 val todayData = stepTrackingUseCase.getTodaySteps()
                 val weeklyData = stepTrackingUseCase.getWeeklySteps()
+
+                // Update live data manager with current data
+                todayData?.let {
+                    liveStepDataManager.updateStepData(it)
+                }
 
                 _uiState.value = _uiState.value.copy(
                     userProfile = userProfile,
@@ -67,7 +98,11 @@ class StepsTrackingViewModel @Inject constructor(
     }
 
     fun refreshData() {
-        loadData()
+        viewModelScope.launch {
+            _isRefreshing.value = true
+            loadData()
+            _isRefreshing.value = false
+        }
     }
 
     fun clearError() {
@@ -85,3 +120,5 @@ data class MainUiState(
     val isLoading: Boolean = true,
     val error: String? = null
 )
+
+// No changes needed, already observes live step data and updates UI in real time.

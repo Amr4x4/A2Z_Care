@@ -21,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.compose.rememberNavController
 import com.example.a2zcare.presentation.navegation.SetupNavGraph
 import com.example.a2zcare.presentation.theme.A2ZCareTheme
@@ -91,10 +92,14 @@ class MainActivity : ComponentActivity() {
             ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
         }
     }
+    private lateinit var stepBroadcastReceiver: BroadcastReceiver
+    private lateinit var localBroadcastManager: LocalBroadcastManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        localBroadcastManager = LocalBroadcastManager.getInstance(this)
+        setupStepBroadcastReceiver()
         stepServiceManager = StepServiceManager(this)
         requestPermissionsAndStartService()
 
@@ -125,6 +130,37 @@ class MainActivity : ComponentActivity() {
             systemUiController.setSystemBarsColor(color = color)
         }
     }
+    private fun setupStepBroadcastReceiver() {
+        stepBroadcastReceiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.action == StepCounterService.ACTION_STEP_UPDATE) {
+                    val steps = intent.getIntExtra(StepCounterService.EXTRA_DAILY_STEPS, 0)
+                    val calories = intent.getIntExtra(StepCounterService.EXTRA_CALORIES, 0)
+                    val distance = intent.getFloatExtra(StepCounterService.EXTRA_DISTANCE, 0f)
+                    val activeMinutes = intent.getIntExtra(StepCounterService.EXTRA_ACTIVE_MINUTES, 0)
+
+                    // Update your UI immediately
+                    runOnUiThread {
+                        updateStepUI(steps, calories, distance, activeMinutes)
+                    }
+
+                    Log.d("MainActivity", "Received step update: $steps steps")
+                }
+            }
+        }
+    }
+    private fun updateStepUI(steps: Int, calories: Int, distance: Float, activeMinutes: Int) {
+        // Update your UI components here
+        // For example, if you're using Compose:
+        // stepViewModel.updateSteps(steps, calories, distance, activeMinutes)
+
+        // Or if using traditional views:
+        // stepCountTextView.text = steps.toString()
+        // caloriesTextView.text = calories.toString()
+        // distanceTextView.text = String.format("%.2f km", distance)
+        // activeMinutesTextView.text = activeMinutes.toString()
+    }
+
 
     private fun requestPermissionsIfNeeded() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
