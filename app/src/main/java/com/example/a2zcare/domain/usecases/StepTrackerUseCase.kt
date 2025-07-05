@@ -5,10 +5,10 @@ import com.example.a2zcare.domain.repository.StepTrackerRepository
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import javax.inject.Inject
 
-class StepTrackingUseCase(
-    private val repository: StepTrackerRepository,
-    private val calculateTargetsUseCase: CalculateTargetsUseCase
+class StepTrackingUseCase @Inject constructor(
+    private val repository: StepTrackerRepository
 ) {
 
     suspend fun updateStepCount(steps: Int) {
@@ -35,18 +35,24 @@ class StepTrackingUseCase(
         }
     }
 
+    suspend fun getTodaySteps(): StepDataTracker? {
+        val today = getCurrentDate()
+        return repository.getStepDataByDate(today)
+    }
+
+    suspend fun getWeeklySteps(): List<StepDataTracker> {
+        return repository.getLastSevenDays()
+    }
+
     private fun calculateCaloriesBurned(steps: Int): Int {
-        // Approximate: 1 step = 0.04 calories for average person
         return (steps * 0.04).toInt()
     }
 
     private fun calculateDistance(steps: Int): Float {
-        // Average step length: 0.762 meters
-        return (steps * 0.762f) / 1000f // Convert to kilometers
+        return (steps * 0.762f) / 1000f
     }
 
     private fun calculateActiveMinutes(steps: Int): Int {
-        // Approximate: 100 steps per minute during active walking
         return steps / 100
     }
 
