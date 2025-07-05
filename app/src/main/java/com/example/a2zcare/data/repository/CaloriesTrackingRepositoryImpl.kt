@@ -115,44 +115,88 @@ class CaloriesTrackingRepositoryImpl @Inject constructor(
     )
 
     private val foodItems = listOf(
-        // Vegetables
+        // --- Vegetables ---
         FoodItem(1, "Broccoli", 34.0, foodCategories[0]),
         FoodItem(2, "Spinach", 23.0, foodCategories[0]),
         FoodItem(3, "Carrot", 41.0, foodCategories[0]),
         FoodItem(4, "Bell Pepper", 31.0, foodCategories[0]),
+        FoodItem(5, "Kale", 49.0, foodCategories[0]),
+        FoodItem(6, "Cucumber", 16.0, foodCategories[0]),
+        FoodItem(7, "Tomato", 18.0, foodCategories[0]),
+        FoodItem(8, "Onion", 40.0, foodCategories[0]),
+        FoodItem(9, "Potato (boiled)", 87.0, foodCategories[0]),
+        FoodItem(10, "Sweet Potato", 86.0, foodCategories[0]),
 
-        // Fruits
-        FoodItem(5, "Apple", 52.0, foodCategories[1]),
-        FoodItem(6, "Banana", 89.0, foodCategories[1]),
-        FoodItem(7, "Orange", 47.0, foodCategories[1]),
-        FoodItem(8, "Grapes", 69.0, foodCategories[1]),
+        // --- Fruits ---
+        FoodItem(11, "Apple", 52.0, foodCategories[1]),
+        FoodItem(12, "Banana", 89.0, foodCategories[1]),
+        FoodItem(13, "Orange", 47.0, foodCategories[1]),
+        FoodItem(14, "Grapes", 69.0, foodCategories[1]),
+        FoodItem(15, "Strawberries", 32.0, foodCategories[1]),
+        FoodItem(16, "Pineapple", 50.0, foodCategories[1]),
+        FoodItem(17, "Watermelon", 30.0, foodCategories[1]),
+        FoodItem(18, "Mango", 60.0, foodCategories[1]),
+        FoodItem(19, "Blueberries", 57.0, foodCategories[1]),
+        FoodItem(20, "Avocado", 160.0, foodCategories[1]),
 
-        // Grains
-        FoodItem(9, "Rice (cooked)", 130.0, foodCategories[2]),
-        FoodItem(10, "Bread", 265.0, foodCategories[2]),
-        FoodItem(11, "Pasta (cooked)", 131.0, foodCategories[2]),
-        FoodItem(12, "Oats", 389.0, foodCategories[2]),
+        // --- Grains ---
+        FoodItem(21, "Rice (cooked)", 130.0, foodCategories[2]),
+        FoodItem(22, "Bread (white)", 265.0, foodCategories[2]),
+        FoodItem(23, "Pasta (cooked)", 131.0, foodCategories[2]),
+        FoodItem(24, "Oats", 389.0, foodCategories[2]),
+        FoodItem(25, "Quinoa", 120.0, foodCategories[2]),
+        FoodItem(26, "Barley", 354.0, foodCategories[2]),
+        FoodItem(27, "Corn", 86.0, foodCategories[2]),
+        FoodItem(28, "Couscous", 112.0, foodCategories[2]),
+        FoodItem(29, "Brown Rice", 123.0, foodCategories[2]),
+        FoodItem(30, "Whole Wheat Bread", 247.0, foodCategories[2]),
 
-        // Proteins
-        FoodItem(13, "Chicken Breast", 165.0, foodCategories[3]),
-        FoodItem(14, "Salmon", 208.0, foodCategories[3]),
-        FoodItem(15, "Eggs", 155.0, foodCategories[3]),
-        FoodItem(16, "Tofu", 76.0, foodCategories[3]),
+        // --- Proteins ---
+        FoodItem(31, "Chicken Breast", 165.0, foodCategories[3]),
+        FoodItem(32, "Salmon", 208.0, foodCategories[3]),
+        FoodItem(33, "Eggs", 155.0, foodCategories[3]),
+        FoodItem(34, "Tofu", 76.0, foodCategories[3]),
+        FoodItem(35, "Beef Steak", 271.0, foodCategories[3]),
+        FoodItem(36, "Tuna", 132.0, foodCategories[3]),
+        FoodItem(37, "Shrimp", 99.0, foodCategories[3]),
+        FoodItem(38, "Lentils", 116.0, foodCategories[3]),
+        FoodItem(39, "Chickpeas", 164.0, foodCategories[3]),
+        FoodItem(40, "Peanut Butter", 588.0, foodCategories[3]),
 
-        // Dairy
-        FoodItem(17, "Milk", 42.0, foodCategories[4]),
-        FoodItem(18, "Cheese", 402.0, foodCategories[4]),
-        FoodItem(19, "Yogurt", 59.0, foodCategories[4]),
+        // --- Dairy ---
+        FoodItem(41, "Milk", 42.0, foodCategories[4]),
+        FoodItem(42, "Cheese", 402.0, foodCategories[4]),
+        FoodItem(43, "Yogurt", 59.0, foodCategories[4]),
+        FoodItem(44, "Butter", 717.0, foodCategories[4]),
+        FoodItem(45, "Cream Cheese", 342.0, foodCategories[4]),
+        FoodItem(46, "Greek Yogurt", 59.0, foodCategories[4]),
+        FoodItem(47, "Ice Cream", 207.0, foodCategories[4]),
+        FoodItem(48, "Cottage Cheese", 98.0, foodCategories[4]),
+        FoodItem(49, "Custard", 122.0, foodCategories[4]),
 
-        // Sweets
-        FoodItem(20, "Chocolate", 546.0, foodCategories[5]),
-        FoodItem(21, "Ice Cream", 207.0, foodCategories[5]),
-        FoodItem(22, "Cookies", 502.0, foodCategories[5]),
+        // --- Sweets ---
+        FoodItem(50, "Chocolate", 546.0, foodCategories[5]),
+        FoodItem(51, "Cookies", 502.0, foodCategories[5]),
+        FoodItem(52, "Donuts", 452.0, foodCategories[5]),
+        FoodItem(53, "Cake (sponge)", 297.0, foodCategories[5]),
+        FoodItem(54, "Brownies", 466.0, foodCategories[5]),
+        FoodItem(55, "Pancakes", 227.0, foodCategories[5]),
+        FoodItem(56, "Candy Bar", 488.0, foodCategories[5]),
+        FoodItem(57, "Waffles", 291.0, foodCategories[5]),
+        FoodItem(58, "Jam", 250.0, foodCategories[5]),
+        FoodItem(59, "Honey", 304.0, foodCategories[5]),
 
-        // Drinks
-        FoodItem(23, "Soda", 41.0, foodCategories[6]),
-        FoodItem(24, "Orange Juice", 45.0, foodCategories[6]),
-        FoodItem(25, "Coffee", 2.0, foodCategories[6])
+        // --- Drinks ---
+        FoodItem(60, "Soda", 41.0, foodCategories[6]),
+        FoodItem(61, "Orange Juice", 45.0, foodCategories[6]),
+        FoodItem(62, "Coffee", 2.0, foodCategories[6]),
+        FoodItem(63, "Green Tea", 0.0, foodCategories[6]),
+        FoodItem(64, "Milkshake", 120.0, foodCategories[6]),
+        FoodItem(65, "Beer", 43.0, foodCategories[6]),
+        FoodItem(66, "Wine", 85.0, foodCategories[6]),
+        FoodItem(67, "Smoothie (fruit)", 90.0, foodCategories[6]),
+        FoodItem(68, "Energy Drink", 110.0, foodCategories[6]),
+        FoodItem(69, "Hot Chocolate", 77.0, foodCategories[6])
     )
 
     override fun getFoodCategories(): List<FoodCategory> = foodCategories

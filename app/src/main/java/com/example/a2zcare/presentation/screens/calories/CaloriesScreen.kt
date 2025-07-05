@@ -1,5 +1,3 @@
-// Fixed version of package com.example.a2zcare.presentation.screens.calories
-
 package com.example.a2zcare.presentation.screens.calories
 
 import androidx.compose.foundation.clickable
@@ -695,5 +693,3 @@ fun GoalSettingsDialog(
         }
     )
 }
-
-// No changes needed. The screen will reflect the updated dailyCalorieGoal from the ViewModel.
