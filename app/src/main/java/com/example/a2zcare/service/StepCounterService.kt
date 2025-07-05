@@ -21,12 +21,14 @@ import android.os.PowerManager
 import android.util.Log
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.core.app.NotificationCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.example.a2zcare.MainActivity
 import com.example.a2zcare.R
+import com.example.a2zcare.domain.entities.StepDataTracker
 import com.example.a2zcare.data.database.StepTrackerDatabase
+import com.example.a2zcare.data.local.LiveStepDataManager
 import com.example.a2zcare.data.local.entity.StepDataEntity
 import com.example.a2zcare.data.local.entity.UserProfileEntity
-import com.example.a2zcare.domain.entities.ActivityLevel
 import com.example.a2zcare.domain.usecases.CalculateTargetsUseCase
 import com.google.accompanist.pager.ExperimentalPagerApi
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,6 +37,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -49,6 +52,7 @@ class StepCounterService : Service(), SensorEventListener {
     private var notificationManager: NotificationManager? = null
     private lateinit var sharedPreferences: SharedPreferences
     private lateinit var database: StepTrackerDatabase
+    private lateinit var localBroadcastManager: LocalBroadcastManager
 
     private val serviceJob = SupervisorJob()
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
@@ -60,8 +64,14 @@ class StepCounterService : Service(), SensorEventListener {
     private var isInitialized = false
     private var wakeLock: PowerManager.WakeLock? = null
 
+    // Handler for immediate UI updates
+    private val mainHandler = Handler(Looper.getMainLooper())
+
     @Inject
     lateinit var calculateTargetsUseCase: CalculateTargetsUseCase
+
+    @Inject
+    lateinit var liveStepDataManager: LiveStepDataManager
 
     companion object {
         const val NOTIFICATION_ID = 1
@@ -73,6 +83,14 @@ class StepCounterService : Service(), SensorEventListener {
         const val INACTIVITY_THRESHOLD = 60 * 60 * 1000L // 1 hour
         const val ACTION_START_SERVICE = "START_SERVICE"
         const val ACTION_STOP_SERVICE = "STOP_SERVICE"
+
+        // Broadcast actions
+        const val ACTION_STEP_UPDATE = "com.example.a2zcare.STEP_UPDATE"
+        const val EXTRA_STEP_DATA = "step_data"
+        const val EXTRA_DAILY_STEPS = "daily_steps"
+        const val EXTRA_CALORIES = "calories"
+        const val EXTRA_DISTANCE = "distance"
+        const val EXTRA_ACTIVE_MINUTES = "active_minutes"
     }
 
     override fun onCreate() {
@@ -80,6 +98,7 @@ class StepCounterService : Service(), SensorEventListener {
         Log.d("StepCounterService", "Service created")
 
         acquireWakeLock()
+        localBroadcastManager = LocalBroadcastManager.getInstance(this)
         initializeService()
         setupSensors()
         createNotificationChannel()
@@ -103,12 +122,14 @@ class StepCounterService : Service(), SensorEventListener {
         stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
         stepDetectorSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_DETECTOR)
 
-        // Use SENSOR_DELAY_NORMAL for background reliability
+        // Use faster sensor delay for more responsive updates
+        val sensorDelay = SensorManager.SENSOR_DELAY_UI // More responsive than SENSOR_DELAY_NORMAL
+
         if (stepCounterSensor != null) {
-            sensorManager.registerListener(this, stepCounterSensor, SensorManager.SENSOR_DELAY_NORMAL)
+            sensorManager.registerListener(this, stepCounterSensor, sensorDelay)
             Log.d("StepCounterService", "Step counter sensor registered")
         } else if (stepDetectorSensor != null) {
-            sensorManager.registerListener(this, stepDetectorSensor, SensorManager.SENSOR_DELAY_NORMAL)
+            sensorManager.registerListener(this, stepDetectorSensor, sensorDelay)
             Log.d("StepCounterService", "Step detector sensor registered")
         } else {
             Log.e("StepCounterService", "No step sensors available")
@@ -177,7 +198,6 @@ class StepCounterService : Service(), SensorEventListener {
                 stopSelf()
             }
         }
-        // Use START_STICKY to keep service running
         return START_STICKY
     }
 
@@ -196,7 +216,6 @@ class StepCounterService : Service(), SensorEventListener {
 
     private fun handleStepCounter(totalSteps: Int) {
         if (!isInitialized) {
-            // Only set initialStepCount once per day/session
             initialStepCount = totalSteps - currentDailySteps
             isInitialized = true
 
@@ -207,22 +226,22 @@ class StepCounterService : Service(), SensorEventListener {
 
             Log.d("StepCounterService", "Initialized with total steps: $totalSteps, initial: $initialStepCount")
         }
+
         val newDailySteps = totalSteps - initialStepCount
         if (newDailySteps >= 0 && newDailySteps != currentDailySteps) {
             currentDailySteps = newDailySteps
-            updateStepData()
+            updateStepDataLive()
             Log.d("StepCounterService", "Updated steps: $currentDailySteps")
         }
     }
 
     private fun handleStepDetector() {
-        // TYPE_STEP_DETECTOR gives 1.0 for each step event
         currentDailySteps++
-        updateStepData()
+        updateStepDataLive()
         Log.d("StepCounterService", "Step detected, total: $currentDailySteps")
     }
 
-    private fun updateStepData() {
+    private fun updateStepDataLive() {
         lastActivityTime = System.currentTimeMillis()
 
         // Save to SharedPreferences immediately
@@ -231,35 +250,75 @@ class StepCounterService : Service(), SensorEventListener {
             apply()
         }
 
-        // Save to database
+        // Calculate stats
+        val calories = calculateCaloriesBurned(currentDailySteps)
+        val distance = calculateDistance(currentDailySteps)
+        val activeMinutes = calculateActiveMinutes(currentDailySteps)
+
+        // Update notification immediately on main thread
+        mainHandler.post {
+            try {
+                notificationManager?.notify(NOTIFICATION_ID, createNotification())
+            } catch (e: Exception) {
+                Log.e("StepCounterService", "Error updating notification", e)
+            }
+        }
+
+        // Prepare step data for broadcast and DB
+        val today = getCurrentDate()
+        val userId = "user_default"
+        val stepDataId = "${userId}_$today"
+        val stepDataTracker = StepDataTracker(
+            id = stepDataId,
+            userId = userId,
+            date = today,
+            steps = currentDailySteps,
+            caloriesBurned = calories,
+            distanceKm = distance,
+            activeMinutes = activeMinutes,
+            lastUpdated = System.currentTimeMillis()
+        )
+
+        // Send immediate broadcast for UI update (as Parcelable)
+        sendImmediateBroadcast(stepDataTracker)
+
+        // Update database and live data manager in background
         serviceScope.launch {
             try {
-                val today = getCurrentDate()
-                val userId = "user_default"
-                val stepDataId = "${userId}_$today"
-
-
                 val stepData = StepDataEntity(
                     id = stepDataId,
                     userId = userId,
                     date = today,
                     steps = currentDailySteps,
-                    caloriesBurned = calculateCaloriesBurned(currentDailySteps),
-                    distanceKm = calculateDistance(currentDailySteps),
-                    activeMinutes = calculateActiveMinutes(currentDailySteps),
+                    caloriesBurned = calories,
+                    distanceKm = distance,
+                    activeMinutes = activeMinutes,
                     lastUpdated = System.currentTimeMillis()
                 )
-
                 database.stepCounterDao().insertOrUpdate(stepData)
-
-                // Update notification on main thread
-                Handler(Looper.getMainLooper()).post {
-                    notificationManager?.notify(NOTIFICATION_ID, createNotification())
+                withContext(Dispatchers.Main) {
+                    liveStepDataManager.updateStepData(stepDataTracker)
                 }
-
             } catch (e: Exception) {
                 Log.e("StepCounterService", "Error updating step data", e)
             }
+        }
+    }
+
+    private fun sendImmediateBroadcast(stepData: StepDataTracker) {
+        val intent = Intent(ACTION_STEP_UPDATE).apply {
+            putExtra(EXTRA_STEP_DATA, stepData)
+            putExtra(EXTRA_DAILY_STEPS, stepData.steps)
+            putExtra(EXTRA_CALORIES, stepData.caloriesBurned)
+            putExtra(EXTRA_DISTANCE, stepData.distanceKm)
+            putExtra(EXTRA_ACTIVE_MINUTES, stepData.activeMinutes)
+        }
+        try {
+            localBroadcastManager.sendBroadcast(intent)
+            sendBroadcast(intent)
+            Log.d("StepCounterService", "Immediate broadcast sent for ${stepData.steps} steps")
+        } catch (e: Exception) {
+            Log.e("StepCounterService", "Error sending immediate broadcast", e)
         }
     }
 
@@ -297,7 +356,6 @@ class StepCounterService : Service(), SensorEventListener {
     }
 
     private fun getInactivityThreshold(): Long {
-        // Convert activityLevel String to ActivityLevel enum if needed
         val activityLevelEnum = try {
             userProfile?.activityLevel?.let {
                 com.example.a2zcare.domain.entities.ActivityLevel.valueOf(it)
@@ -350,13 +408,12 @@ class StepCounterService : Service(), SensorEventListener {
             this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        // Use CalculateTargetsUseCase to get the daily step target
         val targetSteps = try {
-            userProfile?.let { calculateTargetsUseCase.getStepTarget(it) }
-                ?: 10000
+            userProfile?.let { calculateTargetsUseCase.getStepTarget(it) } ?: 10000
         } catch (e: Exception) {
             10000
         }
+
         val progress = if (targetSteps > 0) {
             (currentDailySteps.toFloat() / targetSteps * 100).toInt()
         } else 0

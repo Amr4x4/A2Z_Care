@@ -8,12 +8,10 @@ import androidx.compose.material.icons.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.Timeline
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -23,6 +21,7 @@ import com.example.a2zcare.presentation.screens.home.WeeklyProgressCard
 import com.example.a2zcare.presentation.theme.backgroundColor
 import com.example.a2zcare.presentation.viewmodel.StepsTrackingViewModel
 import com.example.a2zcare.util.getCurrentDateFormatted
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,12 +30,15 @@ fun StepsTrackingScreen(
     viewModel: StepsTrackingViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val isRefreshing by viewModel.isRefreshing.collectAsState()
 
+    // Load initial data
     LaunchedEffect(Unit) {
         viewModel.loadData()
     }
 
-    if (uiState.isLoading) {
+    // Show loading state
+    if (uiState.isLoading && !isRefreshing) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -65,7 +67,7 @@ fun StepsTrackingScreen(
                             .padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        // Header Card
+                        // Header Card with Live Indicator
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             colors = CardDefaults.cardColors(
@@ -73,34 +75,45 @@ fun StepsTrackingScreen(
                             )
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text(
-                                    text = "Today's Progress",
-                                    style = MaterialTheme.typography.headlineMedium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
-                                Text(
-                                    text = getCurrentDateFormatted(),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                                )
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Column {
+                                        Text(
+                                            text = "Today's Progress",
+                                            style = MaterialTheme.typography.headlineMedium,
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                        Text(
+                                            text = getCurrentDateFormatted(),
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                                        )
+                                    }
+
+                                    // Live indicator with animation
+                                    LiveIndicator()
+                                }
                             }
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Steps Progress
+                        // Steps Progress Card
                         StepsProgressCard(
                             currentSteps = uiState.todaySteps,
-                            targetSteps = uiState.userProfile?.dailyStepsTarget ?: 0,
+                            targetSteps = uiState.userProfile?.dailyStepsTarget ?: 10000,
                             modifier = Modifier.fillMaxWidth()
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Calories Progress
+                        // Calories Progress Card
                         CaloriesProgressCard(
                             currentCalories = uiState.todayCaloriesBurned,
-                            targetCalories = uiState.userProfile?.dailyCaloriesBurnTarget ?: 0,
+                            targetCalories = uiState.userProfile?.dailyCaloriesBurnTarget ?: 2000,
                             modifier = Modifier.fillMaxWidth()
                         )
 
@@ -133,10 +146,60 @@ fun StepsTrackingScreen(
                                 modifier = Modifier.weight(1f)
                             )
                         }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Pull to refresh button
+                        Button(
+                            onClick = { viewModel.refreshData() },
+                            enabled = !isRefreshing,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            if (isRefreshing) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    color = MaterialTheme.colorScheme.onPrimary
+                                )
+                            } else {
+                                Text("Refresh Data")
+                            }
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun LiveIndicator() {
+    var isVisible by remember { mutableStateOf(true) }
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(1000)
+            isVisible = !isVisible
+        }
+    }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(8.dp)
+                .background(
+                    color = if (isVisible) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
+                    shape = androidx.compose.foundation.shape.CircleShape
+                )
+        )
+        Text(
+            text = "LIVE",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
+            fontWeight = FontWeight.Bold
+        )
     }
 }
 
@@ -169,7 +232,8 @@ private fun StepsProgressCard(
                     Text(
                         text = "$currentSteps / $targetSteps",
                         style = MaterialTheme.typography.headlineMedium,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        fontWeight = FontWeight.Bold
                     )
                 }
 

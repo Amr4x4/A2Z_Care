@@ -14,7 +14,7 @@ data class UserDataResponse(
     val gender: String?,
     val age: Int,
     val weightKg: Double,
-    val height: Double,
+    val height: Int,
     val healthGoals: String?,
     val createdDate: String,
     val updatedAt: String?

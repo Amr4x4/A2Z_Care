@@ -16,7 +16,7 @@ data class User(
     @SerializedName("gender") val gender: String? = null,
     @SerializedName("age") val age: Int? = null,
     @SerializedName("weightKg") val weightKg: Double? = null,
-    @SerializedName("height") val height: Double? = null,
+    @SerializedName("height") val height: Int? = null,
     @SerializedName("healthGoals") val healthGoals: String? = null,
     @SerializedName("createdDate") val createdDate: String? = null,
     @SerializedName("updatedAt") val updatedAt: String? = null
