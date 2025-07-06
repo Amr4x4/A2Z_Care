@@ -25,6 +25,7 @@ abstract class RepositoryModule2 {
         stepRepositoryImpl: StepRepositoryImpl
     ): StepRepository
 
+
     @Binds
     @Singleton
     abstract fun bindLocationRepository(

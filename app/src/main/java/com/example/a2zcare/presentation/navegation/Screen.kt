@@ -30,4 +30,6 @@ sealed class Screen(val route: String) {
 
 
     object CaloriesScreen : Screen("calories_screen")
+    object VIPMedicineScreen : Screen("vip_medicine_screen")
+
 }
