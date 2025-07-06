@@ -17,12 +17,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.a2zcare.data.model.Doctor
+import com.example.a2zcare.data.repository.MockDataRepository
+import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VIPDoctorConsultationsScreen(navController: NavController) {
     var selectedTab by remember { mutableStateOf(0) }
     val tabs = listOf("Available", "Upcoming", "History")
+
+    // State for doctors
+    var doctors by remember { mutableStateOf<List<Doctor>>(emptyList()) }
+
+    // Load doctors from repository
+    LaunchedEffect(Unit) {
+        val repository = MockDataRepository()
+        doctors = repository.getDoctors().first()
+    }
 
     Scaffold(
         topBar = {
@@ -65,7 +77,7 @@ fun VIPDoctorConsultationsScreen(navController: NavController) {
 
             // Tab Content
             when (selectedTab) {
-                0 -> AvailableDoctorsContent(navController)
+                0 -> AvailableDoctorsContent(navController, doctors)
                 1 -> UpcomingConsultationsContent()
                 2 -> ConsultationHistoryContent()
             }
@@ -112,7 +124,7 @@ private fun VIPConsultationBanner() {
 }
 
 @Composable
-private fun AvailableDoctorsContent(navController: NavController) {
+private fun AvailableDoctorsContent(navController: NavController, doctors: List<Doctor>) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -131,7 +143,7 @@ private fun AvailableDoctorsContent(navController: NavController) {
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(doctorSpecialties) { specialty ->
+                items(getDoctorSpecialties(doctors)) { specialty ->
                     FilterChip(
                         onClick = { /* Filter by specialty */ },
                         label = { Text(specialty) },
@@ -150,7 +162,7 @@ private fun AvailableDoctorsContent(navController: NavController) {
             )
         }
 
-        items(mockDoctors) { doctor ->
+        items(doctors) { doctor ->
             DoctorCard(
                 doctor = doctor,
                 onConsultNow = { navController.navigate("chat/${doctor.id}") },
@@ -167,7 +179,7 @@ private fun UpcomingConsultationsContent() {
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(mockUpcomingConsultations) { consultation ->
+        items(getMockUpcomingConsultations()) { consultation ->
             UpcomingConsultationCard(consultation = consultation)
         }
     }
@@ -180,7 +192,7 @@ private fun ConsultationHistoryContent() {
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(mockConsultationHistory) { consultation ->
+        items(getMockConsultationHistory()) { consultation ->
             ConsultationHistoryCard(consultation = consultation)
         }
     }
@@ -246,9 +258,28 @@ private fun DoctorCard(
                             tint = Color(0xFFFFD700),
                             modifier = Modifier.size(16.dp)
                         )
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             doctor.rating.toString(),
                             fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    }
+
+                    // Display qualifications
+                    if (true) {
+                        Text(
+                            text = "Qualifications: ${doctor.education}",
+                            fontSize = 11.sp,
+                            color = Color.Gray
+                        )
+                    }
+
+                    // Display hospital
+                    if (doctor.hospital.isNotEmpty()) {
+                        Text(
+                            doctor.hospital,
+                            fontSize = 11.sp,
                             color = Color.Gray
                         )
                     }
@@ -257,7 +288,7 @@ private fun DoctorCard(
                 Column(
                     horizontalAlignment = Alignment.End
                 ) {
-                    if (doctor.isAvailable) {
+                    if (true) {
                         Box(
                             modifier = Modifier
                                 .size(8.dp)
@@ -286,11 +317,21 @@ private fun DoctorCard(
             Spacer(modifier = Modifier.height(12.dp))
 
             Text(
-                "Consultation Fee: $${doctor.consultationFee}",
+                "Consultation Fee: Normal",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color(0xFF4CAF50)
             )
+
+            // Display languages
+            if (doctor.languages.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    "Languages: ${doctor.languages.joinToString(", ")}",
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -301,7 +342,7 @@ private fun DoctorCard(
                 OutlinedButton(
                     onClick = onBookAppointment,
                     modifier = Modifier.weight(1f),
-                    enabled = doctor.isAvailable
+                    enabled = true
                 ) {
                     Text("Book Appointment")
                 }
@@ -309,7 +350,7 @@ private fun DoctorCard(
                 Button(
                     onClick = onConsultNow,
                     modifier = Modifier.weight(1f),
-                    enabled = doctor.isAvailable,
+                    enabled = true,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF2196F3)
                     )
@@ -492,105 +533,60 @@ private fun ConsultationHistoryCard(consultation: ConsultationHistory) {
     }
 }
 
-data class Doctor(
-    val id: Int,
-    val name: String,
-    val specialty: String,
-    val experience: Int,
-    val rating: Double,
-    val consultationFee: Double,
-    val isAvailable: Boolean
-)
+// Helper functions and data classes
+private fun getDoctorSpecialties(doctors: List<Doctor>): List<String> {
+    return listOf("All") + doctors.map { it.specialty }.distinct()
+}
 
+// Mock data for consultations (since these aren't in the repository)
 data class UpcomingConsultation(
+    val id: String,
     val doctorName: String,
     val specialty: String,
     val date: String,
     val time: String,
-    val fee: Double,
-    val type: String // e.g., "Video", "In-Person"
+    val type: String,
+    val fee: Double
 )
 
 data class ConsultationHistory(
+    val id: String,
     val doctorName: String,
     val specialty: String,
     val date: String,
-    val status: String, // e.g., "Completed", "Cancelled"
-    val fee: Double,
+    val status: String,
     val diagnosis: String,
-    val prescription: String
+    val prescription: String,
+    val fee: Double
 )
 
-val doctorSpecialties = listOf(
-    "Cardiologist", "Dermatologist", "Neurologist", "Pediatrician", "Psychiatrist", "Orthopedic"
-)
-
-val mockDoctors = listOf(
-    Doctor(
-        id = 1,
-        name = "Dr. Sarah Ahmed",
-        specialty = "Cardiologist",
-        experience = 12,
-        rating = 4.8,
-        consultationFee = 200.0,
-        isAvailable = true
-    ),
-    Doctor(
-        id = 2,
-        name = "Dr. Ali Hassan",
-        specialty = "Dermatologist",
-        experience = 8,
-        rating = 4.5,
-        consultationFee = 150.0,
-        isAvailable = false
-    ),
-    Doctor(
-        id = 3,
-        name = "Dr. Layla Youssef",
-        specialty = "Pediatrician",
-        experience = 10,
-        rating = 4.9,
-        consultationFee = 180.0,
-        isAvailable = true
+private fun getMockUpcomingConsultations(): List<UpcomingConsultation> {
+    return listOf(
+        UpcomingConsultation(
+            "uc1", "Dr. Sarah Johnson", "Cardiologist", "2024-01-20", "10:00 AM", "Video Call", 150.0
+        ),
+        UpcomingConsultation(
+            "uc2", "Dr. Michael Chen", "Dermatologist", "2024-01-22", "2:30 PM", "Phone Call", 120.0
+        ),
+        UpcomingConsultation(
+            "uc3", "Dr. Emily Rodriguez", "Pediatrician", "2024-01-25", "11:00 AM", "Video Call", 100.0
+        )
     )
-)
+}
 
-val mockUpcomingConsultations = listOf(
-    UpcomingConsultation(
-        doctorName = "Dr. Sarah Ahmed",
-        specialty = "Cardiologist",
-        date = "2025-07-10",
-        time = "09:30 AM",
-        fee = 200.0,
-        type = "Video"
-    ),
-    UpcomingConsultation(
-        doctorName = "Dr. Layla Youssef",
-        specialty = "Pediatrician",
-        date = "2025-07-12",
-        time = "04:00 PM",
-        fee = 180.0,
-        type = "In-Person"
+private fun getMockConsultationHistory(): List<ConsultationHistory> {
+    return listOf(
+        ConsultationHistory(
+            "ch1", "Dr. David Wilson", "Neurologist", "2024-01-15", "Completed",
+            "Migraine headaches", "Prescribed pain medication", 200.0
+        ),
+        ConsultationHistory(
+            "ch2", "Dr. Lisa Thompson", "Psychiatrist", "2024-01-10", "Completed",
+            "Anxiety disorder", "Therapy sessions recommended", 180.0
+        ),
+        ConsultationHistory(
+            "ch3", "Dr. Robert Kim", "Orthopedic Surgeon", "2024-01-05", "Cancelled",
+            "", "", 250.0
+        )
     )
-)
-
-val mockConsultationHistory = listOf(
-    ConsultationHistory(
-        doctorName = "Dr. Ali Hassan",
-        specialty = "Dermatologist",
-        date = "2025-06-20",
-        status = "Completed",
-        fee = 150.0,
-        diagnosis = "Acne Vulgaris",
-        prescription = "Topical retinoids"
-    ),
-    ConsultationHistory(
-        doctorName = "Dr. Sarah Ahmed",
-        specialty = "Cardiologist",
-        date = "2025-06-10",
-        status = "Cancelled",
-        fee = 200.0,
-        diagnosis = "",
-        prescription = ""
-    )
-)
+}

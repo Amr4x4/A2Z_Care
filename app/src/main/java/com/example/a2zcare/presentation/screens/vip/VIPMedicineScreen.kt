@@ -1,6 +1,4 @@
 package com.example.a2zcare.presentation.screens.vip
-/*
-package com.example.a2zcare.presentation.screens.vip
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -24,11 +22,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.a2zcare.data.MockDataRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VIPMedicineOrdersScreen2(navController: NavController) {
+fun VIPMedicineOrdersScreen(navController: NavController) {
     var selectedCategory by remember { mutableStateOf("All") }
     var searchQuery by remember { mutableStateOf("") }
     var showCart by remember { mutableStateOf(false) }
@@ -712,4 +709,3 @@ object MockDataRepository {
         cartItems.clear()
     }
 }
-*/

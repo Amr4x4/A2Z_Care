@@ -1,19 +1,67 @@
 package com.example.a2zcare.presentation.screens.vip
-/*
+
 import android.os.Handler
 import android.os.Looper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.AttachFile
+import androidx.compose.material.icons.filled.CallEnd
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.LocalPharmacy
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.MicOff
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Send
+import androidx.compose.material.icons.filled.VideoCall
+import androidx.compose.material.icons.filled.Videocam
+import androidx.compose.material.icons.filled.VideocamOff
+import androidx.compose.material.icons.filled.VolumeDown
+import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,113 +70,36 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.a2zcare.data.repository.ChatMessage
+import com.example.a2zcare.data.repository.Doctor
+import com.example.a2zcare.data.repository.MedicalReport
+import com.example.a2zcare.data.repository.MockDataRepository2.currentFormattedDate
+import com.example.a2zcare.data.repository.MockDataRepository2.currentFormattedTime
+import com.example.a2zcare.data.repository.MockDataRepository2.generateDoctorResponse
+import com.example.a2zcare.data.repository.MockDataRepository2.mockChatMessages
+import com.example.a2zcare.data.repository.MockDataRepository2.mockDoctors
+import com.example.a2zcare.data.repository.MockDataRepository2.mockPrescriptionMedicines
+import com.example.a2zcare.data.repository.Prescription
+import com.example.a2zcare.data.repository.PrescriptionMedicine
 import kotlinx.coroutines.delay
-import java.text.SimpleDateFormat
-import java.util.*
-
-data class Doctor(
-    val id: String,
-    val name: String,
-    val specialty: String,
-    val consultationFee: Double
-)
-
-data class ChatMessage(
-    val id: String,
-    val senderId: String,
-    val message: String,
-    val timestamp: String,
-    val isFromUser: Boolean,
-    val messageType: String? = null,
-    val prescription: Prescription? = null,
-    val report: MedicalReport? = null
-)
-
-data class Prescription(
-    val id: String,
-    val doctorId: String,
-    val doctorName: String,
-    val medicines: List<PrescriptionMedicine>,
-    val instructions: String,
-    val date: String
-)
-
-data class PrescriptionMedicine(
-    val name: String,
-    val dosage: String
-)
-
-data class MedicalReport(
-    val id: String,
-    val title: String,
-    val summary: String,
-    val diagnosis: String,
-    val recommendations: String,
-    val doctorId: String,
-    val doctorName: String,
-    val date: String
-)
-
-// ==== MOCK DATA ==== //
-object MockDataRepository {
-    val mockDoctors = listOf(
-        Doctor(
-            id = "1",
-            name = "Dr. Sarah Ahmed",
-            specialty = "Cardiologist",
-            consultationFee = 100.0
-        ),
-        Doctor(
-            id = "2",
-            name = "Dr. Ahmed Ali",
-            specialty = "Dermatologist",
-            consultationFee = 75.0
-        )
-    )
-
-    val mockChatMessages = mutableListOf(
-        ChatMessage(
-            id = "1",
-            senderId = "1",
-            message = "Hello, how can I help you today?",
-            timestamp = "10:00 AM",
-            isFromUser = false
-        ),
-        ChatMessage(
-            id = "2",
-            senderId = "user",
-            message = "I've been feeling dizzy lately.",
-            timestamp = "10:01 AM",
-            isFromUser = true
-        )
-    )
-
-    val mockPrescriptionMedicines = listOf(
-        PrescriptionMedicine(name = "Paracetamol", dosage = "500mg twice a day"),
-        PrescriptionMedicine(name = "Ibuprofen", dosage = "400mg after meals"),
-        PrescriptionMedicine(name = "Vitamin D", dosage = "1000 IU daily"),
-        PrescriptionMedicine(name = "Aspirin", dosage = "75mg daily"),
-        PrescriptionMedicine(name = "Omeprazole", dosage = "20mg before breakfast")
-    )
-
-    fun currentFormattedDate(): String {
-        return SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(Date())
-    }
-}
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatScreen(
     navController: NavController,
-    doctorId: String
+    doctorId: String = "1"
 ) {
-    val doctor = MockDataRepository.mockDoctors.find { it.id == doctorId } ?: return
+    val doctor = mockDoctors.find { it.id == doctorId }
+        ?: mockDoctors.first()
+
     var messageText by remember { mutableStateOf("") }
-    var messages by remember { mutableStateOf(MockDataRepository.mockChatMessages.toList()) }
+    var messages by remember { mutableStateOf(mockChatMessages.toList()) }
     var showVideoCall by remember { mutableStateOf(false) }
     var showPrescriptionDialog by remember { mutableStateOf(false) }
     var showReportDialog by remember { mutableStateOf(false) }
     var isCallActive by remember { mutableStateOf(false) }
+    var isTyping by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -144,7 +115,7 @@ fun ChatScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
-                                doctor.name.take(2).uppercase(),
+                                doctor.name.split(" ").take(2).joinToString("") { it.first().toString() }.uppercase(),
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF2196F3)
@@ -163,13 +134,16 @@ fun ChatScreen(
                                 Box(
                                     modifier = Modifier
                                         .size(8.dp)
-                                        .background(Color(0xFF4CAF50), CircleShape)
+                                        .background(
+                                            if (doctor.isAvailable) Color(0xFF4CAF50) else Color(0xFFFF9800),
+                                            CircleShape
+                                        )
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    "Online",
+                                    if (doctor.isAvailable) "Online" else "Busy",
                                     fontSize = 12.sp,
-                                    color = Color(0xFF4CAF50)
+                                    color = if (doctor.isAvailable) Color(0xFF4CAF50) else Color(0xFFFF9800)
                                 )
                             }
                         }
@@ -203,24 +177,26 @@ fun ChatScreen(
                             id = (messages.size + 1).toString(),
                             senderId = "user",
                             message = messageText,
-                            timestamp = "Now",
+                            timestamp = currentFormattedTime(),
                             isFromUser = true
                         )
                         messages = messages + userMessage
                         val currentMessage = messageText
                         messageText = ""
+                        isTyping = true
 
-                        // Simulate doctor response
+                        // Simulate doctor response with delay
                         Handler(Looper.getMainLooper()).postDelayed({
+                            isTyping = false
                             val doctorResponse = ChatMessage(
                                 id = (messages.size + 1).toString(),
                                 senderId = doctorId,
                                 message = generateDoctorResponse(currentMessage),
-                                timestamp = "Now",
+                                timestamp = currentFormattedTime(),
                                 isFromUser = false
                             )
                             messages = messages + doctorResponse
-                        }, 2000)
+                        }, 1500)
                     }
                 },
                 onAttachFile = { /* Handle file attachment */ },
@@ -241,10 +217,16 @@ fun ChatScreen(
             items(messages) { message ->
                 ChatMessageItem(message = message)
             }
+
+            if (isTyping) {
+                item {
+                    TypingIndicator()
+                }
+            }
         }
     }
 
-    // Video Call Dialog
+    // Dialogs and overlays
     if (showVideoCall) {
         VideoCallDialog(
             doctor = doctor,
@@ -256,7 +238,6 @@ fun ChatScreen(
         )
     }
 
-    // Prescription Dialog
     if (showPrescriptionDialog) {
         PrescriptionDialog(
             doctor = doctor,
@@ -266,7 +247,7 @@ fun ChatScreen(
                     id = (messages.size + 1).toString(),
                     senderId = doctorId,
                     message = "I've sent you a prescription for: ${prescription.medicines.joinToString(", ") { it.name }}",
-                    timestamp = "Now",
+                    timestamp = currentFormattedTime(),
                     isFromUser = false,
                     messageType = "prescription",
                     prescription = prescription
@@ -277,7 +258,6 @@ fun ChatScreen(
         )
     }
 
-    // Report Dialog
     if (showReportDialog) {
         ReportDialog(
             doctor = doctor,
@@ -287,7 +267,7 @@ fun ChatScreen(
                     id = (messages.size + 1).toString(),
                     senderId = doctorId,
                     message = "I've prepared a medical report for you: ${report.title}",
-                    timestamp = "Now",
+                    timestamp = currentFormattedTime(),
                     isFromUser = false,
                     messageType = "report",
                     report = report
@@ -298,7 +278,6 @@ fun ChatScreen(
         )
     }
 
-    // Active Call Overlay
     if (isCallActive) {
         ActiveCallOverlay(
             doctor = doctor,
@@ -307,6 +286,7 @@ fun ChatScreen(
     }
 }
 
+// ==== COMPOSABLE COMPONENTS ==== //
 @Composable
 private fun ChatMessageItem(message: ChatMessage) {
     Column(
@@ -319,39 +299,120 @@ private fun ChatMessageItem(message: ChatMessage) {
                     PrescriptionMessageCard(prescription = prescription)
                 }
             }
-
             "report" -> {
                 message.report?.let { report ->
                     ReportMessageCard(report = report)
                 }
             }
-
             else -> {
-                // Regular message
-                Card(
-                    modifier = Modifier.widthIn(max = 280.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = if (message.isFromUser) Color(0xFF2196F3) else Color(
-                            0xFFF5F5F5
-                        )
-                    )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = if (message.isFromUser) Arrangement.End else Arrangement.Start
                 ) {
-                    Column(
-                        modifier = Modifier.padding(12.dp)
+                    if (!message.isFromUser) {
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .background(Color(0xFF2196F3).copy(alpha = 0.1f), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                Icons.Default.Person,
+                                contentDescription = null,
+                                tint = Color(0xFF2196F3),
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+
+                    Card(
+                        modifier = Modifier.widthIn(max = 280.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (message.isFromUser) Color(0xFF2196F3) else Color(0xFFF5F5F5)
+                        )
                     ) {
-                        Text(
-                            text = message.message,
-                            color = if (message.isFromUser) Color.White else Color.Black,
-                            fontSize = 14.sp
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = message.timestamp,
-                            color = if (message.isFromUser) Color.White.copy(alpha = 0.7f) else Color.Gray,
-                            fontSize = 10.sp
-                        )
+                        Column(
+                            modifier = Modifier.padding(12.dp)
+                        ) {
+                            Text(
+                                text = message.message,
+                                color = if (message.isFromUser) Color.White else Color.Black,
+                                fontSize = 14.sp
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = message.timestamp,
+                                color = if (message.isFromUser) Color.White.copy(alpha = 0.7f) else Color.Gray,
+                                fontSize = 10.sp
+                            )
+                        }
+                    }
+
+                    if (message.isFromUser) {
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(32.dp)
+                                .background(Color(0xFF4CAF50), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "You",
+                                color = Color.White,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun TypingIndicator() {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Start
+    ) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .background(Color(0xFF2196F3).copy(alpha = 0.1f), CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                Icons.Default.Person,
+                contentDescription = null,
+                tint = Color(0xFF2196F3),
+                modifier = Modifier.size(16.dp)
+            )
+        }
+        Spacer(modifier = Modifier.width(8.dp))
+
+        Card(
+            colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5))
+        ) {
+            Row(
+                modifier = Modifier.padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "Doctor is typing",
+                    color = Color.Gray,
+                    fontSize = 12.sp,
+                    style = androidx.compose.ui.text.TextStyle(
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic
+                    )
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Box(
+                    modifier = Modifier
+                        .size(6.dp)
+                        .background(Color(0xFF2196F3), CircleShape)
+                )
             }
         }
     }
@@ -389,7 +450,10 @@ private fun ChatBottomBar(
             IconButton(
                 onClick = { showOptions = !showOptions }
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Options")
+                Icon(
+                    if (showOptions) Icons.Default.Close else Icons.Default.Add,
+                    contentDescription = "Options"
+                )
             }
 
             OutlinedTextField(
@@ -501,6 +565,7 @@ private fun ChatOptionItem(
 @Composable
 private fun PrescriptionMessageCard(prescription: Prescription) {
     Card(
+        modifier = Modifier.widthIn(max = 300.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFE8F5E8))
     ) {
         Column(
@@ -516,18 +581,35 @@ private fun PrescriptionMessageCard(prescription: Prescription) {
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    "Prescription",
+                    "Prescription from ${prescription.doctorName}",
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF4CAF50)
+                    color = Color(0xFF4CAF50),
+                    fontSize = 14.sp
                 )
             }
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            Text(
+                "Medicines:",
+                fontWeight = FontWeight.Medium,
+                fontSize = 12.sp
+            )
+
             prescription.medicines.forEach { medicine ->
                 Text(
                     "• ${medicine.name} - ${medicine.dosage}",
-                    fontSize = 12.sp
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+
+            if (prescription.instructions.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    "Instructions: ${prescription.instructions}",
+                    fontSize = 12.sp,
+                    color = Color.Gray
                 )
             }
 
@@ -564,6 +646,7 @@ private fun PrescriptionMessageCard(prescription: Prescription) {
 @Composable
 private fun ReportMessageCard(report: MedicalReport) {
     Card(
+        modifier = Modifier.widthIn(max = 300.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD))
     ) {
         Column(
@@ -581,7 +664,8 @@ private fun ReportMessageCard(report: MedicalReport) {
                 Text(
                     "Medical Report",
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF2196F3)
+                    color = Color(0xFF2196F3),
+                    fontSize = 14.sp
                 )
             }
 
@@ -647,6 +731,11 @@ private fun VideoCallDialog(
                     fontSize = 12.sp,
                     color = Color.Gray
                 )
+                Text(
+                    "Specialty: ${doctor.specialty}",
+                    fontSize = 12.sp,
+                    color = Color.Gray
+                )
             }
         },
         confirmButton = {
@@ -687,7 +776,7 @@ private fun PrescriptionDialog(
                 LazyColumn(
                     modifier = Modifier.height(200.dp)
                 ) {
-                    items(MockDataRepository.mockPrescriptionMedicines) { medicine ->
+                    items(mockPrescriptionMedicines) { medicine ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -713,8 +802,16 @@ private fun PrescriptionDialog(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Column {
-                                Text(medicine.name, fontSize = 14.sp)
-                                Text(medicine.dosage, fontSize = 12.sp, color = Color.Gray)
+                                Text(
+                                    medicine.name,
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Text(
+                                    medicine.dosage,
+                                    fontSize = 12.sp,
+                                    color = Color.Gray
+                                )
                             }
                         }
                     }
@@ -727,24 +824,30 @@ private fun PrescriptionDialog(
                     onValueChange = { instructions = it },
                     label = { Text("Instructions") },
                     modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3
+                    maxLines = 3,
+                    placeholder = { Text("Additional instructions for the patient...") }
                 )
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    val prescription = Prescription(
-                        id = "P${System.currentTimeMillis()}",
-                        doctorId = doctor.id,
-                        doctorName = doctor.name,
-                        medicines = selectedMedicines,
-                        instructions = instructions,
-                        date = MockDataRepository.currentFormattedDate()
-                    )
-                    onSendPrescription(prescription)
+                    if (selectedMedicines.isNotEmpty()) {
+                        val prescription = Prescription(
+                            id = UUID.randomUUID().toString(),
+                            doctorId = doctor.id,
+                            doctorName = doctor.name,
+                            medicines = selectedMedicines,
+                            instructions = instructions,
+                            date = currentFormattedDate()
+                        )
+                        onSendPrescription(prescription)
+                    }
                 },
-                enabled = selectedMedicines.isNotEmpty()
+                enabled = selectedMedicines.isNotEmpty(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF4CAF50)
+                )
             ) {
                 Text("Send Prescription")
             }
@@ -764,69 +867,83 @@ private fun ReportDialog(
     onSendReport: (MedicalReport) -> Unit
 ) {
     var reportTitle by remember { mutableStateOf("") }
-    var reportSummary by remember { mutableStateOf("") }
     var diagnosis by remember { mutableStateOf("") }
     var recommendations by remember { mutableStateOf("") }
+    var summary by remember { mutableStateOf("") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Create Medical Report") },
         text = {
-            Column {
-                OutlinedTextField(
-                    value = reportTitle,
-                    onValueChange = { reportTitle = it },
-                    label = { Text("Report Title") },
-                    modifier = Modifier.fillMaxWidth()
-                )
+            LazyColumn(
+                modifier = Modifier.height(400.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                item {
+                    OutlinedTextField(
+                        value = reportTitle,
+                        onValueChange = { reportTitle = it },
+                        label = { Text("Report Title") },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("e.g., Consultation Report") }
+                    )
+                }
 
-                Spacer(modifier = Modifier.height(8.dp))
+                item {
+                    OutlinedTextField(
+                        value = summary,
+                        onValueChange = { summary = it },
+                        label = { Text("Summary") },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 3,
+                        placeholder = { Text("Brief summary of the consultation...") }
+                    )
+                }
 
-                OutlinedTextField(
-                    value = reportSummary,
-                    onValueChange = { reportSummary = it },
-                    label = { Text("Summary") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 2
-                )
+                item {
+                    OutlinedTextField(
+                        value = diagnosis,
+                        onValueChange = { diagnosis = it },
+                        label = { Text("Diagnosis") },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 3,
+                        placeholder = { Text("Primary diagnosis and findings...") }
+                    )
+                }
 
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = diagnosis,
-                    onValueChange = { diagnosis = it },
-                    label = { Text("Diagnosis") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 2
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                OutlinedTextField(
-                    value = recommendations,
-                    onValueChange = { recommendations = it },
-                    label = { Text("Recommendations") },
-                    modifier = Modifier.fillMaxWidth(),
-                    maxLines = 3
-                )
+                item {
+                    OutlinedTextField(
+                        value = recommendations,
+                        onValueChange = { recommendations = it },
+                        label = { Text("Recommendations") },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 3,
+                        placeholder = { Text("Treatment recommendations and follow-up...") }
+                    )
+                }
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    val report = MedicalReport(
-                        id = "R${System.currentTimeMillis()}",
-                        title = reportTitle,
-                        summary = reportSummary,
-                        diagnosis = diagnosis,
-                        recommendations = recommendations,
-                        doctorId = doctor.id,
-                        doctorName = doctor.name,
-                        date = MockDataRepository.currentFormattedDate()
-                    )
-                    onSendReport(report)
+                    if (reportTitle.isNotEmpty() && diagnosis.isNotEmpty()) {
+                        val report = MedicalReport(
+                            id = UUID.randomUUID().toString(),
+                            title = reportTitle,
+                            summary = summary,
+                            diagnosis = diagnosis,
+                            recommendations = recommendations,
+                            doctorId = doctor.id,
+                            doctorName = doctor.name,
+                            date = currentFormattedDate()
+                        )
+                        onSendReport(report)
+                    }
                 },
-                enabled = reportTitle.isNotEmpty() && reportSummary.isNotEmpty()
+                enabled = reportTitle.isNotEmpty() && diagnosis.isNotEmpty(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF2196F3)
+                )
             ) {
                 Text("Send Report")
             }
@@ -846,9 +963,10 @@ private fun ActiveCallOverlay(
 ) {
     var callDuration by remember { mutableStateOf(0) }
     var isMuted by remember { mutableStateOf(false) }
-    var isVideoEnabled by remember { mutableStateOf(true) }
+    var isSpeakerOn by remember { mutableStateOf(false) }
+    var isVideoEnabled by remember { mutableStateOf(false) }
 
-    // Simulate call duration
+    // Simulate call duration timer
     LaunchedEffect(Unit) {
         while (true) {
             delay(1000)
@@ -861,119 +979,122 @@ private fun ActiveCallOverlay(
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.9f))
     ) {
-        // Video call content
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.SpaceBetween
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Doctor info and call duration
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+            Spacer(modifier = Modifier.height(60.dp))
+
+            // Doctor info
+            Box(
+                modifier = Modifier
+                    .size(120.dp)
+                    .background(Color(0xFF2196F3).copy(alpha = 0.2f), CircleShape),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .background(Color(0xFF2196F3).copy(alpha = 0.3f), CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        doctor.name.take(2).uppercase(),
-                        fontSize = 32.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.White
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
                 Text(
-                    doctor.name,
-                    fontSize = 24.sp,
+                    doctor.name.split(" ").take(2).joinToString("") { it.first().toString() }.uppercase(),
+                    fontSize = 32.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
-
-                Text(
-                    doctor.specialty,
-                    fontSize = 16.sp,
-                    color = Color.White.copy(alpha = 0.7f)
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    formatCallDuration(callDuration),
-                    fontSize = 18.sp,
-                    color = Color.White
-                )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                doctor.name,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+
+            Text(
+                doctor.specialty,
+                fontSize = 16.sp,
+                color = Color.White.copy(alpha = 0.8f)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Call duration
+            Text(
+                formatCallDuration(callDuration),
+                fontSize = 18.sp,
+                color = Color.White.copy(alpha = 0.8f)
+            )
+
+            Spacer(modifier = Modifier.weight(1f))
 
             // Call controls
             Row(
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
-                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                // Mute button
-                FloatingActionButton(
-                    onClick = { isMuted = !isMuted },
-                    containerColor = if (isMuted) Color.Red else Color.White.copy(alpha = 0.2f)
-                ) {
-                    Icon(
-                        if (isMuted) Icons.Default.MicOff else Icons.Default.Mic,
-                        contentDescription = "Mute",
-                        tint = Color.White
-                    )
-                }
+                CallControlButton(
+                    icon = if (isMuted) Icons.Default.MicOff else Icons.Default.Mic,
+                    backgroundColor = if (isMuted) Color.Red else Color.White.copy(alpha = 0.2f),
+                    onClick = { isMuted = !isMuted }
+                )
 
-                // End call button
-                FloatingActionButton(
-                    onClick = onEndCall,
-                    containerColor = Color.Red
-                ) {
-                    Icon(
-                        Icons.Default.CallEnd,
-                        contentDescription = "End Call",
-                        tint = Color.White
-                    )
-                }
+                CallControlButton(
+                    icon = if (isSpeakerOn) Icons.Default.VolumeUp else Icons.Default.VolumeDown,
+                    backgroundColor = if (isSpeakerOn) Color(0xFF2196F3) else Color.White.copy(alpha = 0.2f),
+                    onClick = { isSpeakerOn = !isSpeakerOn }
+                )
 
-                // Video toggle button
-                FloatingActionButton(
-                    onClick = { isVideoEnabled = !isVideoEnabled },
-                    containerColor = if (isVideoEnabled) Color.White.copy(alpha = 0.2f) else Color.Red
-                ) {
-                    Icon(
-                        if (isVideoEnabled) Icons.Default.Videocam else Icons.Default.VideocamOff,
-                        contentDescription = "Video",
-                        tint = Color.White
-                    )
-                }
+                CallControlButton(
+                    icon = if (isVideoEnabled) Icons.Default.Videocam else Icons.Default.VideocamOff,
+                    backgroundColor = if (isVideoEnabled) Color(0xFF4CAF50) else Color.White.copy(alpha = 0.2f),
+                    onClick = { isVideoEnabled = !isVideoEnabled }
+                )
             }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // End call button
+            FloatingActionButton(
+                onClick = onEndCall,
+                modifier = Modifier.size(64.dp),
+                containerColor = Color.Red
+            ) {
+                Icon(
+                    Icons.Default.CallEnd,
+                    contentDescription = "End Call",
+                    tint = Color.White,
+                    modifier = Modifier.size(32.dp)
+                )
+            }
+
+            Spacer(modifier = Modifier.height(60.dp))
         }
+    }
+}
+
+@Composable
+private fun CallControlButton(
+    icon: ImageVector,
+    backgroundColor: Color,
+    onClick: () -> Unit
+) {
+    FloatingActionButton(
+        onClick = onClick,
+        modifier = Modifier.size(56.dp),
+        containerColor = backgroundColor
+    ) {
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = Color.White,
+            modifier = Modifier.size(24.dp)
+        )
     }
 }
 
 private fun formatCallDuration(seconds: Int): String {
     val minutes = seconds / 60
     val remainingSeconds = seconds % 60
-    return "${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}"
+    return String.format("%02d:%02d", minutes, remainingSeconds)
 }
-
-private fun generateDoctorResponse(userMessage: String): String {
-    val responses = listOf(
-        "Thank you for sharing that information. Can you tell me more about your symptoms?",
-        "I understand your concern. Based on what you've described, I'd like to ask a few more questions.",
-        "That's helpful information. How long have you been experiencing these symptoms?",
-        "I see. Are you currently taking any medications?",
-        "Thank you for the details. I recommend we schedule a follow-up consultation.",
-        "Based on our discussion, I'll prepare a treatment plan for you.",
-        "I want to make sure I understand correctly. Can you describe the pain level on a scale of 1-10?",
-        "Your symptoms are concerning. I recommend we run some tests to get a better picture."
-    )
-    return responses.random()
-}
-
- */

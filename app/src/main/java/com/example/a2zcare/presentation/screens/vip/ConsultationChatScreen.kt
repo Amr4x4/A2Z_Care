@@ -1,5 +1,5 @@
 package com.example.a2zcare.presentation.screens.vip
-/*
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.a2zcare.data.model.Doctor
+import com.example.a2zcare.data.repository.MockDataRepository2.mockDoctors
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -24,7 +25,7 @@ import java.util.*
 @Composable
 fun ConsultationChatScreen(
     navController: NavController,
-    doctorId: String
+    doctorId: String = "1"
 ) {
     val doctor = mockDoctors.find { it.id.toString() == doctorId }
     var messageText by remember { mutableStateOf("") }
@@ -107,7 +108,7 @@ fun ConsultationChatScreen(
     }
 
     if (isVideoCall) {
-        VideoCallScreen(doctor = doctor, onEndCall = { isVideoCall = false })
+        VideoCallScreen(doctor = doctor as Doctor?, onEndCall = { isVideoCall = false })
     }
 }
 
@@ -219,27 +220,3 @@ val mockChatMessages = listOf(
     ChatMessage("3", "I have a headache since morning.", true, System.currentTimeMillis() - 40000),
     ChatMessage("4", "Do you also have fever?", false, System.currentTimeMillis() - 30000)
 )
-
-// Mock doctors data - add this if not defined elsewhere
-val mockDoctors = listOf(
-    Doctor(
-        id = 1,
-        name = "Dr. Smith",
-        specialization = "General Medicine",
-        experience = 10,
-        rating = 4.5f,
-        consultationFee = 50.0,
-        profileImage = "",
-        isAvailable = true
-    ),
-    Doctor(
-        id = 2,
-        name = "Dr. Johnson",
-        specialization = "Cardiology",
-        experience = 15,
-        rating = 4.8f,
-        consultationFee = 80.0,
-        profileImage = "",
-        isAvailable = true
-    )
-)*/

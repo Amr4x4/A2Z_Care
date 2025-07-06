@@ -21,7 +21,7 @@ import com.example.a2zcare.data.repository.MockDataRepository.*
 @Composable
 fun VIPHealthRecordsScreen(navController: NavController) {
     var selectedTab by remember { mutableStateOf(0) }
-    val tabs = listOf("Medical Records", "Lab Reports", "Prescriptions", "Vaccination")
+    val tabs = listOf("Medical Records", "Lab Reports", "Prescription", "Vaccination")
 
     Scaffold(
         topBar = {

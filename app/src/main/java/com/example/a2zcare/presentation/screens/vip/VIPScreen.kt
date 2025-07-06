@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.a2zcare.presentation.navegation.Screen
 import com.example.a2zcare.presentation.navegation.bottomNavItems
 import com.example.a2zcare.presentation.screens.home.BottomNavigationBar
 import com.example.a2zcare.presentation.theme.backgroundColor
@@ -41,7 +42,7 @@ fun VIPScreen(navController: NavController) {
             TopAppBar(
                 title = { Text("VIP Healthcare", fontWeight = FontWeight.Bold) },
                 actions = {
-                    IconButton(onClick = { /* Notifications */ }) {
+                    IconButton(onClick = { navController.navigate(Screen.Notification.route) }) {
                         Badge(
                             modifier = Modifier.padding(4.dp)
                         ) {
@@ -49,7 +50,7 @@ fun VIPScreen(navController: NavController) {
                         }
                         Icon(Icons.Default.Notifications, contentDescription = "Notifications")
                     }
-                    IconButton(onClick = { /* Profile */ }) {
+                    IconButton(onClick = { navController.navigate(Screen.Profile.route) }) {
                         Icon(Icons.Default.Person, contentDescription = "Profile")
                     }
                 }
@@ -93,9 +94,6 @@ fun VIPScreen(navController: NavController) {
 
                     // Health Tips
                     HealthTipsSection()
-
-                    // Emergency Contact
-                    EmergencySection(navController)
                 }
             }
         }
@@ -319,7 +317,7 @@ private fun UpcomingAppointmentsSection(navController: NavController) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
-            .clickable { navController.navigate("appointments") }
+            .clickable { navController.navigate("chat_screen") }
     ) {
         Row(
             modifier = Modifier
@@ -416,47 +414,6 @@ private fun HealthTipCard(tip: String) {
     }
 }
 
-@Composable
-private fun EmergencySection(navController: NavController) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp)
-            .clickable { navController.navigate("emergency") },
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFFF5252).copy(alpha = 0.1f)
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                Icons.Default.LocalHospital,
-                contentDescription = null,
-                tint = Color(0xFFFF5252),
-                modifier = Modifier.size(32.dp)
-            )
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(
-                    "Emergency Services",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFFFF5252)
-                )
-                Text(
-                    "24/7 emergency support available",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-            }
-        }
-    }
-}
-
 // Data for UI
 data class QuickActionItem(
     val icon: ImageVector,
@@ -472,28 +429,28 @@ val quickActionItems = listOf(
         "Medicine",
         "Order now",
         Color(0xFF4CAF50),
-        "medicine"
+        "vip_medicine_screen"
     ),
     QuickActionItem(
         Icons.Default.VideoCall,
         "Consultation",
         "Book doctor",
         Color(0xFF2196F3),
-        "consultation"
+        "vip_doctor_consultations_screen"
     ),
     QuickActionItem(
         Icons.Default.Assignment,
         "Records",
         "View history",
         Color(0xFF9C27B0),
-        "health_records"
+        "vip_health_records_screen"
     ),
     QuickActionItem(
         Icons.Default.MonitorHeart,
         "Health",
         "Track vitals",
         Color(0xFFFF9800),
-        "health_tracker"
+        "consulting_chat_screen"
     )
 )
 
