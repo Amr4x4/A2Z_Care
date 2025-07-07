@@ -181,7 +181,7 @@ class HealthDataViewModel @Inject constructor(
             while (true) {
                 sendBloodPressureAI(currentBatchSize)
                 currentBatchSize = if (currentBatchSize >= 35) 0 else currentBatchSize + 1
-                delay(30000)
+                delay(60000)
             }
         }
     }

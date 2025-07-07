@@ -33,6 +33,12 @@ import com.example.a2zcare.presentation.screens.steps_tracker.StepsTrackingScree
 import com.example.a2zcare.presentation.screens.tracker.LocationSharingScreen
 import com.example.a2zcare.presentation.screens.tracker.RunningSession
 import com.example.a2zcare.presentation.screens.tracker.TrackerScreen
+import com.example.a2zcare.presentation.screens.tracker.VIPEmergencyServicesScreen
+import com.example.a2zcare.presentation.screens.vip.ChatScreen
+import com.example.a2zcare.presentation.screens.vip.ConsultationChatScreen
+import com.example.a2zcare.presentation.screens.vip.VIPDoctorConsultationsScreen
+import com.example.a2zcare.presentation.screens.vip.VIPHealthRecordsScreen
+import com.example.a2zcare.presentation.screens.vip.VIPMedicineOrdersScreen
 import com.example.a2zcare.presentation.screens.vip.VIPScreen
 import com.example.a2zcare.presentation.screens.water_tracking.WaterTrackingScreen
 import com.example.a2zcare.presentation.viewmodel.MainNavigationViewModel
@@ -134,6 +140,26 @@ fun SetupNavGraph(
             composable(route = Screen.CaloriesScreen.route) {
                 CaloriesScreen(navController = navController)
             }
+
+            composable(route = Screen.ChatScreen.route) {
+                ChatScreen(navController = navController)
+            }
+            composable(route = Screen.VIPMedicineScreen.route) {
+                VIPMedicineOrdersScreen(navController = navController)
+            }
+            composable(route = Screen.VIPHealthRecordsScreen.route) {
+                VIPHealthRecordsScreen(navController = navController)
+            }
+            composable(route = Screen.ConsultingChatScreen.route) {
+                ConsultationChatScreen(navController = navController)
+            }
+            composable(route = Screen.VIPEmergencyServicesScreen.route) {
+                VIPEmergencyServicesScreen(navController = navController)
+            }
+            composable(route = Screen.VIPDoctorConsultationsScreen.route) {
+                VIPDoctorConsultationsScreen(navController = navController)
+            }
+
 
         }
     }

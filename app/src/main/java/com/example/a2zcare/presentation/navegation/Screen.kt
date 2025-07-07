@@ -27,7 +27,20 @@ sealed class Screen(val route: String) {
     object HelpSupportScreen : Screen("help_support_screen")
     object PrivacyPolicyScreen : Screen("privacy_policy_screen")
     object AboutScreen : Screen("about_screen")
-
-
     object CaloriesScreen : Screen("calories_screen")
+
+
+    object VIPMedicineScreen : Screen("vip_medicine_screen")
+    object VIPHealthRecordsScreen : Screen("vip_health_records_screen")object VIPEmergencyServicesScreen : Screen("vip_emergency_services_screen")
+    object VIPDoctorConsultationsScreen : Screen("vip_doctor_consultations_screen")
+    object ChatScreen : Screen("chat_screen")
+    object ConsultingChatScreen : Screen("consulting_chat_screen")
+
+
+
+
+
+
+
+
 }
