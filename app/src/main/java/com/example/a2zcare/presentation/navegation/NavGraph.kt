@@ -31,7 +31,7 @@ import com.example.a2zcare.presentation.screens.profile.SubscriptionsScreen
 import com.example.a2zcare.presentation.screens.sign_up.SignUpScreen
 import com.example.a2zcare.presentation.screens.steps_tracker.StepsTrackingScreen
 import com.example.a2zcare.presentation.screens.tracker.LocationSharingScreen
-import com.example.a2zcare.presentation.screens.tracker.RunningSession
+import com.example.a2zcare.presentation.screens.steps_tracker.RunningSession
 import com.example.a2zcare.presentation.screens.tracker.TrackerScreen
 import com.example.a2zcare.presentation.screens.tracker.VIPEmergencyServicesScreen
 import com.example.a2zcare.presentation.screens.vip.ChatScreen

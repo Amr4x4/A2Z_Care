@@ -6,7 +6,6 @@ import com.example.a2zcare.data.model.ConnectContactRequest
 import com.example.a2zcare.data.model.EmergencyContactRequest
 import com.example.a2zcare.data.model.SendMessageRequest
 import com.example.a2zcare.data.model.SendSMSRequest
-import com.example.a2zcare.data.model.SensorDataRequest
 import com.example.a2zcare.data.model.User
 import com.example.a2zcare.data.model.UserWithEmergencyContacts
 import com.example.a2zcare.data.remote.api.HealthMonitoringApiService
@@ -197,7 +196,7 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body?.isSuccess == true) {
-                    Result.Success<String>(body.result ?: "")
+                    Result.Success<String>((body.result ?: "") as String)
                 } else {
                     Result.Error("Failed to get users: ${body?.errors?.joinToString()}")
                 }
@@ -233,7 +232,7 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
             if (response.isSuccessful) {
                 val body = response.body()
                 if (body?.isSuccess == true) {
-                    Result.Success<String>(body.result ?: "")
+                    Result.Success<String>((body.result ?: "") as String)
                 } else {
                     Result.Error("Failed to get user by username: ${body?.errors?.joinToString()}")
                 }
