@@ -10,12 +10,14 @@ import com.example.a2zcare.data.model.User
 import com.example.a2zcare.data.model.UserWithEmergencyContacts
 import com.example.a2zcare.data.remote.api.HealthMonitoringApiService
 import com.example.a2zcare.data.remote.request.BloodPressureResult
+import com.example.a2zcare.data.remote.request.EmailRequest
 import com.example.a2zcare.data.remote.request.HeartRateResult
 import com.example.a2zcare.data.remote.request.LoginRequest
 import com.example.a2zcare.data.remote.request.RegisterRequest
 import com.example.a2zcare.data.remote.request.ResetPasswordRequest
 import com.example.a2zcare.data.remote.request.SendEmailRequest
 import com.example.a2zcare.data.remote.request.UpdateUserRequest
+import com.example.a2zcare.data.remote.response.EmailResponse
 import com.example.a2zcare.data.remote.response.HeartDiseasePredictionResponse
 import com.example.a2zcare.data.remote.response.LoginResponse
 import com.example.a2zcare.data.remote.response.RegisterResponse
@@ -121,6 +123,62 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun sendEmail(request: EmailRequest): Result<EmailResponse> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.sendEmail(request)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body?.isSuccess == true && body.result != null) {
+                    Result.Success(body.result)
+                } else {
+                    Result.Error("Failed to send email: ${body?.errors?.joinToString()}")
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                Result.Error("Failed to send email: HTTP ${response.code()}: ${response.message()}, Error: $errorBody")
+            }
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}", e)
+        }
+    }
+
+    override suspend fun getAllUsers(): Result<List<User>> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getAllUsers()
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body?.isSuccess == true && body.result != null) {
+                    Result.Success(body.result)
+                } else {
+                    Result.Error("Failed to get users: ${body?.errors?.joinToString()}")
+                }
+            } else {
+                Result.Error("Failed to get users: ${response.message()}")
+            }
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}", e)
+        }
+    }
+
+    override suspend fun getUserByUsername(username: String): Result<User> = withContext(Dispatchers.IO) {
+        try {
+            val response = apiService.getUserByUsername(username)
+            if (response.isSuccessful) {
+                val body = response.body()
+                if (body?.isSuccess == true && body.result != null) {
+                    Result.Success(body.result)
+                } else {
+                    Result.Error("Failed to get user by username: ${body?.errors?.joinToString()}")
+                }
+            } else {
+                Result.Error("Failed to get user by username: ${response.message()}")
+            }
+        } catch (e: Exception) {
+            Result.Error("Network error: ${e.message}", e)
+        }
+    }
+
+
     override suspend fun resetPassword(request: ResetPasswordRequest): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.resetPassword(request)
@@ -172,72 +230,19 @@ class HealthMonitoringRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun sendEmail(request: SendEmailRequest): Result<SendEmailResponse> = withContext(Dispatchers.IO) {
-        try {
-            val response = apiService.sendEmail(request)
-            if (response.isSuccessful) {
-                val body = response.body()
-                if (body?.isSuccess == true && body.result != null) {
-                    Result.Success(body.result)
-                } else {
-                    Result.Error("Failed to send email: ${body?.errors?.joinToString()}")
-                }
-            } else {
-                Result.Error("Failed to send email: ${response.message()}")
-            }
-        } catch (e: Exception) {
-            Result.Error("Network error: ${e.message}", e)
-        }
-    }
 
-    override suspend fun getAllUsers(): Result<String> = withContext(Dispatchers.IO) {
-        try {
-            val response = apiService.getAllUsers()
-            if (response.isSuccessful) {
-                val body = response.body()
-                if (body?.isSuccess == true) {
-                    Result.Success<String>((body.result ?: "") as String)
-                } else {
-                    Result.Error("Failed to get users: ${body?.errors?.joinToString()}")
-                }
-            } else {
-                Result.Error("Failed to get users: ${response.message()}")
-            }
-        } catch (e: Exception) {
-            Result.Error("Network error: ${e.message}", e)
-        }
-    }
-
-    override suspend fun getUserById(userId: String): Result<String> = withContext(Dispatchers.IO) {
+    override suspend fun getUserById(userId: String): Result<User> = withContext(Dispatchers.IO) {
         try {
             val response = apiService.getUserById(userId)
             if (response.isSuccessful) {
                 val body = response.body()
-                if (body?.isSuccess == true) {
-                    Result.Success<String>(body.result ?: "")
+                if (body?.isSuccess == true && body.result != null) {
+                    Result.Success(body.result) // Return the User object directly
                 } else {
                     Result.Error("Failed to get user by ID: ${body?.errors?.joinToString()}")
                 }
             } else {
                 Result.Error("Failed to get user by ID: ${response.message()}")
-            }
-        } catch (e: Exception) {
-            Result.Error("Network error: ${e.message}", e)
-        }
-    }
-
-    override suspend fun getUserByUsername(username: String): Result<String> = withContext(Dispatchers.IO) {
-        try {
-            val response = apiService.getUserByUsername(username)
-            if (response.isSuccessful) {
-                val body = response.body()
-                if (body?.isSuccess == true) {
-                    Result.Success<String>((body.result ?: "") as String)
-                } else {
-                    Result.Error("Failed to get user by username: ${body?.errors?.joinToString()}")
-                }
-            } else {
-                Result.Error("Failed to get user by username: ${response.message()}")
             }
         } catch (e: Exception) {
             Result.Error("Network error: ${e.message}", e)

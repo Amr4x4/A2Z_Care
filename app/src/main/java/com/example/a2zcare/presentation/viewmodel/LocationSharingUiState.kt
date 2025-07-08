@@ -4,7 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.a2zcare.data.remote.response.LocationUser
-import com.example.a2zcare.domain.entities.LocationData
+import com.example.a2zcare.data.remote.response.LocationData
 import com.example.a2zcare.domain.usecases.GetAvailableUsersUseCase
 import com.example.a2zcare.domain.usecases.GetCurrentLocationUseCase
 import com.example.a2zcare.domain.usecases.SearchUserByUsernameUseCase

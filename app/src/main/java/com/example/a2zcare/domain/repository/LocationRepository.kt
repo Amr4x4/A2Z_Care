@@ -1,7 +1,7 @@
 package com.example.a2zcare.domain.repository
 
 import com.example.a2zcare.data.remote.response.LocationUser
-import com.example.a2zcare.domain.entities.LocationData
+import com.example.a2zcare.data.remote.response.LocationData
 import kotlinx.coroutines.flow.Flow
 
 interface LocationRepository {

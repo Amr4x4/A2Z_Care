@@ -31,6 +31,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -195,7 +196,6 @@ fun SensorDataScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Top bar with Skip button
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -216,7 +216,7 @@ fun SensorDataScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(backgroundColor)
-                .padding(16.dp),
+                .padding(8.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -226,10 +226,10 @@ fun SensorDataScreen(
                 contentDescription = "Smart Watch Icon",
                 contentScale = ContentScale.Fit,
                 alignment = Alignment.Center,
-                modifier = Modifier.size(120.dp)
+                modifier = Modifier.size(110.dp)
             )
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(15.dp))
 
             // Title
             Text(
@@ -249,7 +249,7 @@ fun SensorDataScreen(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
             // Watch ID Input (optional, just for display/edit)
             Card(
@@ -257,7 +257,7 @@ fun SensorDataScreen(
                 colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.1f))
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(12.dp)
                 ) {
                     Text(
                         text = "Watch ID",
@@ -283,7 +283,7 @@ fun SensorDataScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(15.dp))
 
             // File Selection (optional)
             Card(
@@ -291,7 +291,7 @@ fun SensorDataScreen(
                 colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.1f))
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier.padding(12.dp)
                 ) {
                     Text(
                         text = "JSON File",
@@ -331,7 +331,7 @@ fun SensorDataScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
             // Upload Button (required)
             Button(
@@ -365,19 +365,6 @@ fun SensorDataScreen(
                     Text("Upload Sensor Data")
                 }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Instructions
-            Text(
-                text = "• You can skip this step if you don't have a JSON file\n" +
-                        "• The file will be processed and imported to your profile\n" +
-                        "• You'll receive a confirmation once the upload is complete",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.White.copy(alpha = 0.6f),
-                textAlign = TextAlign.Start,
-                modifier = Modifier.fillMaxWidth()
-            )
         }
 
         // Loading Overlay
@@ -407,6 +394,7 @@ fun SensorDataScreen(
         }
     }
 }
+
 
 fun getFileName(uri: Uri, context: android.content.Context): String? {
     return try {

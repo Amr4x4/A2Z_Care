@@ -1,11 +1,13 @@
 package com.example.a2zcare.domain.usecases
 
 import com.example.a2zcare.data.model.User
+import com.example.a2zcare.data.remote.request.EmailRequest
 import com.example.a2zcare.data.remote.request.LoginRequest
 import com.example.a2zcare.data.remote.request.RegisterRequest
 import com.example.a2zcare.data.remote.request.ResetPasswordRequest
 import com.example.a2zcare.data.remote.request.UpdateUserRequest
 import com.example.a2zcare.data.remote.request.SendEmailRequest
+import com.example.a2zcare.data.remote.response.EmailResponse
 import com.example.a2zcare.data.remote.response.LoginResponse
 import com.example.a2zcare.data.remote.response.RegisterResponse
 import com.example.a2zcare.data.remote.response.SendEmailResponse
@@ -78,9 +80,9 @@ class ForgotPasswordUseCase @Inject constructor(
 
 class SendEmailUseCase @Inject constructor(
     private val repository: HealthMonitoringRepository
-) : UseCase0<SendEmailRequest, Result<SendEmailResponse>>() {
+) : UseCase0<EmailRequest, Result<EmailResponse>>() {
 
-    override suspend fun execute(parameters: SendEmailRequest): Result<SendEmailResponse> {
+    override suspend fun execute(parameters: EmailRequest): Result<EmailResponse> {
         return repository.sendEmail(parameters)
     }
 }

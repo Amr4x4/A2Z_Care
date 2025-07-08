@@ -1,7 +1,7 @@
 package com.example.a2zcare.domain.usecases
 
 import com.example.a2zcare.data.remote.response.LocationUser
-import com.example.a2zcare.domain.entities.LocationData
+import com.example.a2zcare.data.remote.response.LocationData
 import com.example.a2zcare.domain.repository.LocationRepository
 import javax.inject.Inject
 
@@ -40,7 +40,7 @@ class SendLocationViaEmailUseCase @Inject constructor(
             • Latitude: ${location.latitude}
             • Longitude: ${location.longitude}
             • Address: ${location.address ?: "Address not available"}
-            • Timestamp: ${location.timestamp}
+            • Timestamp: ${java.util.Date(location.timestamp)}
             
             You can view the location on Google Maps: $mapsUrl
             

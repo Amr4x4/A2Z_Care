@@ -53,7 +53,7 @@ fun OnBoardingNav(
                     )
                 )
             )
-            .padding(bottom = 16.dp)
+            .padding(bottom = 24.dp)
     ) {
         HorizontalPager(
             modifier = Modifier.weight(10f),

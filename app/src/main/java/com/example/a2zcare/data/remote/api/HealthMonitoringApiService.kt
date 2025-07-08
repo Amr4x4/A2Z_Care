@@ -16,19 +16,15 @@ import com.example.a2zcare.data.remote.request.HeartRateResult
 import com.example.a2zcare.data.remote.request.LoginRequest
 import com.example.a2zcare.data.remote.request.RegisterRequest
 import com.example.a2zcare.data.remote.request.ResetPasswordRequest
-import com.example.a2zcare.data.remote.request.SendEmailRequest
 import com.example.a2zcare.data.remote.request.UpdateUserRequest
-import com.example.a2zcare.data.remote.response.ApiResponseEmail
 import com.example.a2zcare.data.remote.response.EmailResponse
 import com.example.a2zcare.data.remote.response.HeartDiseaseAIResponse
 import com.example.a2zcare.data.remote.response.HeartDiseaseLatestResponse
 import com.example.a2zcare.data.remote.response.LoginResponse
 import com.example.a2zcare.data.remote.response.RegisterResponse
-import com.example.a2zcare.data.remote.response.SendEmailResponse
 import com.example.a2zcare.data.remote.response.SensorDataImportResponse
 import com.example.a2zcare.data.remote.response.UpdateUserResponse
-import com.example.a2zcare.data.remote.response.UserResponse
-import com.example.a2zcare.domain.entities.LocationData
+import com.example.a2zcare.data.remote.response.LocationData
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Response
@@ -53,28 +49,23 @@ interface HealthMonitoringApiService {
 
     @POST("api/Users/ResetPassword")
     suspend fun resetPassword(@Body request: ResetPasswordRequest): Response<ResponseBody>
+
     @POST("api/Users/ForgotPassword")
     suspend fun forgotPassword(@Query("email") email: String): Response<String>
 
     @POST("api/Users/Send-Email")
-    suspend fun sendEmail(@Body request: SendEmailRequest): Response<ApiResponse<SendEmailResponse>>
-
-    @POST("api/location/share")
-    suspend fun shareLocation(@Body request: Map<String, Any>): Response<ApiResponseEmail<String>>
-
-    @POST("api/Email/send")
-    suspend fun sendEmail(@Body emailRequest: EmailRequest): Response<ApiResponseEmail<EmailResponse>>
+    suspend fun sendEmail(@Body emailRequest: EmailRequest): Response<ApiResponse<EmailResponse>>
 
     @GET("api/Admin/users")
-    suspend fun getAllUsers(): Response<ApiResponseEmail<List<User>>>
+    suspend fun getAllUsers(): Response<ApiResponse<List<User>>>
 
     @GET("api/Admin/user/by-username/{username}")
-    suspend fun getUserByUsername(@Path("username") username: String): Response<ApiResponseEmail<User>>
+    suspend fun getUserByUsername(@Path("username") username: String): Response<ApiResponse<User>>
 
     // Admin Endpoints
 
     @GET("api/Admin/user/by-id/{userId}")
-    suspend fun getUserById(@Path("userId") userId: String): Response<ApiResponse<String>>
+    suspend fun getUserById(@Path("userId") userId: String): Response<ApiResponse<User>>
 
 
     @DELETE("api/Admin/sensor-data/user/{userId}")
