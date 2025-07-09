@@ -2,7 +2,7 @@ package com.example.a2zcare.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.a2zcare.domain.entities.LocationData
+import com.example.a2zcare.data.remote.response.LocationData
 import com.example.a2zcare.domain.entities.LocationNotification
 import com.example.a2zcare.domain.repository.NotificationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -54,7 +54,7 @@ class NotificationViewModel @Inject constructor(
                 id = UUID.randomUUID().toString(),
                 fromUserId = "user123",
                 fromUserName = "John Doe",
-                location = LocationData(37.7749, -122.4194, System.currentTimeMillis()),
+                location = LocationData(37.7749, -122.4194, timestamp = System.currentTimeMillis()),
                 message = "I'm at Golden Gate Park!",
                 timestamp = Date(),
                 isRead = false

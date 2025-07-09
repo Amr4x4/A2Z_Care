@@ -2,214 +2,153 @@ package com.example.a2zcare.data.repository
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.location.Location
 import android.os.Looper
 import android.util.Log
 import com.example.a2zcare.data.remote.api.HealthMonitoringApiService
-import com.example.a2zcare.domain.entities.LocationData
-import com.example.a2zcare.domain.entities.User
+import com.example.a2zcare.data.remote.request.EmailRequest
+import com.example.a2zcare.data.remote.response.LocationUser
+import com.example.a2zcare.data.remote.response.LocationData
 import com.example.a2zcare.domain.repository.LocationRepository
-import com.example.a2zcare.util.hasLocationPermission
 import com.google.android.gms.location.*
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.coroutines.resume
 
 @Singleton
 class LocationRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val healthMonitoringApiService: HealthMonitoringApiService
+    private val apiService: HealthMonitoringApiService
 ) : LocationRepository {
 
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-    private var locationCallback: LocationCallback? = null
 
-    override suspend fun getCurrentLocation(): Flow<LocationData?> = callbackFlow {
-        if (!context.hasLocationPermission()) {
-            Log.w("LocationRepo", "No location permission")
-            trySend(null)
-            close()
-            return@callbackFlow
-        }
-
-        try {
-            val lastLocation = try {
-                fusedLocationClient.lastLocation.await()
-            } catch (e: SecurityException) {
-                Log.e("LocationRepo", "SecurityException while accessing lastLocation", e)
-                null
-            }
-
-            if (lastLocation != null) {
-                trySend(
-                    LocationData(
-                        latitude = lastLocation.latitude,
-                        longitude = lastLocation.longitude,
+    override fun getCurrentLocation(): Flow<LocationData?> = callbackFlow {
+        val locationCallback = object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                locationResult.lastLocation?.let { location ->
+                    val locationData = LocationData(
+                        latitude = location.latitude,
+                        longitude = location.longitude,
+                        address = null,
                         timestamp = System.currentTimeMillis()
                     )
-                )
-            } else {
-                val freshLocation = requestFreshLocation()
-                trySend(
-                    freshLocation?.let {
-                        LocationData(
-                            latitude = it.latitude,
-                            longitude = it.longitude,
-                            timestamp = System.currentTimeMillis()
-                        )
-                    }
-                )
+                    trySend(locationData)
+                }
             }
-        } catch (e: Exception) {
-            Log.e("LocationRepo", "getCurrentLocation error", e)
-            trySend(null)
-        }
-
-        awaitClose { }
-    }
-
-    @SuppressLint("MissingPermission")
-    private suspend fun requestFreshLocation(): Location? = suspendCancellableCoroutine { cont ->
-        if (!context.hasLocationPermission()) {
-            cont.resume(null)
-            return@suspendCancellableCoroutine
         }
 
         try {
-            val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000L)
-                .setMaxUpdates(1)
-                .setGranularity(Granularity.GRANULARITY_PERMISSION_LEVEL)
-                .build()
+            @SuppressLint("MissingPermission")
+            val locationRequest = LocationRequest.Builder(
+                Priority.PRIORITY_HIGH_ACCURACY,
+                5000L
+            ).build()
 
-            val callback = object : LocationCallback() {
-                override fun onLocationResult(result: LocationResult) {
-                    fusedLocationClient.removeLocationUpdates(this)
-                    cont.resume(result.lastLocation)
-                }
-            }
-
-            cont.invokeOnCancellation {
-                fusedLocationClient.removeLocationUpdates(callback)
-            }
-
-            try {
-                fusedLocationClient.requestLocationUpdates(
-                    request,
-                    callback,
-                    Looper.getMainLooper()
-                )
-            } catch (e: SecurityException) {
-                Log.e("LocationRepo", "SecurityException in requestFreshLocation", e)
-                cont.resume(null)
-            }
-
-        } catch (e: Exception) {
-            Log.e("LocationRepo", "requestFreshLocation error", e)
-            cont.resume(null)
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    override suspend fun startLocationTracking(): Flow<LocationData> = callbackFlow {
-        if (!context.hasLocationPermission()) {
-            Log.w("LocationRepo", "No permission for tracking")
-            close()
-            return@callbackFlow
-        }
-
-        try {
-            val request = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000L)
-                .setMinUpdateIntervalMillis(2000L)
-                .setGranularity(Granularity.GRANULARITY_PERMISSION_LEVEL)
-                .build()
-
-            locationCallback = object : LocationCallback() {
-                override fun onLocationResult(result: LocationResult) {
-                    result.lastLocation?.let {
-                        trySend(
-                            LocationData(
-                                latitude = it.latitude,
-                                longitude = it.longitude,
-                                timestamp = System.currentTimeMillis()
-                            )
-                        )
-                    }
-                }
-            }
-
-            try {
-                fusedLocationClient.requestLocationUpdates(
-                    request,
-                    locationCallback!!,
-                    Looper.getMainLooper()
-                )
-            } catch (e: SecurityException) {
-                Log.e("LocationRepo", "SecurityException in startLocationTracking", e)
-                close(e)
-            }
-
-            awaitClose {
-                locationCallback?.let {
-                    fusedLocationClient.removeLocationUpdates(it)
-                    locationCallback = null
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("LocationRepo", "startLocationTracking error", e)
+            fusedLocationClient.requestLocationUpdates(
+                locationRequest,
+                locationCallback,
+                Looper.getMainLooper()
+            )
+        } catch (e: SecurityException) {
+            Log.e("LocationRepo", "Location permission denied", e)
             close(e)
         }
-    }
 
-    override suspend fun stopLocationTracking() {
-        locationCallback?.let {
-            try {
-                fusedLocationClient.removeLocationUpdates(it)
-            } catch (e: SecurityException) {
-                Log.e("LocationRepo", "SecurityException during stopLocationTracking", e)
-            }
-            locationCallback = null
+        awaitClose {
+            fusedLocationClient.removeLocationUpdates(locationCallback)
         }
     }
 
-    override suspend fun shareLocationWith(userId: String, location: LocationData) {
-        try {
-            val response = healthMonitoringApiService.shareLocation(userId, location)
-            if (response.isSuccessful) {
-                Log.d("LocationRepo", "Location shared with $userId")
-            } else {
-                Log.w("LocationRepo", "Failed to share location: ${response.code()}")
-            }
-        } catch (e: Exception) {
-            Log.e("LocationRepo", "shareLocation error", e)
-        }
-    }
-
-    override suspend fun getAvailableUsers(): List<User> {
+    override suspend fun getAvailableUsers(): List<LocationUser> {
         return try {
-
-            if (true) {
-                 getMockUsers()
+            val response = apiService.getAllUsers()
+            if (response.isSuccessful && response.body()?.isSuccess == true) {
+                response.body()?.result?.map { dataUser ->
+                    LocationUser(
+                        id = dataUser.id,
+                        userName = dataUser.userName,
+                        email = dataUser.email,
+                        name = dataUser.name ?: dataUser.userName
+                    )
+                } ?: emptyList()
             } else {
-                Log.w("LocationRepo", "API failed, returning mock users")
+                Log.e("LocationRepo", "Failed to get users: ${response.message()}")
                 getMockUsers()
             }
         } catch (e: Exception) {
-            Log.e("LocationRepo", "getAvailableUsers error", e)
+            Log.e("LocationRepo", "Error getting users", e)
             getMockUsers()
         }
     }
 
-    private fun getMockUsers(): List<User> = listOf(
-        User("1", "John Doe", "john@example.com"),
-        User("2", "Jane Smith", "jane@example.com"),
-        User("3", "Mike Johnson", "mike@example.com"),
-        User("4", "Sarah Wilson", "sarah@example.com"),
-        User("5", "David Brown", "david@example.com")
+    override suspend fun searchUserByUsername(username: String): LocationUser? {
+        return try {
+            val response = apiService.getUserByUsername(username)
+            if (response.isSuccessful && response.body()?.isSuccess == true) {
+                response.body()?.result?.let { dataUser ->
+                    LocationUser(
+                        id = dataUser.id,
+                        userName = dataUser.userName,
+                        email = dataUser.email,
+                        name = dataUser.name ?: dataUser.userName
+                    )
+                }
+            } else {
+                Log.e("LocationRepo", "Failed to search user: ${response.message()}")
+                null
+            }
+        } catch (e: Exception) {
+            Log.e("LocationRepo", "Error searching user", e)
+            null
+        }
+    }
+
+    override suspend fun sendLocationViaEmail(email: String, subject: String, body: String) {
+        try {
+            val emailRequest = EmailRequest(
+                toEmail = email,
+                subject = subject,
+                body = body,
+                attachments = null // Fixed: Now properly capitalized in data class
+            )
+
+            Log.d("LocationRepo", "Sending email request: $emailRequest")
+
+            val response = apiService.sendEmail(emailRequest)
+            Log.d("LocationRepo", "Email API Response: ${response.code()}, ${response.message()}")
+
+            if (response.isSuccessful) {
+                val responseBody = response.body()
+                Log.d("LocationRepo", "Response body: $responseBody")
+
+                if (responseBody?.isSuccess == true) {
+                    Log.d("LocationRepo", "Email sent successfully")
+                } else {
+                    val error = "Email API returned failure: ${responseBody?.errors?.joinToString(", ")}"
+                    Log.e("LocationRepo", error)
+                    throw Exception(error)
+                }
+            } else {
+                val errorBody = response.errorBody()?.string()
+                val error = "HTTP ${response.code()}: ${response.message()}"
+                Log.e("LocationRepo", "Failed to send email: $error")
+                Log.e("LocationRepo", "Error body: $errorBody")
+                throw Exception(error)
+            }
+        } catch (e: Exception) {
+            Log.e("LocationRepo", "Error in sendLocationViaEmail", e)
+            throw e
+        }
+    }
+
+    private fun getMockUsers(): List<LocationUser> = listOf(
+        LocationUser("1", "John Doe", "john@example.com", "John Doe"),
+        LocationUser("2", "Jane Smith", "jane@example.com", "Jane Smith"),
+        LocationUser("3", "Mike Johnson", "mike@example.com", "Mike Johnson"),
+        LocationUser("4", "Sarah Wilson", "sarah@example.com", "Sarah Wilson"),
+        LocationUser("5", "David Brown", "david@example.com", "David Brown")
     )
 }

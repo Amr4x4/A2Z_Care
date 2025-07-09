@@ -1,5 +1,7 @@
 package com.example.a2zcare.domain.entities
 
+import com.example.a2zcare.data.remote.response.LocationData
+
 data class LocationData2(
     val latitude: Double,
     val longitude: Double,

@@ -23,11 +23,15 @@ import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import androidx.navigation.compose.rememberNavController
+import com.example.a2zcare.data.local.entity.Medicine
+import com.example.a2zcare.data.local.entity.MedicineType
 import com.example.a2zcare.presentation.navegation.SetupNavGraph
+import com.example.a2zcare.presentation.screens.notification.MedicineNotificationManager
 import com.example.a2zcare.presentation.theme.A2ZCareTheme
 import com.example.a2zcare.presentation.viewmodel.SplashScreenViewModel
 import com.example.a2zcare.service.StepCounterService
 import com.example.a2zcare.util.StepServiceManager
+import com.example.a2zcare.util.WorkerScheduler
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
@@ -98,6 +102,31 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        fun testNotification() {
+            val testMedicine = Medicine(
+                id = "test",
+                name = "Test Medicine",
+                dose = "1 tablet",
+                type = MedicineType.PILLS,
+                totalPills = 30,
+                remainingPills = 25,
+                intakeTimes = listOf("5:55"),
+                tips = "Take with food"
+            )
+
+            val notificationManager = MedicineNotificationManager(this)
+            notificationManager.showMedicineReminder(testMedicine, "05:55")
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                == PackageManager.PERMISSION_GRANTED
+            ) {
+                WorkerScheduler.scheduleMedicineReminderWorker(this)
+            }
+        } else {
+            WorkerScheduler.scheduleMedicineReminderWorker(this)
+        }
+
         localBroadcastManager = LocalBroadcastManager.getInstance(this)
         setupStepBroadcastReceiver()
         stepServiceManager = StepServiceManager(this)
@@ -122,6 +151,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 
     @Composable
     private fun SetTopBarColor(color: Color) {

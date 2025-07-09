@@ -140,12 +140,12 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
 
-    // Add these if not already present
     implementation (libs.accompanist.permissions)
 
     implementation (libs.accompanist.pager.v0280)
     implementation(libs.logging.interceptor)
 
-
+    implementation(libs.ycharts)
+    implementation(libs.mpandroidchart)
 
 }

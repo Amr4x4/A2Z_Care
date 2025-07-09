@@ -1,49 +1,70 @@
 package com.example.a2zcare.presentation.screens.tracker
 
 import android.Manifest
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DataThresholding
+import androidx.compose.material.icons.filled.Emergency
 import androidx.compose.material.icons.filled.LocalHospital
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.a2zcare.R
 import com.example.a2zcare.presentation.navegation.Screen
 import com.example.a2zcare.presentation.navegation.bottomNavItems
 import com.example.a2zcare.presentation.screens.home.BottomNavigationBar
 import com.example.a2zcare.presentation.theme.backgroundColor
+import com.example.a2zcare.presentation.theme.fieldCardColor
+import com.example.a2zcare.presentation.theme.fieldColor
+import com.example.a2zcare.presentation.theme.selected
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 
-@OptIn(ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun TrackerScreen(navController: NavController) {
-    val context = LocalContext.current
     val currentDestination = navController.currentBackStackEntryAsState().value?.destination
     val selectedIndex = bottomNavItems.indexOfFirst { it.route == currentDestination?.route }
         .takeIf { it >= 0 } ?: 3
 
-    // Handle location permissions
     val locationPermissions = rememberMultiplePermissionsState(
-        permissions = listOf(
+        listOf(
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
         )
     )
 
     Scaffold(
-        topBar = {},
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        "🧭 Tracking",
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = fieldColor,
+                    scrolledContainerColor = fieldColor
+                )
+            )
+        },
         bottomBar = {
             BottomNavigationBar(
                 selectedIndex = selectedIndex,
@@ -62,55 +83,116 @@ fun TrackerScreen(navController: NavController) {
                 .fillMaxSize()
                 .background(backgroundColor)
                 .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Tracker Screen", modifier = Modifier.padding(16.dp))
-
-                    when {
-                        locationPermissions.allPermissionsGranted -> {
-                            // Show button to navigate to location sharing
-                            Button(
-                                onClick = {
-                                    navController.navigate(Screen.LocationSharing.route)
-                                },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            ) {
-                                Text("Go to Location Sharing")
-                            }
-                        }
-
-                        locationPermissions.shouldShowRationale -> {
-                            PermissionRationaleCard(
-                                onRequestPermissions = {
-                                    locationPermissions.launchMultiplePermissionRequest()
-                                }
+                when {
+                    locationPermissions.allPermissionsGranted -> {
+                        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                            TrackerCard(
+                                title = "Location Tracking",
+                                imageRes = R.drawable.location_tracking,
+                                icon = Icons.Default.LocationOn,
+                                buttonText = "Go to Location Sharing",
+                                onClick = { navController.navigate(Screen.LocationSharing.route) }
+                            )
+                            TrackerCard(
+                                title = "Previous Data Tracking",
+                                imageRes = R.drawable.user_data_analysis,
+                                icon = Icons.Default.DataThresholding,
+                                buttonText = "Go to Previous Data Tracking",
+                                onClick = { navController.navigate(Screen.HistoricalData.route) }
+                            )
+                            TrackerCard(
+                                title = "Emergency Tracking Settings",
+                                imageRes = R.drawable.emergency,
+                                icon = Icons.Default.Emergency,
+                                buttonText = "Go to Emergency Tracking Settings",
+                                onClick = { navController.navigate(Screen.VIPEmergencyServicesScreen.route) }
                             )
                         }
+                    }
 
-                        else -> {
-                            LaunchedEffect(Unit) {
-                                locationPermissions.launchMultiplePermissionRequest()
-                            }
-                            PermissionRequestCard()
+                    locationPermissions.shouldShowRationale -> {
+                        PermissionRationaleCard {
+                            locationPermissions.launchMultiplePermissionRequest()
                         }
+                    }
 
+                    else -> {
+                        LaunchedEffect(Unit) {
+                            locationPermissions.launchMultiplePermissionRequest()
+                        }
+                        PermissionRequestCard()
                     }
-                    Button(
-                        onClick = { navController.navigate(Screen.ChatScreen.route) }
-                    ) {
-                        Text(
-                            text = "Go to VIP Medicine Orders Screen"
-                        )
-                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun TrackerCard(
+    title: String,
+    imageRes: Int,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    buttonText: String,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        colors = CardDefaults.cardColors(containerColor = fieldCardColor)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = 16.sp,
+                    lineHeight = 20.sp,
+                    color = Color.White,
+                    fontWeight = FontWeight.SemiBold
+                )
+            )
+
+            Image(
+                painter = painterResource(id = imageRes),
+                contentDescription = title,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+            )
+
+            Button(
+                onClick = onClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(35.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = selected,
+                    contentColor = Color.White
+                )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Icon(imageVector = icon, contentDescription = null)
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = buttonText,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }
@@ -147,6 +229,7 @@ private fun PermissionRationaleCard(
         }
     }
 }
+
 @Composable
 private fun EmergencySection(navController: NavController) {
     Card(
@@ -187,6 +270,7 @@ private fun EmergencySection(navController: NavController) {
         }
     }
 }
+
 @Composable
 private fun PermissionRequestCard() {
     Card(

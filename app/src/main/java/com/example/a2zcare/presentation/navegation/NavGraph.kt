@@ -13,6 +13,7 @@ import com.example.a2zcare.presentation.onboarding.OnBoardingNav
 import com.example.a2zcare.presentation.screens.calories.CaloriesScreen
 import com.example.a2zcare.presentation.screens.get_start.GetStart
 import com.example.a2zcare.presentation.screens.home.HomeScreen
+import com.example.a2zcare.presentation.screens.home.medicine.MedicineManagerScreen
 import com.example.a2zcare.presentation.screens.log_in.LogInScreen
 import com.example.a2zcare.presentation.screens.log_in.forget_password.OPTSentSuccessfullyCheckEmail
 import com.example.a2zcare.presentation.screens.log_in.forget_password.SelectEmailScreen
@@ -31,7 +32,8 @@ import com.example.a2zcare.presentation.screens.profile.SubscriptionsScreen
 import com.example.a2zcare.presentation.screens.sign_up.SignUpScreen
 import com.example.a2zcare.presentation.screens.steps_tracker.StepsTrackingScreen
 import com.example.a2zcare.presentation.screens.tracker.LocationSharingScreen
-import com.example.a2zcare.presentation.screens.tracker.RunningSession
+import com.example.a2zcare.presentation.screens.steps_tracker.RunningSession
+import com.example.a2zcare.presentation.screens.tracker.HistoricalDataScreen
 import com.example.a2zcare.presentation.screens.tracker.TrackerScreen
 import com.example.a2zcare.presentation.screens.tracker.VIPEmergencyServicesScreen
 import com.example.a2zcare.presentation.screens.vip.ChatScreen
@@ -159,7 +161,12 @@ fun SetupNavGraph(
             composable(route = Screen.VIPDoctorConsultationsScreen.route) {
                 VIPDoctorConsultationsScreen(navController = navController)
             }
-
+            composable(route = Screen.MedicineManager.route) {
+                MedicineManagerScreen(navController = navController)
+            }
+            composable(route = Screen.HistoricalData.route) {
+                HistoricalDataScreen(navController = navController)
+            }
 
         }
     }

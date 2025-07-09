@@ -98,7 +98,12 @@ fun PersonalOnboardingScreen(
         )
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundColor)
+            .padding(bottom = 20.dp)
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
