@@ -109,7 +109,7 @@ fun TrackerScreen(navController: NavController) {
                                 imageRes = R.drawable.emergency,
                                 icon = Icons.Default.Emergency,
                                 buttonText = "Go to Emergency Tracking Settings",
-                                onClick = { navController.navigate(Screen.VIPEmergencyServicesScreen.route) }
+                                onClick = { navController.navigate(Screen.EmergencyContactScreen.route) }
                             )
                         }
                     }

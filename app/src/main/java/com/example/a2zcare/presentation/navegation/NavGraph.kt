@@ -33,9 +33,9 @@ import com.example.a2zcare.presentation.screens.sign_up.SignUpScreen
 import com.example.a2zcare.presentation.screens.steps_tracker.StepsTrackingScreen
 import com.example.a2zcare.presentation.screens.tracker.LocationSharingScreen
 import com.example.a2zcare.presentation.screens.steps_tracker.RunningSession
+import com.example.a2zcare.presentation.screens.tracker.EmergencyContactScreen
 import com.example.a2zcare.presentation.screens.tracker.HistoricalDataScreen
 import com.example.a2zcare.presentation.screens.tracker.TrackerScreen
-import com.example.a2zcare.presentation.screens.tracker.VIPEmergencyServicesScreen
 import com.example.a2zcare.presentation.screens.vip.ChatScreen
 import com.example.a2zcare.presentation.screens.vip.ConsultationChatScreen
 import com.example.a2zcare.presentation.screens.vip.VIPDoctorConsultationsScreen
@@ -155,8 +155,8 @@ fun SetupNavGraph(
             composable(route = Screen.ConsultingChatScreen.route) {
                 ConsultationChatScreen(navController = navController)
             }
-            composable(route = Screen.VIPEmergencyServicesScreen.route) {
-                VIPEmergencyServicesScreen(navController = navController)
+            composable(route = Screen.EmergencyContactScreen.route) {
+                EmergencyContactScreen(navController = navController)
             }
             composable(route = Screen.VIPDoctorConsultationsScreen.route) {
                 VIPDoctorConsultationsScreen(navController = navController)

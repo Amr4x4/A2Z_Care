@@ -1,13 +1,12 @@
 package com.example.a2zcare.data.remote.api
 
 import com.example.a2zcare.data.model.ActivityPredictionRequest
-import com.example.a2zcare.data.remote.response.ApiResponse
 import com.example.a2zcare.data.model.ConnectContactRequest
+import com.example.a2zcare.data.model.EmergencyAlert
 import com.example.a2zcare.data.model.EmergencyContact
 import com.example.a2zcare.data.model.EmergencyContactRequest
 import com.example.a2zcare.data.model.SendMessageRequest
 import com.example.a2zcare.data.model.SendSMSRequest
-import com.example.a2zcare.data.model.SensorDataRequest
 import com.example.a2zcare.data.model.User
 import com.example.a2zcare.data.model.UserWithEmergencyContacts
 import com.example.a2zcare.data.remote.request.BloodPressureResult
@@ -17,22 +16,32 @@ import com.example.a2zcare.data.remote.request.LoginRequest
 import com.example.a2zcare.data.remote.request.RegisterRequest
 import com.example.a2zcare.data.remote.request.ResetPasswordRequest
 import com.example.a2zcare.data.remote.request.UpdateUserRequest
+import com.example.a2zcare.data.remote.response.ApiResponse
 import com.example.a2zcare.data.remote.response.ApiResponse2
 import com.example.a2zcare.data.remote.response.BloodPressureData
 import com.example.a2zcare.data.remote.response.EmailResponse
+import com.example.a2zcare.data.remote.response.EmergencyAlertResponse
 import com.example.a2zcare.data.remote.response.HeartDiseaseAIResponse
 import com.example.a2zcare.data.remote.response.HeartDiseaseData
 import com.example.a2zcare.data.remote.response.HeartDiseaseLatestResponse
 import com.example.a2zcare.data.remote.response.HeartRateData
+import com.example.a2zcare.data.remote.response.LocationData
 import com.example.a2zcare.data.remote.response.LoginResponse
 import com.example.a2zcare.data.remote.response.RegisterResponse
 import com.example.a2zcare.data.remote.response.SensorDataImportResponse
 import com.example.a2zcare.data.remote.response.UpdateUserResponse
-import com.example.a2zcare.data.remote.response.LocationData
 import okhttp3.MultipartBody
 import okhttp3.ResponseBody
 import retrofit2.Response
-import retrofit2.http.*
+import retrofit2.http.Body
+import retrofit2.http.DELETE
+import retrofit2.http.GET
+import retrofit2.http.Multipart
+import retrofit2.http.POST
+import retrofit2.http.PUT
+import retrofit2.http.Part
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface HealthMonitoringApiService {
     // User Authentication Endpoints
@@ -67,7 +76,6 @@ interface HealthMonitoringApiService {
     suspend fun getUserByUsername(@Path("username") username: String): Response<ApiResponse<User>>
 
     // Admin Endpoints
-
     @GET("api/Admin/user/by-id/{userId}")
     suspend fun getUserById(@Path("userId") userId: String): Response<ApiResponse<User>>
 
@@ -87,6 +95,7 @@ interface HealthMonitoringApiService {
         @Path("userId") userId: String
     ): Response<ApiResponse2<List<HeartRateData>>>
     //-------------------------------------------------------------
+
 
     @DELETE("api/Admin/sensor-data/user/{userId}")
     suspend fun deleteSensorData(@Path("userId") userId: String): Response<ApiResponse<String>>
@@ -118,13 +127,6 @@ interface HealthMonitoringApiService {
     suspend fun disconnectContact(
         @Path("userId") userId: String,
         @Path("contactId") contactId: Int
-    ): Response<Unit>
-
-    // Sensor Data Endpoints
-    @POST("api/SensorDataScreen/import")
-    suspend fun importSensorData(
-        @Query("userId") userId: String,
-        @Body request: SensorDataRequest
     ): Response<Unit>
 
     @Multipart
@@ -237,5 +239,18 @@ interface HealthMonitoringApiService {
         @Path("userId") userId: String,
         @Body locationData: LocationData
     ): Response<Unit>
+
+    interface EmergencyApi {
+        @POST("api/SMS/SendMessage")
+        suspend fun sendAlert(@Body request: EmergencyAlert): Response<Unit>
+        @POST("api/emergency/trigger")
+        suspend fun sendEmergencyAlert(
+            @Query("systolic") systolic: Int,
+            @Query("diastolic") diastolic: Int,
+            @Query("heartRate") heartRate: Int,
+            @Body contacts: List<String>
+        ): Response<Unit>
+    }
+
 
 }

@@ -2,8 +2,10 @@ package com.example.a2zcare.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.a2zcare.data.database.AppDatabase
 import com.example.a2zcare.data.database.StepTrackerDatabase
 import com.example.a2zcare.data.database.WaterTrackingDatabase
+import com.example.a2zcare.data.local.dao.EmergencyDao
 import com.example.a2zcare.data.local.dao.IntervalDao
 import com.example.a2zcare.data.local.dao.StepCounterDao
 import com.example.a2zcare.data.local.dao.UserProfileDao
@@ -19,6 +21,25 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
+
+    @Provides
+    @Singleton
+    fun provideDatabase(
+        @ApplicationContext appContext: Context
+    ): AppDatabase {
+        return Room.databaseBuilder(
+            appContext,
+            AppDatabase::class.java,
+            "a2zcare_database"
+        ).build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideEmergencyDao(database: AppDatabase): EmergencyDao {
+        return database.emergencyDao()
+    }
+
 
     @Provides
     @Singleton

@@ -31,21 +31,13 @@ sealed class Screen(val route: String) {
 
 
     object VIPMedicineScreen : Screen("vip_medicine_screen")
-    object VIPHealthRecordsScreen : Screen("vip_health_records_screen")object VIPEmergencyServicesScreen : Screen("vip_emergency_services_screen")
+    object VIPHealthRecordsScreen : Screen("vip_health_records_screen")
+    object EmergencyContactScreen : Screen("emergency_contact_screen")
     object VIPDoctorConsultationsScreen : Screen("vip_doctor_consultations_screen")
     object ChatScreen : Screen("chat_screen")
     object ConsultingChatScreen : Screen("consulting_chat_screen")
 
     object MedicineManager : Screen("medicine_manager")
     object HistoricalData : Screen("historical_data")
-
-
-
-
-
-
-
-
-
 
 }

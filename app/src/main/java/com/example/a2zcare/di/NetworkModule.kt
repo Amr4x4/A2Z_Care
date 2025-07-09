@@ -25,6 +25,11 @@ object NetworkModule {
             level = HttpLoggingInterceptor.Level.BODY
         }
     }
+    @Provides
+    @Singleton
+    fun provideEmergencyApi(retrofit: Retrofit): HealthMonitoringApiService.EmergencyApi {
+        return retrofit.create(HealthMonitoringApiService.EmergencyApi::class.java)
+    }
 
     @Provides
     @Singleton
