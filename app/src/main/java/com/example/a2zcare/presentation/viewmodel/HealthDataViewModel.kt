@@ -311,7 +311,7 @@ class HealthDataViewModel @Inject constructor(
                 sendHeartRateAI(currentHeartRateBatchSize)
                 currentHeartRateBatchSize =
                     if (currentHeartRateBatchSize >= 35) 0 else currentHeartRateBatchSize + 1
-                delay(20000)
+                delay(60000)
             }
         }
     }

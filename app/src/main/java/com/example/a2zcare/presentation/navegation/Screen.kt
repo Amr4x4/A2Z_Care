@@ -37,6 +37,8 @@ sealed class Screen(val route: String) {
     object ConsultingChatScreen : Screen("consulting_chat_screen")
 
     object MedicineManager : Screen("medicine_manager")
+    object HistoricalData : Screen("historical_data")
+
 
 
 

@@ -30,6 +30,7 @@ import com.example.a2zcare.presentation.navegation.bottomNavItems
 import com.example.a2zcare.presentation.screens.home.BottomNavigationBar
 import com.example.a2zcare.presentation.theme.backgroundColor
 import com.example.a2zcare.presentation.theme.fieldCardColor
+import com.example.a2zcare.presentation.theme.fieldColor
 import com.example.a2zcare.presentation.theme.selected
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
@@ -51,7 +52,17 @@ fun TrackerScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("🧭 Tracking", fontWeight = FontWeight.Bold) }
+                title = {
+                    Text(
+                        "🧭 Tracking",
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = fieldColor,
+                    scrolledContainerColor = fieldColor
+                )
             )
         },
         bottomBar = {
@@ -91,7 +102,7 @@ fun TrackerScreen(navController: NavController) {
                                 imageRes = R.drawable.user_data_analysis,
                                 icon = Icons.Default.DataThresholding,
                                 buttonText = "Go to Previous Data Tracking",
-                                onClick = { navController.navigate(Screen.LocationSharing.route) }
+                                onClick = { navController.navigate(Screen.HistoricalData.route) }
                             )
                             TrackerCard(
                                 title = "Emergency Tracking Settings",
@@ -147,6 +158,7 @@ fun TrackerCard(
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontSize = 16.sp,
                     lineHeight = 20.sp,
+                    color = Color.White,
                     fontWeight = FontWeight.SemiBold
                 )
             )

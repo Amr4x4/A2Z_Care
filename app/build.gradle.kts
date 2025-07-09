@@ -145,6 +145,7 @@ dependencies {
     implementation (libs.accompanist.pager.v0280)
     implementation(libs.logging.interceptor)
 
-
+    implementation(libs.ycharts)
+    implementation(libs.mpandroidchart)
 
 }

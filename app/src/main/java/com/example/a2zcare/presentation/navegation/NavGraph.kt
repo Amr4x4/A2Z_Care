@@ -33,6 +33,7 @@ import com.example.a2zcare.presentation.screens.sign_up.SignUpScreen
 import com.example.a2zcare.presentation.screens.steps_tracker.StepsTrackingScreen
 import com.example.a2zcare.presentation.screens.tracker.LocationSharingScreen
 import com.example.a2zcare.presentation.screens.steps_tracker.RunningSession
+import com.example.a2zcare.presentation.screens.tracker.HistoricalDataScreen
 import com.example.a2zcare.presentation.screens.tracker.TrackerScreen
 import com.example.a2zcare.presentation.screens.tracker.VIPEmergencyServicesScreen
 import com.example.a2zcare.presentation.screens.vip.ChatScreen
@@ -163,7 +164,9 @@ fun SetupNavGraph(
             composable(route = Screen.MedicineManager.route) {
                 MedicineManagerScreen(navController = navController)
             }
-
+            composable(route = Screen.HistoricalData.route) {
+                HistoricalDataScreen(navController = navController)
+            }
 
         }
     }
