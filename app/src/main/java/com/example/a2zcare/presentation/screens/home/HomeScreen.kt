@@ -41,8 +41,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.a2zcare.data.local.TrackingPreferences
+import com.example.a2zcare.domain.repository.MedicineRepository
 import com.example.a2zcare.presentation.navegation.Screen
 import com.example.a2zcare.presentation.navegation.bottomNavItems
+import com.example.a2zcare.presentation.screens.home.medicine.MedicineReminderCard
 import com.example.a2zcare.presentation.screens.home.onboarding_heart_home_card.BloodPressurePredictionCard
 import com.example.a2zcare.presentation.screens.home.onboarding_heart_home_card.HeartDiseasePredictionCard
 import com.example.a2zcare.presentation.screens.home.onboarding_heart_home_card.HeartRateCard
@@ -220,6 +222,9 @@ fun HomeScreen(
                         navController.navigate(Screen.CaloriesScreen.route)
                     }
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    MedicineReminderCard(navController)
+
                 }
             }
         }

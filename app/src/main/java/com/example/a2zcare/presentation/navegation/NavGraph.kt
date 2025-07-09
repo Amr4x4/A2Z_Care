@@ -13,6 +13,7 @@ import com.example.a2zcare.presentation.onboarding.OnBoardingNav
 import com.example.a2zcare.presentation.screens.calories.CaloriesScreen
 import com.example.a2zcare.presentation.screens.get_start.GetStart
 import com.example.a2zcare.presentation.screens.home.HomeScreen
+import com.example.a2zcare.presentation.screens.home.medicine.MedicineManagerScreen
 import com.example.a2zcare.presentation.screens.log_in.LogInScreen
 import com.example.a2zcare.presentation.screens.log_in.forget_password.OPTSentSuccessfullyCheckEmail
 import com.example.a2zcare.presentation.screens.log_in.forget_password.SelectEmailScreen
@@ -158,6 +159,9 @@ fun SetupNavGraph(
             }
             composable(route = Screen.VIPDoctorConsultationsScreen.route) {
                 VIPDoctorConsultationsScreen(navController = navController)
+            }
+            composable(route = Screen.MedicineManager.route) {
+                MedicineManagerScreen(navController = navController)
             }
 
 

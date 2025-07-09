@@ -53,6 +53,17 @@
             android:foregroundServiceType="location"
             android:exported="false" />
 
+        <receiver
+            android:name=".presentation.screens.home.medicine.MedicineActionReceiver"
+            android:exported="true"
+            android:enabled="true"
+            tools:node="merge">
+            <intent-filter>
+                <action android:name="MARK_AS_TAKEN" />
+                <action android:name="SNOOZE_REMINDER" />
+            </intent-filter>
+        </receiver>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"

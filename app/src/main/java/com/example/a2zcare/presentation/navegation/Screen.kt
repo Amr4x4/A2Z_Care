@@ -36,6 +36,9 @@ sealed class Screen(val route: String) {
     object ChatScreen : Screen("chat_screen")
     object ConsultingChatScreen : Screen("consulting_chat_screen")
 
+    object MedicineManager : Screen("medicine_manager")
+
+
 
 
 
