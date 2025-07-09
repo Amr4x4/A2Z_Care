@@ -10,6 +10,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_HEALTH" />
 
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+
     <!-- Storage Permissions -->
     <uses-permission android:name="android.permission.READ_MEDIA_DOCUMENTS"/>
 
@@ -49,7 +52,7 @@
 
         <!-- Location Service -->
         <service
-            android:name=".data.location.LocationService"
+            android:name=".domain.usecases.LocationService"
             android:foregroundServiceType="location"
             android:exported="false" />
 

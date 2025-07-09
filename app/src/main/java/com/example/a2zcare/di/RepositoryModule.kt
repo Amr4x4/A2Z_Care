@@ -1,10 +1,12 @@
 package com.example.a2zcare.di
 
+import com.example.a2zcare.data.repository.EmergencyRepositoryImpl
 import com.example.a2zcare.data.repository.LocationRepositoryImpl
 import com.example.a2zcare.data.repository.NotificationRepositoryImpl
 import com.example.a2zcare.data.repository.RunRepositoryImpl
 import com.example.a2zcare.data.repository.StepRepositoryImpl
 import com.example.a2zcare.data.repository.StepTrackerRepositoryImpl
+import com.example.a2zcare.domain.repository.EmergencyRepository
 import com.example.a2zcare.domain.repository.LocationRepository
 import com.example.a2zcare.domain.repository.NotificationRepository
 import com.example.a2zcare.domain.repository.RunRepository
@@ -19,6 +21,13 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule2 {
+
+    @Binds
+    @Singleton
+    abstract fun bindEmergencyRepository(
+        impl: EmergencyRepositoryImpl
+    ): EmergencyRepository
+
     @Binds
     @Singleton
     abstract fun bindStepRepository(
